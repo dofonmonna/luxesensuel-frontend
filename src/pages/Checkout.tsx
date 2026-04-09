@@ -29,7 +29,6 @@ export default function Checkout() {
       return;
     }
 
-    // Validation basique
     if (!formData.prenom || !formData.nom || !formData.email || !formData.adresse || !formData.telephone) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
@@ -38,25 +37,24 @@ export default function Checkout() {
     setIsLoading(true);
 
     try {
-      // 1. Créer la commande en base de données (statut: pending)
+      // ✅ Format corrigé pour correspondre au backend
       const orderData = {
         items: items.map(item => ({
-          productId: item.id,
-          name: item.name,
+          product_id: item.id,       // ✅ était "productId"
           quantity: item.quantity,
-          price: item.price
         })),
-        total: total(),
-        customerName: `${formData.prenom} ${formData.nom}`,
-        email: formData.email,
-        phone: `${formData.indicatif} ${formData.telephone}`,
-        shippingAddress: {
-          street: formData.adresse,
-          city: formData.ville,
-          postalCode: formData.codePostal,
-          country: formData.pays
+        customer: {                   // ✅ était à plat
+          email: formData.email,
+          first_name: formData.prenom,
+          last_name: formData.nom,
+          phone: `${formData.indicatif} ${formData.telephone}`,
         },
-        status: 'pending'
+        shipping: {                   // ✅ était "shippingAddress"
+          address: formData.adresse,
+          city: formData.ville,
+          postal: formData.codePostal,
+          country: formData.pays,
+        }
       };
 
       const orderRes = await fetch(`${API_URL}/orders`, {
@@ -91,14 +89,13 @@ export default function Checkout() {
 
       const { approval_url, paypal_order_id } = await paypalRes.json();
 
-      // 3. Sauvegarder l'order_id localement pour la confirmation (optionnel)
+      // 3. Sauvegarder l'order_id localement
       localStorage.setItem('pending_order_id', order_id);
 
       // 4. Redirection vers PayPal
       if (approval_url) {
         window.location.href = approval_url;
       } else if (paypal_order_id) {
-        // Fallback si l'URL n'est pas fournie
         window.location.href = `https://www.paypal.com/checkoutnow?token=${paypal_order_id}`;
       } else {
         throw new Error('URL de paiement manquante');
@@ -307,13 +304,12 @@ export default function Checkout() {
             </form>
           </div>
 
-          {/* DROITE - Résumé commande VERTICAL */}
+          {/* DROITE - Résumé commande */}
           <div style={{ width: '350px', background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', height: 'fit-content' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '16px', color: '#333' }}>
               Résumé de la commande
             </h2>
 
-            {/* Liste verticale avec quantité et bouton supprimer */}
             <div style={{ marginBottom: '16px' }}>
               {items.map(item => (
                 <div key={item.id} style={{ 
@@ -324,12 +320,10 @@ export default function Checkout() {
                   borderBottom: '1px solid #eee',
                   opacity: isLoading ? 0.5 : 1
                 }}>
-                  {/* Image */}
                   <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #eee', flexShrink: 0 }}>
                     <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                   
-                  {/* Infos + Quantité */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: '13px', color: '#333', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {item.name}
@@ -344,7 +338,6 @@ export default function Checkout() {
                     </div>
                   </div>
 
-                  {/* Prix total + Bouton supprimer */}
                   <div style={{ textAlign: 'right' }}>
                     <p style={{ fontWeight: 'bold', fontSize: '14px' }}>
                       {(item.price * item.quantity).toFixed(2)} €
