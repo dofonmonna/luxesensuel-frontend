@@ -1,10 +1,8 @@
 ﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
-
 // Layouts
 import StoreLayout from './pages/StoreLayout';
 import AdminLayout from './pages/AdminLayout';
-
 // Pages Storefront
 import Home from './pages/Home';
 import Shop from './pages/Shop';
@@ -16,10 +14,9 @@ import ConfirmReception from './pages/ConfirmReception';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
-
 // Admin
 import Admin from './pages/Admin';
-
+import AdminLogin from './pages/AdminLogin'; // ✅ Page login admin
 // Callback
 import AECallback from './pages/AECallback';
 
@@ -27,7 +24,6 @@ export default function App() {
   return (
     <Router>
       <Routes>
-
         {/* STORE LAYOUT */}
         <Route element={<StoreLayout />}>
           <Route path="/" element={<Home />} />
@@ -42,6 +38,9 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/callback" element={<AECallback />} />
         </Route>
+
+        {/* ✅ ADMIN LOGIN — hors layout admin (pas de sidebar) */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* ADMIN LAYOUT */}
         <Route path="/admin" element={<AdminLayout />}>
@@ -62,9 +61,7 @@ export default function App() {
             </div>
           }
         />
-
       </Routes>
-
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -78,4 +75,3 @@ export default function App() {
     </Router>
   );
 }
-
