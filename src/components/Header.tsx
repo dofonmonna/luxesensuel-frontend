@@ -1,284 +1,104 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ShoppingBag, User, Search, Menu, X, ChevronDown, Heart } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
+import { Search, Heart, User, ShoppingCart, Menu, ChevronDown, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 
-const CATEGORIES = [
-  { label: "Lingerie", to: "/shop?category=lingerie" },
-  { label: "Soins Corporels", to: "/shop?category=soins" },
-  { label: "Parfums", to: "/shop?category=parfums" },
-  { label: "Cosmétiques", to: "/shop?category=cosmetiques" },
-  { label: "Bijoux", to: "/shop?category=bijoux" },
-  { label: "Bien-être", to: "/shop?category=bienetre" },
-  { label: "Adulte", to: "/shop?category=adulte" },
+const categories = [
+  { name: 'LINGERIE', icon: '✨' },
+  { name: 'SOINS CORPORELS', icon: '💧' },
+  { name: 'PARFUMS', icon: '🌸' },
+  { name: 'COSMÉTIQUES', icon: '💄' },
+  { name: 'BIJOUX', icon: '💎' },
+  { name: 'BIEN-ÊTRE', icon: '🌿' },
+  { name: 'ADULTE', icon: '🔞' },
 ];
 
-export default function Header() {
-  const { items } = useCart();
-  const count = items.reduce((sum, i) => sum + i.quantity, 0);
-  const [search, setSearch] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
+export function Header() {
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 100 }}>
-
-      {/* ─── Barre supérieure ─────────────────────────────── */}
-      <div style={{
-        background: "#0A0A0A",
-        borderBottom: "1px solid rgba(201,168,76,0.15)",
-        padding: "8px 40px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        fontSize: "10px",
-        letterSpacing: "2px",
-        color: "#8A8070",
-      }}>
-        <span>✦ LIVRAISON DISCRÈTE · PAIEMENT SÉCURISÉ · RETOURS FACILES ✦</span>
-        <div style={{ display: "flex", gap: "20px" }}>
-          <Link to="/login" style={{ color: "#8A8070", textDecoration: "none", fontSize: "9px", letterSpacing: "1px" }}>Connexion</Link>
-          <span style={{ color: "rgba(201,168,76,0.3)" }}>|</span>
-          <Link to="/signup" style={{ color: "#C9A84C", textDecoration: "none", fontSize: "9px", letterSpacing: "1px" }}>Créer un compte</Link>
+    <header className="w-full">
+      {/* Top Bar */}
+      <div className="bg-gradient-header text-white py-2 px-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center text-sm">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> LIVRAISON DISCRÈTE
+            </span>
+            <span className="hidden md:inline">✦ PAIEMENT SÉCURISÉ</span>
+            <span className="hidden md:inline">✦ RETOURS FACILES</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="hover:text-pink-200 transition">Connexion</button>
+            <span>|</span>
+            <button className="hover:text-pink-200 transition">Créer un compte</button>
+          </div>
         </div>
       </div>
 
-      {/* ─── Header principal ─────────────────────────────── */}
-      <div style={{
-        background: "rgba(26,18,8,0.98)",
-        borderBottom: "1px solid rgba(201,168,76,0.2)",
-        backdropFilter: "blur(20px)",
-        padding: "16px 40px",
-        display: "flex",
-        alignItems: "center",
-        gap: "32px",
-      }}>
+      {/* Main Header */}
+      <div className="bg-white shadow-sm py-4 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <h1 className="text-3xl font-black tracking-tighter">
+              <span className="text-gray-900">LUXE</span>
+              <span className="text-gradient">Sensuel</span>
+            </h1>
+          </div>
 
-        {/* Logo */}
-        <Link to="/" style={{
-          fontFamily: '"Cormorant Garamond", serif',
-          fontSize: "22px",
-          fontWeight: 300,
-          letterSpacing: "5px",
-          color: "#C9A84C",
-          textDecoration: "none",
-          whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}>
-          LUXE<em style={{ fontStyle: "italic", color: "#E8C97A" }}>Sensuel</em>
-        </Link>
+          {/* Search Bar */}
+          <div className="flex-1 max-w-2xl relative">
+            <input
+              type="text"
+              placeholder="Rechercher un produit..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-4 pr-12 py-3 rounded-full border-2 border-gray-200 focus:border-purple-500 focus:outline-none transition-colors"
+            />
+            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-luxe p-2 rounded-full text-white hover:opacity-90 transition">
+              <Search className="w-5 h-5" />
+            </button>
+          </div>
 
-        {/* Barre de recherche */}
-        <div style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          background: "#241A0E",
-          border: "1px solid rgba(201,168,76,0.25)",
-          padding: "0",
-          maxWidth: "600px",
-          transition: "border-color 0.3s",
-        }}>
-          <select style={{
-            background: "rgba(201,168,76,0.1)",
-            border: "none",
-            borderRight: "1px solid rgba(201,168,76,0.2)",
-            color: "#C9A84C",
-            fontSize: "10px",
-            letterSpacing: "1px",
-            padding: "12px 12px",
-            outline: "none",
-            cursor: "pointer",
-            fontFamily: '"Montserrat", sans-serif',
-          }}>
-            <option value="">Tout</option>
-            {CATEGORIES.map(c => (
-              <option key={c.label} value={c.label}>{c.label}</option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Rechercher un produit..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{
-              flex: 1,
-              background: "transparent",
-              border: "none",
-              color: "#F0E8D8",
-              fontSize: "13px",
-              padding: "12px 16px",
-              outline: "none",
-              fontFamily: '"Montserrat", sans-serif',
-            }}
-          />
-          <Link to={`/shop?search=${search}`} style={{
-            background: "#C9A84C",
-            border: "none",
-            padding: "12px 20px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            textDecoration: "none",
-          }}>
-            <Search size={16} color="#0A0A0A" />
-          </Link>
+          {/* Icons */}
+          <div className="flex items-center gap-6">
+            <button className="relative p-2 hover:bg-gray-100 rounded-full transition">
+              <Heart className="w-6 h-6 text-gray-700" />
+              <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+            </button>
+            <button className="p-2 hover:bg-gray-100 rounded-full transition">
+              <User className="w-6 h-6 text-gray-700" />
+            </button>
+            <button className="relative p-2 hover:bg-gray-100 rounded-full transition">
+              <ShoppingCart className="w-6 h-6 text-gray-700" />
+              <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">2</span>
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Actions droite */}
-        <div style={{ display: "flex", alignItems: "center", gap: "20px", flexShrink: 0 }}>
-
-          {/* Favoris */}
-          <Link to="/profile" style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2px",
-            color: "#8A8070",
-            textDecoration: "none",
-            transition: "color 0.3s",
-            fontSize: "9px",
-            letterSpacing: "1px",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = "#C9A84C")}
-          onMouseLeave={e => (e.currentTarget.style.color = "#8A8070")}>
-            <Heart size={20} />
-            <span>Favoris</span>
-          </Link>
-
-          {/* Compte */}
-          <Link to="/profile" style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2px",
-            color: "#8A8070",
-            textDecoration: "none",
-            transition: "color 0.3s",
-            fontSize: "9px",
-            letterSpacing: "1px",
-          }}
-          onMouseEnter={e => (e.currentTarget.style.color = "#C9A84C")}
-          onMouseLeave={e => (e.currentTarget.style.color = "#8A8070")}>
-            <User size={20} />
-            <span>Mon Compte</span>
-          </Link>
-
-          {/* Panier */}
-          <Link to="/cart" style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "2px",
-            color: "#C9A84C",
-            textDecoration: "none",
-            position: "relative",
-            fontSize: "9px",
-            letterSpacing: "1px",
-            fontWeight: 500,
-          }}>
-            <div style={{ position: "relative" }}>
-              <ShoppingBag size={24} />
-              {count > 0 && (
-                <span style={{
-                  position: "absolute",
-                  top: "-8px",
-                  right: "-8px",
-                  background: "#C9A84C",
-                  color: "#0A0A0A",
-                  borderRadius: "50%",
-                  width: "18px",
-                  height: "18px",
-                  fontSize: "9px",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}>
-                  {count}
+      {/* Navigation */}
+      <nav className="bg-white border-t border-gray-100 px-4">
+        <div className="max-w-7xl mx-auto flex items-center gap-1 py-3 overflow-x-auto scrollbar-hide">
+          <button className="flex items-center gap-2 bg-gradient-luxe text-white px-6 py-2.5 rounded-full font-semibold hover:opacity-90 transition flex-shrink-0">
+            <Menu className="w-5 h-5" />
+            TOUTES LES CATÉGORIES
+          </button>
+          
+          {categories.map((cat) => (
+            <button
+              key={cat.name}
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-full transition whitespace-nowrap flex items-center gap-1"
+            >
+              {cat.name}
+              {(cat.name === 'NOUVEAUTÉS' || cat.name === 'PROMOTIONS') && (
+                <span className="ml-1 text-[10px] bg-gradient-luxe text-white px-1.5 py-0.5 rounded">
+                  {cat.name === 'NOUVEAUTÉS' ? 'NEW' : 'HOT'}
                 </span>
               )}
-            </div>
-            <span>Panier</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* ─── Barre de navigation catégories ──────────────── */}
-      <nav style={{
-        background: "#241A0E",
-        borderBottom: "1px solid rgba(201,168,76,0.15)",
-        padding: "0 40px",
-        display: "flex",
-        alignItems: "center",
-        gap: "0",
-        overflowX: "auto",
-      }}>
-        <Link to="/shop" style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: "14px 20px",
-          background: "#C9A84C",
-          color: "#0A0A0A",
-          textDecoration: "none",
-          fontSize: "10px",
-          fontWeight: 600,
-          letterSpacing: "2px",
-          textTransform: "uppercase",
-          whiteSpace: "nowrap",
-          flexShrink: 0,
-        }}>
-          <Menu size={14} />
-          Toutes les catégories
-        </Link>
-
-        {CATEGORIES.map(cat => (
-          <Link key={cat.label} to={cat.to} style={{
-            padding: "14px 20px",
-            color: "#B8A88A",
-            textDecoration: "none",
-            fontSize: "10px",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-            flexShrink: 0,
-            borderLeft: "1px solid rgba(201,168,76,0.08)",
-            transition: "color 0.3s, background 0.3s",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLElement).style.color = "#C9A84C";
-            (e.currentTarget as HTMLElement).style.background = "rgba(201,168,76,0.05)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLElement).style.color = "#B8A88A";
-            (e.currentTarget as HTMLElement).style.background = "transparent";
-          }}>
-            {cat.label}
-          </Link>
-        ))}
-
-        <div style={{ marginLeft: "auto", display: "flex", gap: "0", flexShrink: 0 }}>
-          <Link to="/shop?sort=new" style={{
-            padding: "14px 16px",
-            color: "#E8C97A",
-            textDecoration: "none",
-            fontSize: "9px",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            borderLeft: "1px solid rgba(201,168,76,0.08)",
-          }}>✦ Nouveautés</Link>
-          <Link to="/shop?sort=promo" style={{
-            padding: "14px 16px",
-            color: "#E8C97A",
-            textDecoration: "none",
-            fontSize: "9px",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-            borderLeft: "1px solid rgba(201,168,76,0.08)",
-          }}>🔥 Promotions</Link>
+            </button>
+          ))}
         </div>
       </nav>
-
     </header>
   );
 }
