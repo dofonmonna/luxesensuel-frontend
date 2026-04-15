@@ -1,14 +1,16 @@
 import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Package, ShoppingBag, Users, Settings, 
-  LogOut, ChevronRight, Bell, Search 
+  LogOut, ChevronRight 
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+// ✅ Importation nommée du Header
+import { Header } from '../components/Header';
 
-export default function AdminLayout() {
+// ✅ Changement en export nommé
+export const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [notifications] = useState(3);
 
   // ✅ Vérifier le token admin au chargement
   useEffect(() => {
@@ -19,7 +21,6 @@ export default function AdminLayout() {
   }, [navigate]);
 
   const handleLogout = () => {
-    // ✅ Supprimer le bon token
     localStorage.removeItem('Luxe_admin_token');
     navigate('/admin/login');
   };
@@ -123,36 +124,9 @@ export default function AdminLayout() {
 
       {/* Main Content */}
       <main style={{ flex: 1, marginLeft: '280px', display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <header style={{ 
-          height: '72px', background: 'white', borderBottom: '1px solid #e2e8f0',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0 32px', position: 'sticky', top: 0, zIndex: 40
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-            <div style={{ position: 'relative', maxWidth: '400px', width: '100%' }}>
-              <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input type="text" placeholder="Rechercher..." style={{ 
-                width: '100%', padding: '10px 12px 10px 40px',
-                border: '1px solid #e2e8f0', borderRadius: '8px',
-                fontSize: '14px', background: '#f8fafc'
-              }} />
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button style={{ position: 'relative', padding: '10px', background: '#f8fafc', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-              <Bell size={20} color="#64748b" />
-              {notifications > 0 && (
-                <span style={{ 
-                  position: 'absolute', top: '-2px', right: '-2px',
-                  width: '18px', height: '18px', background: '#ff4747',
-                  color: 'white', borderRadius: '50%', fontSize: '11px',
-                  fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>{notifications}</span>
-              )}
-            </button>
-          </div>
-        </header>
+        
+        {/* ✅ Appel du composant Header externe */}
+        <Header />
 
         {/* Page Content */}
         <div style={{ flex: 1, padding: '32px', overflow: 'auto' }}>
@@ -161,4 +135,4 @@ export default function AdminLayout() {
       </main>
     </div>
   );
-}
+};
