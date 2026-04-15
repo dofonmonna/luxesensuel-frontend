@@ -31,7 +31,8 @@ const socialLinks = [
   { icon: Youtube, href: '#', label: 'Youtube' },
 ];
 
-export default function Footer() {
+// ✅ Export nommé "Footer" pour correspondre à l'import dans StoreLayout
+export const Footer = () => {
   const footerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -226,4 +227,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+};
