@@ -112,7 +112,8 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
   );
 };
 
-export default function AdminDashboard() {
+// ✅ CHANGEMENT ICI : export default function AdminDashboard → export function Admin
+export function Admin() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import'>('overview');
   const [stats, setStats] = useState<Stats | null>(null);
