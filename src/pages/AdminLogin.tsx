@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-export default function AdminLogin() {
+// ✅ CHANGEMENT : export default → export function
+export function AdminLogin() {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -60,7 +61,7 @@ export default function AdminLogin() {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
             width: '56px', height: '56px',
-            background: 'linear-gradient(135deg, #ff4747 0%, #ff6b6b 100%)',
+            background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)',
             borderRadius: '14px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: 'white', fontWeight: 'bold', fontSize: '24px',
@@ -115,7 +116,7 @@ export default function AdminLogin() {
             type="submit"
             disabled={loading}
             style={{
-              background: loading ? '#ccc' : '#ff4747',
+              background: loading ? '#ccc' : 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)',
               color: 'white',
               padding: '14px',
               borderRadius: '8px',
