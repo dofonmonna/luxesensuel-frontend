@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿// pages/Admin.tsx
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   TrendingUp, ShoppingBag, DollarSign, Package, 
@@ -112,7 +113,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
   );
 };
 
-export default function AdminDashboard() {
+export function Admin() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import'>('overview');
   const [stats, setStats] = useState<Stats | null>(null);
@@ -128,7 +129,6 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // ─── Import state ───
   const [importSource, setImportSource] = useState<'cj' | 'aliexpress'>('cj');
   const [importKeyword, setImportKeyword] = useState('lingerie');
   const [importResults, setImportResults] = useState<SearchResult[]>([]);
@@ -181,7 +181,6 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
-  // ─── Recherche produits fournisseur ───
   const searchSupplierProducts = async () => {
     if (!importKeyword.trim()) return;
     setImportLoading(true);
@@ -206,7 +205,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // ─── Importer un produit ───
   const importProduct = async (product: SearchResult) => {
     const productId = product.productId || product.pid || '';
     if (!productId) return;
@@ -305,7 +303,6 @@ export default function AdminDashboard() {
     <div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
-      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
         <StatCard title="CA Aujourd'hui" value={`${stats?.todayRevenue?.toFixed(2) || '0.00'} €`} trend="+12%" trendValue={12} icon={DollarSign} color="#ff4747" />
         <StatCard title="CA Mensuel" value={`${stats?.monthRevenue?.toFixed(2) || '0.00'} €`} trend="+8%" trendValue={8} icon={TrendingUp} color="#3b82f6" />
@@ -313,7 +310,6 @@ export default function AdminDashboard() {
         <StatCard title="Produits en stock" value={stats?.totalProducts || 0} alert={stats?.lowStock || 0} icon={Package} color="#22c55e" />
       </div>
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0' }}>
         {[
           { id: 'overview', label: 'Vue d\'ensemble' },
@@ -333,14 +329,12 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* ─── TAB IMPORT ─── */}
       {activeTab === 'import' && (
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', color: '#1e293b' }}>
             Importer des produits
           </h2>
 
-          {/* Choix fournisseur */}
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
             <div onClick={() => setImportSource('cj')} style={{
               flex: 1, padding: '20px', borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
@@ -362,7 +356,6 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recherche */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
             <div style={{ position: 'relative', flex: 1 }}>
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
@@ -390,7 +383,6 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {/* Résultats */}
           {importResults.length > 0 && (
             <div>
               <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '16px' }}>
@@ -451,7 +443,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ─── TAB PRODUCTS ─── */}
       {activeTab === 'products' && (
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
           <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -543,7 +534,6 @@ export default function AdminDashboard() {
             </tbody>
           </table>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
@@ -558,7 +548,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ─── TAB ORDERS ─── */}
       {activeTab === 'orders' && (
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -599,7 +588,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* ─── TAB OVERVIEW ─── */}
       {activeTab === 'overview' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
@@ -610,40 +598,84 @@ export default function AdminDashboard() {
                   <div style={{ fontWeight: '600', fontSize: '13px' }}>#{order.orderNumber}</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>{order.customerName}</div>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: '600', color: '#ff4747' }}>{order.total.toFixed(2)} €</div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{order.status}</div>
-                </div>
+                <div style={{ fontWeight: '600', color: '#1e293b' }}>{order.total.toFixed(2)} €</div>
               </div>
             ))}
+            {orders.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                Aucune commande récente
+              </div>
+            )}
           </div>
+
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Actions rapides</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button onClick={() => setActiveTab('import')} style={{ padding: '14px', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#ff4747' }}>
-                📦 Importer depuis CJ / AliExpress
-              </button>
-              <button onClick={syncStocks} style={{ padding: '14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#16a34a' }}>
-                🔄 Synchroniser les stocks
-              </button>
-              <button onClick={exportCSV} style={{ padding: '14px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#1d4ed8' }}>
-                📊 Exporter les produits CSV
-              </button>
-            </div>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Produits faibles en stock</h3>
+            {products.filter(p => p.stock < 10).slice(0, 5).map(product => (
+              <div key={product._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img src={product.image || '/placeholder.jpg'} alt={product.name} style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+                  <div style={{ fontSize: '13px', fontWeight: '500' }}>{product.name}</div>
+                </div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#dc2626' }}>{product.stock} restant(s)</div>
+              </div>
+            ))}
+            {products.filter(p => p.stock < 10).length === 0 && (
+              <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8' }}>
+                ✅ Tous les stocks sont bons
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Modal suppression */}
       <Modal isOpen={!!showDeleteConfirm} onClose={() => setShowDeleteConfirm(null)} title="Confirmer la suppression" maxWidth="400px">
-        <p style={{ color: '#64748b', marginBottom: '20px' }}>Voulez-vous vraiment supprimer ce produit ? Cette action est irréversible.</p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button onClick={() => setShowDeleteConfirm(null)} style={{ padding: '10px 20px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', cursor: 'pointer' }}>Annuler</button>
-          <button onClick={() => showDeleteConfirm && deleteProduct(showDeleteConfirm)} style={{ padding: '10px 20px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>Supprimer</button>
+        <div style={{ textAlign: 'center', padding: '16px 0' }}>
+          <AlertCircle size={48} style={{ color: '#dc2626', marginBottom: '16px' }} />
+          <p style={{ color: '#64748b', marginBottom: '24px' }}>Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.</p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+            <button onClick={() => setShowDeleteConfirm(null)} style={{ padding: '10px 24px', border: '1px solid #e2e8f0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>Annuler</button>
+            <button onClick={() => showDeleteConfirm && deleteProduct(showDeleteConfirm)} style={{ padding: '10px 24px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Supprimer</button>
+          </div>
         </div>
       </Modal>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <Modal isOpen={!!editingProduct} onClose={() => setEditingProduct(null)} title="Modifier le prix" maxWidth="400px">
+        {editingProduct && (
+          <div style={{ padding: '16px 0' }}>
+            <p style={{ marginBottom: '16px', color: '#64748b' }}>{editingProduct.name}</p>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: '#374151' }}>Nouveau prix (€)</label>
+              <input
+                type="number"
+                step="0.01"
+                defaultValue={editingProduct.price}
+                id="editPrice"
+                style={{ width: '100%', padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '16px' }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setEditingProduct(null)} style={{ padding: '10px 20px', border: '1px solid #e2e8f0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>Annuler</button>
+              <button 
+                onClick={() => {
+                  const input = document.getElementById('editPrice') as HTMLInputElement;
+                  updateProductPrice(editingProduct._id, parseFloat(input.value));
+                }} 
+                style={{ padding: '10px 20px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}
+              >
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
+
