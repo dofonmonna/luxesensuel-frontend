@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-export default function AECallback() {
+export function AECallback() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code');
 
