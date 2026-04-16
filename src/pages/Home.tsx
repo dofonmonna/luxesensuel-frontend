@@ -13,7 +13,8 @@ const categories = [
   { title: 'Bien-être', count: '134 produits', icon: Leaf, gradient: 'category-bienetre' },
 ];
 
-export default function Home() {
+// ✅ CHANGEMENT : export default → export function
+export function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -64,7 +65,6 @@ export default function Home() {
               discount="-50%"
               rank={1}
             />
-            {/* Ajoute d'autres produits ici */}
           </div>
         </section>
         

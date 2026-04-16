@@ -11,7 +11,8 @@ const PAYS = [
   "Congo","Gabon","Madagascar","Mauritanie","France","Belgique","Suisse","Canada","Autre"
 ];
 
-export default function Signup() {
+// ✅ CHANGEMENT : export default → export function
+export function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);

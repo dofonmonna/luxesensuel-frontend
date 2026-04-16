@@ -4,7 +4,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
-export default function Login() {
+// ✅ CHANGEMENT : export default → export function
+export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();

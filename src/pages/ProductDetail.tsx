@@ -17,7 +17,8 @@ function extractImages(html: string): string[] {
   return matches.map(m => m[1]).filter(s => s.startsWith('http'));
 }
 
-export default function ProductDetail() {
+// ✅ CHANGEMENT : export default → export function
+export function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();

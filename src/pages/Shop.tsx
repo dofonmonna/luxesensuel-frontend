@@ -4,7 +4,8 @@ import { Search, ShoppingCart } from 'lucide-react';
 import { productsApi } from '../lib/api';
 import { useCart } from '../hooks/useCart';
 
-export default function Shop() {
+// ✅ CHANGEMENT : export default → export function
+export function Shop() {
   const navigate = useNavigate();
   const { addItem } = useCart();
   const [products, setProducts] = useState([]);

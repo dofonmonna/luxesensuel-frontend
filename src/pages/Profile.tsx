@@ -4,7 +4,8 @@ import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firesto
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Loader2, LogOut, Package, Truck, UserCircle2 } from 'lucide-react';
 
-export default function Profile() {
+// ✅ CHANGEMENT : export default → export function
+export function Profile() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
