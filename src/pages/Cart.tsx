@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Check, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 
-export default function Cart() {
+// ✅ CHANGEMENT : export default → export function
+export function Cart() {
   const navigate = useNavigate();
   const { items, removeItem, updateQuantity, total, clearCart } = useCart();
 

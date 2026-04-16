@@ -4,7 +4,8 @@ import { CheckCircle, XCircle, Loader2, PackageCheck, Star } from 'lucide-react'
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-export default function ConfirmReception() {
+// ✅ CHANGEMENT : export default → export function
+export function ConfirmReception() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const token = params.get('token');

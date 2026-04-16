@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useCart } from '../hooks/useCart';
 
-export default function Confirmation() {
+// ✅ CHANGEMENT : export default → export function
+export function Confirmation() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const orderNumber = params.get('order');
