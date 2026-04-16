@@ -1,5 +1,4 @@
-// ✅ Utilisation de 'import type' pour éviter l'erreur au runtime
-import type { LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface CategoryCardProps {
   title: string;
@@ -9,8 +8,7 @@ interface CategoryCardProps {
   image?: string;
 }
 
-// ✅ On garde l'export nommé pour la cohérence du projet
-export const CategoryCard = ({ title, count, icon: Icon, gradient, image }: CategoryCardProps) => {
+export function CategoryCard({ title, count, icon: Icon, gradient, image }: CategoryCardProps) {
   return (
     <div className={`relative overflow-hidden rounded-2xl ${gradient} p-6 h-64 cursor-pointer hover-lift group`}>
       {/* Background Image with Overlay */}
@@ -33,4 +31,4 @@ export const CategoryCard = ({ title, count, icon: Icon, gradient, image }: Cate
       <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
-};
+}

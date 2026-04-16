@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart, Sparkles } from 'lucide-react';
 
 interface ProductCardProps {
   image: string;
@@ -30,7 +30,7 @@ export function ProductCard({ image, title, price, oldPrice, badge, discount, ra
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {badge === 'tendance' && (
-            <span className="badge-tendance flex items-center gap-1">
+            <span className="badge-tendance">
               <Sparkles className="w-3 h-3" /> TENDANCE
             </span>
           )}
@@ -70,6 +70,3 @@ export function ProductCard({ image, title, price, oldPrice, badge, discount, ra
     </div>
   );
 }
-
-// Import manquant dans l'exemple
-import { Sparkles } from 'lucide-react';

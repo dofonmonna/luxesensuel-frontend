@@ -4,15 +4,14 @@ import {
   LogOut, ChevronRight 
 } from 'lucide-react';
 import { useEffect } from 'react';
-// ✅ Importation nommée du Header
+// ✅ Import NOMMÉ pour matcher export function Header
 import { Header } from '../components/Header';
 
-// ✅ Changement en export nommé
-export const AdminLayout = () => {
+// ✅ Export NOMMÉ (pas default)
+export function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ Vérifier le token admin au chargement
   useEffect(() => {
     const token = localStorage.getItem('Luxe_admin_token');
     if (!token) {
@@ -53,7 +52,7 @@ export const AdminLayout = () => {
         }}>
           <div style={{ 
             width: '40px', height: '40px', 
-            background: 'linear-gradient(135deg, #ff4747 0%, #ff6b6b 100%)', 
+            background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)', 
             borderRadius: '10px', display: 'flex', alignItems: 'center',
             justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '20px'
           }}>L</div>
@@ -78,11 +77,11 @@ export const AdminLayout = () => {
                 display: 'flex', alignItems: 'center', gap: '12px',
                 padding: '12px', marginBottom: '4px', borderRadius: '10px',
                 textDecoration: 'none',
-                background: active ? '#fff5f5' : 'transparent',
-                color: active ? '#ff4747' : '#64748b',
+                background: active ? '#faf5ff' : 'transparent',
+                color: active ? '#9333ea' : '#64748b',
                 fontWeight: active ? '600' : '500',
                 transition: 'all 0.2s',
-                border: active ? '1px solid #fecaca' : '1px solid transparent'
+                border: active ? '1px solid #e9d5ff' : '1px solid transparent'
               }}>
                 <item.icon size={20} />
                 <span style={{ flex: 1 }}>{item.label}</span>
@@ -124,15 +123,11 @@ export const AdminLayout = () => {
 
       {/* Main Content */}
       <main style={{ flex: 1, marginLeft: '280px', display: 'flex', flexDirection: 'column' }}>
-        
-        {/* ✅ Appel du composant Header externe */}
         <Header />
-
-        {/* Page Content */}
         <div style={{ flex: 1, padding: '32px', overflow: 'auto' }}>
           <Outlet />
         </div>
       </main>
     </div>
   );
-};
+}

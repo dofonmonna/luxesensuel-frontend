@@ -1,26 +1,26 @@
 ﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
-// Layouts
-import StoreLayout from './pages/StoreLayout';
-import AdminLayout from './pages/AdminLayout';
+// ✅ Imports NOMMÉS (sans default)
+import { StoreLayout } from './pages/StoreLayout';
+import { AdminLayout } from './pages/AdminLayout';
 // Pages Storefront
-import Home from './pages/Home';
-import Shop from './pages/Shop';
-import ProductDetail from './pages/ProductDetail';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import Confirmation from './pages/Confirmation';
-import ConfirmReception from './pages/ConfirmReception';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import Profile from './pages/Profile';
+import { Home } from './pages/Home';
+import { Shop } from './pages/Shop';
+import { ProductDetail } from './pages/ProductDetail';
+import { Cart } from './pages/Cart';
+import { Checkout } from './pages/Checkout';
+import { Confirmation } from './pages/Confirmation';
+import { ConfirmReception } from './pages/ConfirmReception';
+import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
+import { Profile } from './pages/Profile';
 // Admin
-import Admin from './pages/Admin';
-import AdminLogin from './pages/AdminLogin'; // ✅ Page login admin
+import { Admin } from './pages/Admin';
+import { AdminLogin } from './pages/AdminLogin';
 // Callback
-import AECallback from './pages/AECallback';
+import { AECallback } from './pages/AECallback';
 
-export default function App() {
+export function App() {
   return (
     <Router>
       <Routes>
@@ -39,7 +39,7 @@ export default function App() {
           <Route path="/callback" element={<AECallback />} />
         </Route>
 
-        {/* ✅ ADMIN LOGIN — hors layout admin (pas de sidebar) */}
+        {/* ADMIN LOGIN — hors layout admin */}
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* ADMIN LAYOUT */}
