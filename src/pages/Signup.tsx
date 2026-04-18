@@ -1,33 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
-import { Loader2, User, Mail, Lock, Phone, MapPin, Globe, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Loader2, User, Mail, Lock, Phone, MapPin, Globe, ArrowRight, Eye, EyeOff, ShieldCheck, Sparkles, Search } from "lucide-react";
+import { COUNTRIES } from "@/utils/countries";
 
-const PAYS = [
-  "Côte d'Ivoire","Sénégal","Mali","Burkina Faso","Guinée","Togo","Bénin","Niger","Cameroun",
-  "Congo","Gabon","Madagascar","Mauritanie","France","Belgique","Suisse","Canada","Autre"
-];
-
-// ✅ CHANGEMENT : export default → export function
 export function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const [form, setForm] = useState({
-    firstName: "", lastName: "", email: "", password: "",
-    phone: "", address: "", city: "", country: "Côte d'Ivoire",
+    firstName: "", 
+    lastName: "", 
+    email: "", 
+    password: "",
+    phonePrefix: "+225",
+    phone: "", 
+    address: "", 
+    city: "", 
+    country: "Côte d'Ivoire",
   });
 
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-    setForm(f => ({ ...f, [k]: e.target.value }));
+  const filteredCountries = useMemo(() => {
+    return COUNTRIES.filter(c => 
+      c.name.toLowerCase().includes(countrySearch.toLowerCase())
+    );
+  }, [countrySearch]);
+
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const val = e.target.value;
+    if (k === "country") {
+      const country = COUNTRIES.find(c => c.name === val);
+      setForm(f => ({ ...f, country: val, phonePrefix: country?.prefix || "" }));
+    } else {
+      setForm(f => ({ ...f, [k]: val }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setLoading(true);
+    
+    const fullPhone = `${form.phonePrefix}${form.phone}`;
+
     try {
       const cred = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const user = cred.user;
@@ -38,14 +57,14 @@ export function Signup() {
         lastName: form.lastName,
         name: `${form.firstName} ${form.lastName}`,
         email: form.email,
-        phone: form.phone,
+        phone: fullPhone,
         address: form.address,
         city: form.city,
         country: form.country,
         role: "client",
         createdAt: new Date().toISOString(),
       });
-      toast.success("Bienvenue dans l'univers LuxeSensuel ✦");
+      toast.success("Bienvenue chez Luxe Dropshoping ✦");
       setTimeout(() => navigate("/profile"), 500);
     } catch (err: any) {
       if (err.code === "auth/email-already-in-use") toast.error("Cet email est déjà utilisé.");
@@ -56,182 +75,194 @@ export function Signup() {
     }
   };
 
-  const inp: React.CSSProperties = {
-    width: "100%", padding: "14px 16px 14px 46px",
-    background: "#241A0E", border: "1px solid rgba(201,168,76,0.25)",
-    color: "#F0E8D8", fontFamily: '"Montserrat", sans-serif',
-    fontSize: "13px", outline: "none", transition: "border-color 0.3s",
-    borderRadius: 0,
-  };
-
-  const lbl: React.CSSProperties = {
-    display: "block", fontSize: "8px", letterSpacing: "3px",
-    textTransform: "uppercase", color: "#C9A84C", marginBottom: "8px", opacity: 0.8,
-  };
-
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(ellipse at top, #2E2212 0%, #0A0A0A 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px", fontFamily: '"Montserrat", sans-serif' }}>
-      <div style={{ width: "100%", maxWidth: "900px" }}>
+    <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
+      
+      {/* Decorative backgrounds */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 opacity-60" />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-red-50 rounded-full blur-[100px] translate-x-1/2 translate-y-1/2 opacity-60" />
 
-        {/* En-tête */}
-        <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <Link to="/" style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: "28px", fontWeight: 300, letterSpacing: "6px", color: "#C9A84C", textDecoration: "none", display: "block", marginBottom: "8px" }}>
-            LUXE<em style={{ fontStyle: "italic", color: "#E8C97A" }}>Sensuel</em>
+      <div className="max-w-2xl w-full relative z-10">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <Link to="/" className="inline-block mb-6 group">
+            <span className="font-[Cormorant_Garamond] text-4xl font-semibold tracking-[0.3em] text-gray-900 group-hover:text-[#CC0000] transition-colors">
+              LUXE<span className="text-[#CC0000] italic">Dropshoping</span>
+            </span>
           </Link>
-          <div style={{ width: "40px", height: "1px", background: "#C9A84C", margin: "12px auto", opacity: 0.4 }} />
-          <h1 style={{ fontFamily: '"Cormorant Garamond", serif', fontSize: "42px", fontWeight: 300, color: "#FAF6EE", marginBottom: "8px" }}>
-            Rejoindre
-          </h1>
-          <p style={{ fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#8A8070" }}>
-            L'expérience LuxeSensuel commence ici
-          </p>
+          <div className="flex items-center justify-center gap-3 text-[#CC0000] mb-4">
+            <Sparkles className="w-5 h-5 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em]">Adhésion Exclusive</span>
+            <Sparkles className="w-5 h-5 animate-pulse" />
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-gray-900 leading-tight">Créez votre compte</h1>
+          <p className="text-gray-400 text-sm mt-3 font-medium">Rejoignez une communauté dédiée à l'élégance et au plaisir.</p>
         </div>
 
-        {/* Formulaire */}
-        <div style={{ background: "#1A1208", border: "1px solid rgba(201,168,76,0.2)", padding: "48px" }}>
-          <form onSubmit={handleSubmit}>
-
-            {/* Titre section */}
-            <p style={{ fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#C9A84C", marginBottom: "24px", opacity: 0.8 }}>
-              ✦ Informations personnelles
-            </p>
-
-            {/* Prénom + Nom */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-              <div>
-                <label style={lbl}>Prénom</label>
-                <div style={{ position: "relative" }}>
-                  <User size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                  <input required type="text" placeholder="Votre prénom" value={form.firstName} onChange={set("firstName")} style={inp}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
+        {/* Form Card */}
+        <div className="bg-white rounded-[3rem] p-8 md:p-12 shadow-sm border border-gray-100">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            {/* Section: Identité */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#CC0000] mb-6 flex items-center gap-2">
+                <span className="w-5 h-px bg-[#CC0000]" /> Informations personnelles
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                  <input 
+                    required type="text" placeholder="Prénom" 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                    value={form.firstName} onChange={set("firstName")} 
+                  />
                 </div>
-              </div>
-              <div>
-                <label style={lbl}>Nom</label>
-                <div style={{ position: "relative" }}>
-                  <User size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                  <input required type="text" placeholder="Votre nom" value={form.lastName} onChange={set("lastName")} style={inp}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
-                </div>
-              </div>
-            </div>
-
-            {/* Email + Téléphone */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-              <div>
-                <label style={lbl}>Adresse email</label>
-                <div style={{ position: "relative" }}>
-                  <Mail size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                  <input required type="email" placeholder="votre@email.com" value={form.email} onChange={set("email")} style={inp}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
-                </div>
-              </div>
-              <div>
-                <label style={lbl}>Téléphone</label>
-                <div style={{ position: "relative" }}>
-                  <Phone size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                  <input type="tel" placeholder="+225 XX XX XX XX XX" value={form.phone} onChange={set("phone")} style={inp}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                  <input 
+                    required type="text" placeholder="Nom" 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                    value={form.lastName} onChange={set("lastName")} 
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Séparateur */}
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", margin: "28px 0" }}>
-              <div style={{ flex: 1, height: "1px", background: "rgba(201,168,76,0.15)" }} />
-              <p style={{ fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#C9A84C", opacity: 0.8 }}>✦ Adresse de livraison</p>
-              <div style={{ flex: 1, height: "1px", background: "rgba(201,168,76,0.15)" }} />
-            </div>
-
-            {/* Adresse */}
-            <div style={{ marginBottom: "16px" }}>
-              <label style={lbl}>Adresse complète</label>
-              <div style={{ position: "relative" }}>
-                <MapPin size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                <input type="text" placeholder="Rue, quartier, numéro..." value={form.address} onChange={set("address")} style={inp}
-                  onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                  onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
+            {/* Section: Contact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                <input 
+                  required type="email" placeholder="Adresse email" 
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                  value={form.email} onChange={set("email")} 
+                />
               </div>
-            </div>
-
-            {/* Ville + Pays */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "32px" }}>
-              <div>
-                <label style={lbl}>Ville</label>
-                <div style={{ position: "relative" }}>
-                  <MapPin size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                  <input type="text" placeholder="Votre ville" value={form.city} onChange={set("city")} style={inp}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
+              <div className="relative flex gap-2">
+                <div className="w-24 shrink-0 relative group">
+                  <input 
+                    type="text" 
+                    value={form.phonePrefix} 
+                    onChange={set("phonePrefix")}
+                    className="w-full px-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-bold text-center"
+                  />
                 </div>
-              </div>
-              <div>
-                <label style={lbl}>Pays</label>
-                <div style={{ position: "relative" }}>
-                  <Globe size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6, zIndex: 1 }} />
-                  <select value={form.country} onChange={set("country")} style={{ ...inp, paddingLeft: "46px", cursor: "pointer", appearance: "none" }}
-                    onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                    onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")}>
-                    {PAYS.map(p => <option key={p} value={p} style={{ background: "#1A1208" }}>{p}</option>)}
-                  </select>
+                <div className="relative flex-1 group">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                  <input 
+                    required type="tel" placeholder="Téléphone" 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                    value={form.phone} onChange={set("phone")} 
+                  />
                 </div>
               </div>
             </div>
 
-            {/* Séparateur */}
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", margin: "0 0 28px" }}>
-              <div style={{ flex: 1, height: "1px", background: "rgba(201,168,76,0.15)" }} />
-              <p style={{ fontSize: "9px", letterSpacing: "4px", textTransform: "uppercase", color: "#C9A84C", opacity: 0.8 }}>✦ Sécurité du compte</p>
-              <div style={{ flex: 1, height: "1px", background: "rgba(201,168,76,0.15)" }} />
+            {/* Section: Livraison */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#CC0000] mb-6 flex items-center gap-2">
+                <span className="w-5 h-px bg-[#CC0000]" /> Adresse de livraison
+              </p>
+              <div className="space-y-5">
+                <div className="relative group">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                  <input 
+                    required type="text" placeholder="Adresse complète (Quartier, Rue, Porte...)" 
+                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                    value={form.address} onChange={set("address")} 
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="relative group">
+                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                    <input 
+                      required type="text" placeholder="Ville" 
+                      className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                      value={form.city} onChange={set("city")} 
+                    />
+                  </div>
+                  <div className="relative group">
+                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                    <select 
+                      value={form.country} onChange={set("country")} 
+                      className="w-full pl-12 pr-10 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-bold appearance-none scrollbar-hide"
+                    >
+                      {COUNTRIES.map(c => (
+                        <option key={c.code} value={c.name}>
+                          {c.flag} {c.name} ({c.prefix})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Mot de passe */}
-            <div style={{ marginBottom: "32px" }}>
-              <label style={lbl}>Mot de passe</label>
-              <div style={{ position: "relative" }}>
-                <Lock size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#C9A84C", opacity: 0.6 }} />
-                <input required type={showPass ? "text" : "password"} placeholder="Minimum 6 caractères" value={form.password} onChange={set("password")} style={{ ...inp, paddingRight: "48px" }}
-                  onFocus={e => (e.target.style.borderColor = "#C9A84C")}
-                  onBlur={e => (e.target.style.borderColor = "rgba(201,168,76,0.25)")} />
-                <button type="button" onClick={() => setShowPass(!showPass)} style={{ position: "absolute", right: "16px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#8A8070", cursor: "pointer" }}>
-                  {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+            {/* Section: Sécurité */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#CC0000] mb-6 flex items-center gap-2">
+                <span className="w-5 h-px bg-[#CC0000]" /> Sécurité du compte
+              </p>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
+                <input 
+                  required type={showPass ? "text" : "password"} placeholder="Mot de passe (6 car. min)" 
+                  className="w-full pl-12 pr-14 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
+                  value={form.password} onChange={set("password")} 
+                />
+                <button 
+                  type="button" onClick={() => setShowPass(!showPass)} 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Bouton */}
-            <button type="submit" disabled={loading} style={{
-              width: "100%", padding: "16px", background: loading ? "#8A8070" : "#C9A84C",
-              border: "1px solid #C9A84C", color: "#0A0A0A", fontFamily: '"Montserrat", sans-serif',
-              fontSize: "10px", fontWeight: 600, letterSpacing: "4px", textTransform: "uppercase",
-              cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center",
-              justifyContent: "center", gap: "12px", transition: "all 0.3s",
-            }}>
-              {loading ? <Loader2 size={16} className="animate-spin" /> : (
-                <><span>Créer mon compte</span><ArrowRight size={14} /></>
-              )}
-            </button>
-
-            {/* Lien connexion */}
-            <p style={{ textAlign: "center", marginTop: "20px", fontSize: "11px", color: "#8A8070" }}>
-              Déjà membre ?{" "}
-              <Link to="/login" style={{ color: "#C9A84C", textDecoration: "none" }}>Se connecter</Link>
-            </p>
-
+            {/* Submit */}
+            <div className="pt-4">
+              <button 
+                type="submit" disabled={loading} 
+                className="btn-sensual w-full h-16 rounded-2xl text-base shadow-xl shadow-red-100 flex items-center justify-center gap-4 transition-all active:scale-[0.98]"
+              >
+                {loading ? (
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                  <>
+                    <span>CRÉER MON COMPTE</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+            </div>
           </form>
+
+          {/* Footer Card */}
+          <div className="mt-10 pt-8 border-t border-gray-50 text-center">
+            <p className="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-4">
+              Déjà membre de l'univers ?
+            </p>
+            <Link 
+              to="/login" 
+              className="inline-flex items-center gap-2 text-sm font-black text-[#CC0000] hover:gap-4 transition-all uppercase tracking-widest"
+            >
+              Se connecter à mon compte
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
 
-        {/* Contact */}
-        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "10px", letterSpacing: "2px", color: "#6A5A48" }}>
-          Besoin d'aide ?{" "}
-          <a href="mailto:luxesensuel11@gmail.com" style={{ color: "#C9A84C", textDecoration: "none" }}>
-            luxesensuel11@gmail.com
-          </a>
-        </p>
+        {/* Support */}
+        <div className="mt-12 text-center space-y-4">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            Vos données sont protégées et ne seront jamais partagées
+          </p>
+          <p className="text-[11px] text-gray-400">
+            Une question ? <a href="mailto:luxesensuel11@gmail.com" className="text-[#CC0000] font-bold hover:underline transition-all">luxesensuel11@gmail.com</a>
+          </p>
+        </div>
 
       </div>
     </div>

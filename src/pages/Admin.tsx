@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  TrendingUp, ShoppingBag, DollarSign, Package, 
-  Trash2, Edit, Download, RefreshCw, AlertCircle, 
+import {
+  TrendingUp, ShoppingBag, DollarSign, Package,
+  Trash2, Edit, Download, RefreshCw, AlertCircle,
   CheckCircle, Search, X,
-  ChevronUp, ChevronDown, Upload
+  ChevronUp, ChevronDown, Upload, Plus
 } from 'lucide-react';
+import { ImportModal } from '../components/Admin/ImportModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -46,19 +47,8 @@ interface Toast {
   message: string;
 }
 
-interface SearchResult {
-  productId?: string;
-  pid?: string;
-  productTitle?: string;
-  productNameEn?: string;
-  productMainImageUrl?: string;
-  productImage?: string;
-  salePrice?: string;
-  sellPrice?: string;
-}
-
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, color, alert, subtitle }: any) => (
-  <div style={{ 
+  <div style={{
     background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e2e8f0',
     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
   }}>
@@ -130,11 +120,7 @@ export function Admin() {
   const itemsPerPage = 20;
 
   // ─── Import state ───
-  const [importSource, setImportSource] = useState<'cj' | 'aliexpress'>('cj');
-  const [importKeyword, setImportKeyword] = useState('lingerie');
-  const [importResults, setImportResults] = useState<SearchResult[]>([]);
-  const [importLoading, setImportLoading] = useState(false);
-  const [importingId, setImportingId] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const token = localStorage.getItem('Luxe_admin_token');
 
@@ -181,60 +167,6 @@ export function Admin() {
   }, [token, navigate, addToast]);
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
-
-  // ─── Recherche produits fournisseur ───
-  const searchSupplierProducts = async () => {
-    if (!importKeyword.trim()) return;
-    setImportLoading(true);
-    setImportResults([]);
-    try {
-      const res = await fetch(`${API_URL}/admin/import/${importSource}/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ keyword: importKeyword, page: 1 })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setImportResults(data.produits || []);
-        if ((data.produits || []).length === 0) addToast('warning', 'Aucun produit trouvé');
-      } else {
-        addToast('error', data.error || 'Erreur de recherche');
-      }
-    } catch (err) {
-      addToast('error', 'Erreur connexion API');
-    } finally {
-      setImportLoading(false);
-    }
-  };
-
-  // ─── Importer un produit ───
-  const importProduct = async (product: SearchResult) => {
-    const productId = product.productId || product.pid || '';
-    if (!productId) return;
-    setImportingId(productId);
-    try {
-      const body = importSource === 'cj'
-        ? { cj_product_id: productId }
-        : { ae_product_id: productId };
-
-      const res = await fetch(`${API_URL}/admin/import/${importSource}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify(body)
-      });
-      const data = await res.json();
-      if (res.ok) {
-        addToast('success', data.message || '✅ Produit importé !');
-        fetchDashboardData();
-      } else {
-        addToast('error', data.error || 'Erreur import');
-      }
-    } catch (err) {
-      addToast('error', 'Erreur connexion');
-    } finally {
-      setImportingId(null);
-    }
-  };
 
   const syncStocks = async () => {
     setActionLoading('sync');
@@ -336,119 +268,47 @@ export function Admin() {
 
       {/* ─── TAB IMPORT ─── */}
       {activeTab === 'import' && (
-        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', color: '#1e293b' }}>
-            Importer des produits
+        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '48px', textAlign: 'center' }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>📦</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px', color: '#1e293b' }}>
+            Import de produits
           </h2>
+          <p style={{ fontSize: '16px', color: '#64748b', marginBottom: '32px', maxWidth: '500px', marginLeft: 'auto', marginRight: 'auto' }}>
+            Importez facilement des produits depuis CJ Dropshipping ou AliExpress directement dans votre boutique.
+          </p>
 
-          {/* Choix fournisseur */}
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-            <div onClick={() => setImportSource('cj')} style={{
-              flex: 1, padding: '20px', borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
-              border: importSource === 'cj' ? '2px solid #ff4747' : '2px solid #e2e8f0',
-              background: importSource === 'cj' ? '#fff5f5' : 'white'
-            }}>
+          <button
+            onClick={() => setShowImportModal(true)}
+            style={{
+              padding: '16px 32px',
+              background: '#ff4747',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontWeight: '600',
+              fontSize: '16px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <Plus size={20} />
+            Ouvrir le modal d'import
+          </button>
+
+          <div style={{ marginTop: '48px', display: 'flex', justifyContent: 'center', gap: '32px' }}>
+            <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '32px', marginBottom: '8px' }}>🏪</div>
-              <div style={{ fontWeight: '700', fontSize: '16px', color: importSource === 'cj' ? '#ff4747' : '#333' }}>CJ Dropshipping</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Livraison rapide, large catalogue</div>
+              <p style={{ fontWeight: '600', color: '#333' }}>CJ Dropshipping</p>
+              <p style={{ fontSize: '12px', color: '#64748b' }}>Livraison rapide</p>
             </div>
-            <div onClick={() => setImportSource('aliexpress')} style={{
-              flex: 1, padding: '20px', borderRadius: '12px', cursor: 'pointer', textAlign: 'center',
-              border: importSource === 'aliexpress' ? '2px solid #ff6a00' : '2px solid #e2e8f0',
-              background: importSource === 'aliexpress' ? '#fff8f0' : 'white'
-            }}>
-              <div style={{ fontSize: '32px', marginBottom: '8px' }}>🛒</div>
-              <div style={{ fontWeight: '700', fontSize: '16px', color: importSource === 'aliexpress' ? '#ff6a00' : '#333' }}>AliExpress</div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Prix compétitifs, millions de produits</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '8px' }}>�</div>
+              <p style={{ fontWeight: '600', color: '#333' }}>AliExpress</p>
+              <p style={{ fontSize: '12px', color: '#64748b' }}>Prix compétitifs</p>
             </div>
           </div>
-
-          {/* Recherche */}
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input
-                type="text"
-                placeholder="Ex: lingerie, body, parfum, bijoux..."
-                value={importKeyword}
-                onChange={(e) => setImportKeyword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && searchSupplierProducts()}
-                style={{ width: '100%', padding: '12px 12px 12px 42px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' }}
-              />
-            </div>
-            <button
-              onClick={searchSupplierProducts}
-              disabled={importLoading}
-              style={{
-                padding: '12px 28px', background: importSource === 'cj' ? '#ff4747' : '#ff6a00',
-                color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600',
-                cursor: importLoading ? 'not-allowed' : 'pointer', fontSize: '14px', whiteSpace: 'nowrap'
-              }}
-            >
-              {importLoading ? (
-                <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
-              ) : '🔍 Rechercher'}
-            </button>
-          </div>
-
-          {/* Résultats */}
-          {importResults.length > 0 && (
-            <div>
-              <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '16px' }}>
-                {importResults.length} produits trouvés — Cliquez sur <strong>Importer</strong> pour ajouter à votre boutique
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-                {importResults.map((product, idx) => {
-                  const pid = product.productId || product.pid || '';
-                  const name = product.productTitle || product.productNameEn || 'Produit';
-                  const image = product.productMainImageUrl || product.productImage || '';
-                  const price = product.salePrice || product.sellPrice || '0';
-                  const isImporting = importingId === pid;
-
-                  return (
-                    <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', background: 'white' }}>
-                      <div style={{ height: '160px', overflow: 'hidden', background: '#f8fafc' }}>
-                        <img
-                          src={image}
-                          alt={name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg'; }}
-                        />
-                      </div>
-                      <div style={{ padding: '12px' }}>
-                        <p style={{ fontSize: '12px', color: '#333', marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                          {name}
-                        </p>
-                        <p style={{ fontSize: '14px', fontWeight: '700', color: '#ff4747', marginBottom: '10px' }}>
-                          ${price}
-                        </p>
-                        <button
-                          onClick={() => importProduct(product)}
-                          disabled={isImporting}
-                          style={{
-                            width: '100%', padding: '8px', borderRadius: '6px', border: 'none',
-                            background: isImporting ? '#ccc' : importSource === 'cj' ? '#ff4747' : '#ff6a00',
-                            color: 'white', fontWeight: '600', fontSize: '12px',
-                            cursor: isImporting ? 'not-allowed' : 'pointer'
-                          }}
-                        >
-                          {isImporting ? '⏳ Import...' : '+ Importer'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {!importLoading && importResults.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '48px', color: '#94a3b8' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
-              <p style={{ fontSize: '16px', fontWeight: '600' }}>Recherchez des produits à importer</p>
-              <p style={{ fontSize: '14px', marginTop: '8px' }}>Tapez un mot-clé et cliquez sur Rechercher</p>
-            </div>
-          )}
         </div>
       )}
 
@@ -470,7 +330,7 @@ export function Admin() {
               </select>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setActiveTab('import')}
+              <button onClick={() => setShowImportModal(true)}
                 style={{ padding: '10px 20px', background: '#ff4747', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Download size={18} /> Importer
               </button>
@@ -510,7 +370,8 @@ export function Admin() {
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
-                    <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',
+                    <span style={{
+                      padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',
                       background: product.supplier === 'cj' ? '#fff5f5' : product.supplier === 'aliexpress' ? '#fff8f0' : '#f0f9ff',
                       color: product.supplier === 'cj' ? '#ff4747' : product.supplier === 'aliexpress' ? '#ff6a00' : '#0369a1'
                     }}>
@@ -644,8 +505,19 @@ export function Admin() {
         </div>
       </Modal>
 
+      {/* ─── Import Modal ─── */}
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportSuccess={() => {
+          addToast('success', 'Produit importé avec succès !');
+          fetchDashboardData();
+        }}
+        apiUrl={API_URL}
+        token={token || ''}
+      />
+
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
-}/ /   A d m i n   D a s h b o a r d   -   L u x e S e n s u e l  
- 
+}

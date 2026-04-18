@@ -1,0 +1,468 @@
+/**
+ * ImportModal.tsx - Composant modal pour l'import de produits
+ * 
+ * Permet la sélection de la plateforme (CJ/AliExpress),
+ * la recherche de produits et l'import avec configuration.
+ */
+
+import { useState, useCallback, useEffect } from 'react';
+import { Search, X, Download, RefreshCw, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import { ImportProgress } from './ImportProgress';
+
+// Types
+export type ImportPlatform = 'cj' | 'aliexpress';
+
+export interface SearchResult {
+  productId?: string;
+  pid?: string;
+  productTitle?: string;
+  productNameEn?: string;
+  productMainImageUrl?: string;
+  productImage?: string;
+  salePrice?: string;
+  sellPrice?: string;
+}
+
+export interface ImportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onImportSuccess?: () => void;
+  apiUrl: string;
+  token: string;
+}
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
+export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }: ImportModalProps) {
+  // État de la plateforme sélectionnée
+  const [selectedPlatform, setSelectedPlatform] = useState<ImportPlatform>('cj');
+  
+  // État de recherche
+  const [keyword, setKeyword] = useState('lingerie');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  
+  // État d'import
+  const [importingId, setImportingId] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState<{
+    jobId?: string;
+    progress: number;
+    status: string;
+    message: string;
+  } | null>(null);
+  const [importedIds, setImportedIds] = useState<Set<string>>(new Set());
+
+  // Configuration avancée
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
+  const [category, setCategory] = useState('');
+
+  // Reset state when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchResults([]);
+      setSearchError(null);
+      setImportProgress(null);
+      setImportedIds(new Set());
+    }
+  }, [isOpen]);
+
+  // Gestion du changement de plateforme
+  const handlePlatformChange = useCallback((platform: ImportPlatform) => {
+    setSelectedPlatform(platform);
+    setSearchResults([]);
+    setSearchError(null);
+    setKeyword(platform === 'cj' ? 'lingerie' : 'sexy lingerie');
+  }, []);
+
+  // Recherche de produits
+  const handleSearch = useCallback(async () => {
+    if (!keyword.trim()) return;
+    
+    setIsSearching(true);
+    setSearchError(null);
+    setSearchResults([]);
+
+    try {
+      const response = await fetch(`${apiUrl}/admin/import/${selectedPlatform}/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ keyword, page: 1 }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const products = data.produits || data.products || [];
+        setSearchResults(products);
+        if (products.length === 0) {
+          setSearchError('Aucun produit trouvé pour cette recherche');
+        }
+      } else {
+        setSearchError(data.error || 'Erreur lors de la recherche');
+      }
+    } catch (err) {
+      setSearchError('Erreur de connexion au serveur');
+    } finally {
+      setIsSearching(false);
+    }
+  }, [keyword, selectedPlatform, apiUrl, token]);
+
+  // Import d'un produit
+  const handleImport = useCallback(async (product: SearchResult) => {
+    const productId = product.productId || product.pid || '';
+    if (!productId || importedIds.has(productId)) return;
+
+    setImportingId(productId);
+
+    try {
+      const body = selectedPlatform === 'cj'
+        ? { cj_product_id: productId, isAdult, category: category || undefined }
+        : { ae_product_id: productId, isAdult, category: category || undefined };
+
+      const response = await fetch(`${apiUrl}/admin/import/${selectedPlatform}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setImportedIds(prev => new Set(prev).add(productId));
+        if (onImportSuccess) {
+          onImportSuccess();
+        }
+      } else {
+        if (response.status === 409) {
+          setImportedIds(prev => new Set(prev).add(productId));
+        }
+      }
+    } catch (err) {
+      console.error('Import error:', err);
+    } finally {
+      setImportingId(null);
+    }
+  }, [selectedPlatform, apiUrl, token, isAdult, category, importedIds, onImportSuccess]);
+
+  // Fermeture avec confirmation si import en cours
+  const handleClose = useCallback(() => {
+    if (importingId) {
+      if (!confirm('Un import est en cours. Voulez-vous vraiment fermer ?')) {
+        return;
+      }
+    }
+    onClose();
+  }, [importingId, onClose]);
+
+  // Clavier: Enter pour rechercher
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  }, [handleSearch]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={handleClose}
+    >
+      <div 
+        className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-50 rounded-lg">
+              <Download className="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Importer des produits</h2>
+              <p className="text-sm text-gray-500">Recherchez et importez depuis vos fournisseurs</p>
+            </div>
+          </div>
+          <button 
+            onClick={handleClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          {/* Sélection de plateforme */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <button
+              onClick={() => handlePlatformChange('cj')}
+              className={`p-4 rounded-xl border-2 transition-all text-center ${
+                selectedPlatform === 'cj'
+                  ? 'border-red-500 bg-red-50'
+                  : 'border-gray-200 hover:border-red-200'
+              }`}
+            >
+              <div className="text-3xl mb-2">🏪</div>
+              <div className={`font-bold ${selectedPlatform === 'cj' ? 'text-red-600' : 'text-gray-700'}`}>
+                CJ Dropshipping
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Livraison rapide • Catalogue vaste
+              </div>
+            </button>
+
+            <button
+              onClick={() => handlePlatformChange('aliexpress')}
+              className={`p-4 rounded-xl border-2 transition-all text-center ${
+                selectedPlatform === 'aliexpress'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 hover:border-orange-200'
+              }`}
+            >
+              <div className="text-3xl mb-2">🛒</div>
+              <div className={`font-bold ${selectedPlatform === 'aliexpress' ? 'text-orange-600' : 'text-gray-700'}`}>
+                AliExpress
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Prix compétitifs • Millions de produits
+              </div>
+            </button>
+          </div>
+
+          {/* Barre de recherche */}
+          <div className="flex gap-3 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ex: lingerie, body, parfum, bijoux..."
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+              />
+            </div>
+            <button
+              onClick={handleSearch}
+              disabled={isSearching || !keyword.trim()}
+              className={`px-6 py-3 rounded-xl font-semibold text-white transition-all ${
+                selectedPlatform === 'cj'
+                  ? 'bg-red-500 hover:bg-red-600 disabled:bg-red-300'
+                  : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300'
+              } disabled:cursor-not-allowed flex items-center gap-2`}
+            >
+              {isSearching ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : (
+                <Search className="w-5 h-5" />
+              )}
+              Rechercher
+            </button>
+          </div>
+
+          {/* Options avancées */}
+          <div className="mb-6">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
+            >
+              {showAdvanced ? '▼' : '▶'} Options avancées
+            </button>
+            
+            {showAdvanced && (
+              <div className="mt-3 p-4 bg-gray-50 rounded-xl space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isAdult}
+                    onChange={(e) => setIsAdult(e.target.checked)}
+                    className="w-4 h-4 text-red-500 rounded"
+                  />
+                  <span className="text-sm text-gray-700">Produit adulte (+18)</span>
+                </label>
+                
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">Catégorie personnalisée</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="">Auto-détecter</option>
+                    <option value="lingerie">Lingerie</option>
+                    <option value="plaisir adulte">Plaisir Adulte</option>
+                    <option value="électronique">Électronique</option>
+                    <option value="soins">Soins</option>
+                    <option value="parfums">Parfums</option>
+                    <option value="bijoux">Bijoux</option>
+                    <option value="accessoires">Accessoires</option>
+                  </select>
+                </div>
+                
+                <div className="pt-2">
+                  <label className="block text-sm text-gray-600 mb-1">Import direct par ID ou URL AliExpress</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ex: 100500123456789 ou https://aliexpress.com/item/..."
+                      className="flex-1 p-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-orange-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          const val = (e.target as HTMLInputElement).value;
+                          if (val) {
+                            // Extract ID if it's a URL
+                            const idMatch = val.match(/\/item\/(\d+)\.html/) || val.match(/id=(\d+)/);
+                            const id = idMatch ? idMatch[1] : val.trim();
+                            handleImport({ productId: id, productTitle: 'Produit direct' });
+                          }
+                        }
+                      }}
+                    />
+                    <button 
+                      className="px-4 py-2 bg-orange-500 text-white rounded-lg text-xs font-bold"
+                      onClick={(e) => {
+                        const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                        const val = input.value;
+                        if (val) {
+                          const idMatch = val.match(/\/item\/(\d+)\.html/) || val.match(/id=(\d+)/);
+                          const id = idMatch ? idMatch[1] : val.trim();
+                          handleImport({ productId: id, productTitle: 'Produit direct' });
+                        }
+                      }}
+                    >
+                      Importer ID
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Résultats */}
+          {searchResults.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-gray-600">
+                  <strong>{searchResults.length}</strong> produits trouvés
+                </p>
+                {importedIds.size > 0 && (
+                  <p className="text-sm text-green-600 flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    {importedIds.size} importé(s)
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {searchResults.map((product, idx) => {
+                  const pid = product.productId || product.pid || '';
+                  const name = product.productTitle || product.productNameEn || 'Produit';
+                  const image = product.productMainImageUrl || product.productImage || '';
+                  const price = product.salePrice || product.sellPrice || '0';
+                  const isImporting = importingId === pid;
+                  const isImported = importedIds.has(pid);
+
+                  return (
+                    <div 
+                      key={pid || idx} 
+                      className="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-lg transition-shadow"
+                    >
+                      <div className="h-40 bg-gray-100 relative">
+                        <img
+                          src={image}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
+                          }}
+                        />
+                        {isImported && (
+                          <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                            <CheckCircle className="w-4 h-4" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-3">
+                        <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          {name}
+                        </p>
+                        <p className={`text-lg font-bold mb-3 ${
+                          selectedPlatform === 'cj' ? 'text-red-500' : 'text-orange-500'
+                        }`}>
+                          ${price}
+                        </p>
+                        
+                        <button
+                          onClick={() => handleImport(product)}
+                          disabled={isImporting || isImported}
+                          className={`w-full py-2 rounded-lg font-medium text-sm transition-all ${
+                            isImported
+                              ? 'bg-green-100 text-green-700 cursor-default'
+                              : selectedPlatform === 'cj'
+                                ? 'bg-red-500 hover:bg-red-600 text-white disabled:bg-red-300'
+                                : 'bg-orange-500 hover:bg-orange-600 text-white disabled:bg-orange-300'
+                          }`}
+                        >
+                          {isImporting ? (
+                            <span className="flex items-center justify-center gap-2">
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              Import...
+                            </span>
+                          ) : isImported ? (
+                            '✓ Importé'
+                          ) : (
+                            '+ Importer'
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Message d'erreur */}
+          {searchError && (
+            <div className="text-center py-12">
+              <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+              <p className="text-gray-600">{searchError}</p>
+            </div>
+          )}
+
+          {/* État vide */}
+          {!isSearching && searchResults.length === 0 && !searchError && (
+            <div className="text-center py-12">
+              <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500 font-medium">Recherchez des produits à importer</p>
+              <p className="text-sm text-gray-400 mt-1">
+                Tapez un mot-clé et cliquez sur Rechercher
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer avec progression */}
+        {importProgress && (
+          <div className="border-t border-gray-200 p-4 bg-gray-50">
+            <ImportProgress 
+              progress={importProgress.progress}
+              status={importProgress.status}
+              message={importProgress.message}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

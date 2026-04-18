@@ -1,197 +1,123 @@
-import { useEffect, useRef, useState } from 'react';
-import { Instagram, Facebook, Twitter, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Instagram, Facebook, Twitter, Youtube, Mail, Phone, MapPin, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const footerLinks = {
-  collection: [
-    { label: 'Pour Elle', href: '#' },
-    { label: 'Pour Lui', href: '#' },
-    { label: 'Pour Couples', href: '#' },
-    { label: 'Bien-être', href: '#' },
-    { label: 'Nouveautés', href: '#' },
+  shop: [
+    { label: 'Lingerie', href: '/shop?cat=lingerie' },
+    { label: 'Soins & Huiles', href: '/shop?cat=soins' },
+    { label: 'Parfums', href: '/shop?cat=parfums' },
+    { label: 'Accessoires', href: '/shop?cat=accessoires' },
+    { label: 'Nouveautés', href: '/shop?cat=new' },
   ],
   service: [
-    { label: 'Livraison', href: '#' },
-    { label: 'Retours', href: '#' },
+    { label: 'Suivre ma commande', href: '/profile' },
+    { label: 'Livraison & Délais', href: '#' },
+    { label: 'Retours & Remboursements', href: '#' },
+    { label: 'Paiement sécurisé', href: '#' },
     { label: 'FAQ', href: '#' },
-    { label: 'Guide des tailles', href: '#' },
-    { label: 'Conseils', href: '#' },
   ],
-  entreprise: [
-    { label: 'À propos', href: '#' },
-    { label: 'Carrières', href: '#' },
-    { label: 'Presse', href: '#' },
-    { label: 'Partenaires', href: '#' },
+  legal: [
+    { label: 'Mentions légales', href: '#' },
+    { label: 'CGV', href: '#' },
+    { label: 'Politique de confidentialité', href: '#' },
+    { label: 'Cookies', href: '#' },
   ],
 };
 
-const socialLinks = [
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Youtube, href: '#', label: 'Youtube' },
-];
-
-// ✅ Export nommé "Footer" pour correspondre à l'import dans StoreLayout
 export const Footer = () => {
-  const footerRef = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (footerRef.current) {
-      observer.observe(footerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <footer
-      ref={footerRef}
-      className="relative bg-[#0D0D0D] border-t border-[#F5F5F5]/5"
-    >
-      {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[sensual]/10 via-transparent to-transparent pointer-events-none" />
+    <footer className="bg-white border-t border-gray-100 pt-16 pb-8 font-[Montserrat]">
+      <div className="max-w-[1440px] mx-auto px-4">
+        
+        {/* Features Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 pb-12 border-b border-gray-50">
+          <div className="flex items-start gap-4 p-6 rounded-2xl bg-gray-50/50">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6 text-[#CC0000]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-1">Livraison Discrète</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">Colis neutre sans mention du contenu. Votre vie privée est notre priorité.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4 p-6 rounded-2xl bg-gray-50/50">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6 text-[#CC0000]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-1">Paiement Sécurisé</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">Transactions 100% cryptées SSL. PayPal, Stripe & Cryptos acceptés.</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4 p-6 rounded-2xl bg-gray-50/50">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+              <RotateCcw className="w-6 h-6 text-[#CC0000]" />
+            </div>
+            <div>
+              <h4 className="font-bold text-gray-900 mb-1">Satisfait ou Remboursé</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">30 jours pour changer d'avis. Retours simples et rapides garantis.</p>
+            </div>
+          </div>
+        </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Main Footer */}
-        <div className="py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12">
-          {/* Brand Column */}
-          <div
-            className={`lg:col-span-2 transition-all duration-1000 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            {/* Logo */}
-            <a href="#" className="inline-block mb-6">
-              <span className="font-['Cormorant_Garamond'] text-3xl font-light tracking-[0.2em] text-[#F5F5F5]">
-                LUXE<span className="text-[sensual]">SENSUEL</span>
+        {/* Main Footer Content */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-12 mb-16">
+          
+          {/* Brand Info */}
+          <div className="col-span-2 lg:col-span-2">
+            <Link to="/" className="inline-block mb-6">
+              <span className="font-[Cormorant_Garamond] text-3xl font-bold tracking-tight text-gray-900">
+                LUXE<span className="text-[#CC0000] italic">Dropshoping</span>
               </span>
-            </a>
-
-            <p className="font-['Montserrat'] text-sm text-[#F5F5F5]/60 mb-6 max-w-sm leading-relaxed">
-              Votre destination privilégiée pour l'intimité de luxe. 
-              Découvrez notre collection soigneusement sélectionnée 
-              pour éveiller vos sens.
+            </Link>
+            <p className="text-sm text-gray-500 mb-8 max-w-sm leading-relaxed">
+              Votre destination privilégiée pour le dropshipping de produits premium. 
+              Des articles sélectionnés avec soin pour sublimer votre quotidien.
             </p>
-
-            {/* Contact Info */}
-            <div className="space-y-3 mb-6">
-              <a
-                href="mailto:luxesensuel11@gmail.com"
-                className="flex items-center gap-3 text-sm text-[#F5F5F5]/60 hover:text-[#D4A5A5] transition-colors duration-300"
-              >
-                <Mail className="w-4 h-4" />
-                luxesensuel11@gmail.com
-              </a>
-              <a
-                href="tel:+33123456789"
-                className="flex items-center gap-3 text-sm text-[#F5F5F5]/60 hover:text-[#D4A5A5] transition-colors duration-300"
-              >
-                <Phone className="w-4 h-4" />
-                +33 1 23 45 67 89
-              </a>
-              <div className="flex items-center gap-3 text-sm text-[#F5F5F5]/60">
-                <MapPin className="w-4 h-4" />
-                Paris, France
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex gap-3">
-              {socialLinks.map((social, index) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={index}
-                    href={social.href}
-                    aria-label={social.label}
-                    className={`w-10 h-10 rounded-full bg-[#1A1A1A] border border-[#F5F5F5]/10 flex items-center justify-center text-[#F5F5F5]/60 hover:text-[#D4A5A5] hover:border-[sensual]/50 hover:rotate-[360deg] transition-all duration-500 ${
-                      isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                    }`}
-                    style={{ transitionDelay: `${600 + index * 100}ms` }}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </a>
-                );
-              })}
+            <div className="flex gap-4">
+              {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
+                <a key={i} href="#" className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#CC0000] hover:border-[#CC0000] hover:bg-red-50 transition-all duration-300">
+                  <Icon className="w-5 h-5" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Links Columns */}
-          <div
-            className={`transition-all duration-1000 delay-100 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <h4 className="font-['Cormorant_Garamond'] text-lg text-[#F5F5F5] mb-4">
-              Collection
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.collection.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-[#F5F5F5]/60 hover:text-[#D4A5A5] transition-colors duration-300 relative group"
-                  >
+          {/* Links */}
+          <div>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Boutique</h4>
+            <ul className="space-y-4">
+              {footerLinks.shop.map((link, i) => (
+                <li key={i}>
+                  <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
                     {link.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#D4A5A5] transition-all duration-300 group-hover:w-full" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div
-            className={`transition-all duration-1000 delay-200 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <h4 className="font-['Cormorant_Garamond'] text-lg text-[#F5F5F5] mb-4">
-              Service Client
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.service.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-[#F5F5F5]/60 hover:text-[#D4A5A5] transition-colors duration-300 relative group"
-                  >
+          <div>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Assistance</h4>
+            <ul className="space-y-4">
+              {footerLinks.service.map((link, i) => (
+                <li key={i}>
+                  <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
                     {link.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#D4A5A5] transition-all duration-300 group-hover:w-full" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div
-            className={`transition-all duration-1000 delay-300 ${
-              isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-          >
-            <h4 className="font-['Cormorant_Garamond'] text-lg text-[#F5F5F5] mb-4">
-              Entreprise
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.entreprise.map((link, index) => (
-                <li key={index}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-[#F5F5F5]/60 hover:text-[#D4A5A5] transition-colors duration-300 relative group"
-                  >
+          <div>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Informations</h4>
+            <ul className="space-y-4">
+              {footerLinks.legal.map((link, i) => (
+                <li key={i}>
+                  <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
                     {link.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-[#D4A5A5] transition-all duration-300 group-hover:w-full" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -199,29 +125,14 @@ export const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="py-6 border-t border-[#F5F5F5]/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#F5F5F5]/40 font-['Montserrat']">
-            © 2024 LuxeSensuel. Tous droits réservés.
+        <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} Luxe Dropshoping. Tous droits réservés.
           </p>
-          <div className="flex gap-6">
-            <a
-              href="#"
-              className="text-xs text-[#F5F5F5]/40 hover:text-[#D4A5A5] transition-colors duration-300"
-            >
-              Mentions légales
-            </a>
-            <a
-              href="#"
-              className="text-xs text-[#F5F5F5]/40 hover:text-[#D4A5A5] transition-colors duration-300"
-            >
-              CGV
-            </a>
-            <a
-              href="#"
-              className="text-xs text-[#F5F5F5]/40 hover:text-[#D4A5A5] transition-colors duration-300"
-            >
-              Confidentialité
-            </a>
+          <div className="flex items-center gap-6 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3" />
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-5" />
           </div>
         </div>
       </div>

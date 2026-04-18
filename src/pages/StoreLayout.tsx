@@ -1,24 +1,20 @@
 import { Outlet, useLocation } from 'react-router-dom';
-// ✅ Utilisation des imports nommés
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
-// ✅ Changement en export nommé
 export const StoreLayout = () => {
   const location = useLocation();
-  const isCart = location.pathname === '/cart';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
-    <div className={`min-h-screen flex flex-col ${isCart ? 'bg-[#f5f5f5]' : 'bg-gray-100'}`}>
-      {/* Rendu conditionnel du Header */}
-      {!isCart && <Header />}
+    <div className={`min-h-screen flex flex-col ${isAuthPage ? 'bg-[#f5f5f5]' : 'bg-gray-50'}`}>
+      {!isAuthPage && <Header />}
       
-      <main className={`flex-1 w-full ${isCart ? '' : 'max-w-[1400px] mx-auto px-4'}`}>
+      <main className="flex-1 w-full flex flex-col relative">
         <Outlet />
       </main>
       
-      {/* Rendu conditionnel du Footer */}
-      {!isCart && <Footer />}
+      {!isAuthPage && <Footer />}
     </div>
   );
 };

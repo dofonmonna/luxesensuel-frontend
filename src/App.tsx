@@ -1,4 +1,4 @@
-﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 // ✅ Imports NOMMÉS (sans default)
 import { StoreLayout } from './pages/StoreLayout';
@@ -14,6 +14,7 @@ import { ConfirmReception } from './pages/ConfirmReception';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
 // Admin
 import { Admin } from './pages/Admin';
 import { AdminLogin } from './pages/AdminLogin';
@@ -36,6 +37,7 @@ export function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/callback" element={<AECallback />} />
         </Route>
 

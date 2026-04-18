@@ -82,7 +82,10 @@ export const productsApi = {
       }
       return { products };
     }
-    const qs = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    const filteredParams = params ? Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v != null)
+    ) : null;
+    const qs = filteredParams ? '?' + new URLSearchParams(filteredParams as any).toString() : '';
     const res = await apiFetch<{ products: Product[] }>(`/products${qs}`);
     // Normaliser les numériques (PostgreSQL retourne des strings)
     res.products = res.products.map(p => ({ ...p, price: parseFloat(p.price as any), stock: parseInt(p.stock as any) }));
@@ -148,7 +151,10 @@ export const ordersApi = {
       '/orders', { method: 'POST', body: JSON.stringify(data) }
     ),
   list: (params?: { status?: string; limit?: number; offset?: number }) => {
-    const qs = params ? '?' + new URLSearchParams(params as any).toString() : '';
+    const filteredParams = params ? Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v != null)
+    ) : null;
+    const qs = filteredParams ? '?' + new URLSearchParams(filteredParams as any).toString() : '';
     return apiFetch<{ orders: Order[]; total: number }>(`/orders${qs}`, {}, true);
   },
   get: (id: string) =>
@@ -157,7 +163,7 @@ export const ordersApi = {
     apiFetch<{ order: Order }>(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify(data) }, true),
 };
 
-// ─── PAIEMENT PAYPAL ──────────────────────────────────────────
+// ─── PAIEMENTS ──────────────────────────────────────────────
 export const payApi = {
   createPayPalOrder: (order_id: string) =>
     apiFetch<{ paypal_order_id: string; status: string }>(
@@ -166,6 +172,10 @@ export const payApi = {
   capturePayment: (order_id: string, paypal_order_id: string) =>
     apiFetch<{ success: boolean; capture_id: string; status: string; order_number: string }>(
       '/pay/capture', { method: 'POST', body: JSON.stringify({ order_id, paypal_order_id }) }
+    ),
+  createPayDunyaOrder: (order_id: string, customer: any) =>
+    apiFetch<{ checkout_url: string }>(
+      '/paydunya/create', { method: 'POST', body: JSON.stringify({ order_id, customer }) }
     ),
 };
 
