@@ -4,7 +4,7 @@ import time
 
 APP_KEY = "531148"
 APP_SECRET = "PMGo9kWoUpx7PPu7qn4GwVGIze95O2JE"
-CODE = "3_531148_F7z90HxoYeBec3W24VKzEDRn3899"
+CODE = "3_531148_rGyJyInEwpzV8wYil8u7kYIe971"
 API_PATH = "/auth/token/create"
 
 TIMESTAMP = str(int(time.time() * 1000))
