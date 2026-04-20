@@ -1,4 +1,4 @@
-﻿// pages/Admin.tsx
+// pages/Admin.tsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -134,6 +134,7 @@ export function Admin() {
   const [importResults, setImportResults] = useState<SearchResult[]>([]);
   const [importLoading, setImportLoading] = useState(false);
   const [importingId, setImportingId] = useState<string | null>(null);
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
 
   const token = localStorage.getItem('Luxe_admin_token');
 
@@ -185,6 +186,7 @@ export function Admin() {
     if (!importKeyword.trim()) return;
     setImportLoading(true);
     setImportResults([]);
+    setSelectedProducts(new Set());
     try {
       const res = await fetch(`${API_URL}/admin/import/${importSource}/search`, {
         method: 'POST',
@@ -228,6 +230,41 @@ export function Admin() {
       }
     } catch (err) {
       addToast('error', 'Erreur connexion');
+    } finally {
+      setImportingId(null);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedProducts.size === importResults.length) {
+      setSelectedProducts(new Set());
+    } else {
+      const allIds = new Set(importResults.map(p => p.productId || p.pid || '').filter(Boolean));
+      setSelectedProducts(allIds);
+    }
+  };
+
+  const importBulkProducts = async () => {
+    if (selectedProducts.size === 0) return;
+    setImportingId('bulk');
+    try {
+      const res = await fetch(`${API_URL}/admin/import/batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ 
+          platform: importSource, 
+          productIds: Array.from(selectedProducts) 
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        addToast('success', data.message || `✅ Importation en masse démarrée !`);
+        setSelectedProducts(new Set());
+      } else {
+        addToast('error', data.error || 'Erreur lors de l\'import en masse');
+      }
+    } catch (err) {
+      addToast('error', 'Erreur de connexion serveur');
     } finally {
       setImportingId(null);
     }
@@ -385,9 +422,25 @@ export function Admin() {
 
           {importResults.length > 0 && (
             <div>
-              <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '16px' }}>
-                {importResults.length} produits trouvés — Cliquez sur <strong>Importer</strong> pour ajouter à votre boutique
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
+                  {importResults.length} produits trouvés — Cliquez sur <strong>Importer</strong> pour ajouter à votre boutique
+                </p>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button onClick={toggleSelectAll} style={{ padding: '8px 16px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}>
+                    {selectedProducts.size === importResults.length ? 'Désélectionner tout' : 'Sélectionner tout'}
+                  </button>
+                  {selectedProducts.size > 0 && (
+                    <button 
+                      onClick={importBulkProducts} 
+                      disabled={importingId === 'bulk'} 
+                      style={{ padding: '8px 16px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: importingId === 'bulk' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '14px' }}
+                    >
+                      {importingId === 'bulk' ? '⏳ Démarrage...' : `Importer la sélection (${selectedProducts.size})`}
+                    </button>
+                  )}
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
                 {importResults.map((product, idx) => {
                   const pid = product.productId || product.pid || '';
@@ -397,8 +450,26 @@ export function Admin() {
                   const isImporting = importingId === pid;
 
                   return (
-                    <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', background: 'white' }}>
-                      <div style={{ height: '160px', overflow: 'hidden', background: '#f8fafc' }}>
+                    <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', background: 'white', position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
+                        <input 
+                          type="checkbox" 
+                          checked={selectedProducts.has(pid)}
+                          onChange={() => {
+                            const newSet = new Set(selectedProducts);
+                            if (newSet.has(pid)) newSet.delete(pid);
+                            else newSet.add(pid);
+                            setSelectedProducts(newSet);
+                          }}
+                          style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: importSource === 'cj' ? '#ff4747' : '#ff6a00' }}
+                        />
+                      </div>
+                      <div style={{ height: '160px', overflow: 'hidden', background: '#f8fafc', position: 'relative' }} onClick={() => {
+                        const newSet = new Set(selectedProducts);
+                        if (newSet.has(pid)) newSet.delete(pid);
+                        else newSet.add(pid);
+                        setSelectedProducts(newSet);
+                      }} style={{cursor: 'pointer'}}>
                         <img
                           src={image}
                           alt={name}
