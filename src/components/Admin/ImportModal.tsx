@@ -55,11 +55,6 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBatchImporting, setIsBatchImporting] = useState(false);
 
-  // Configuration avancée
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [isAdult, setIsAdult] = useState(false);
-  const [category, setCategory] = useState('');
-
   // Reset state when modal opens/closes
   useEffect(() => {
     if (!isOpen) {
@@ -101,8 +96,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
         },
         body: JSON.stringify({ 
           keyword, 
-          page: 1,
-          category: category || undefined 
+          page: 1
         }),
       });
 
@@ -133,8 +127,8 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
 
     try {
       const body = selectedPlatform === 'cj'
-        ? { cj_product_id: productId, isAdult, category: category || undefined }
-        : { ae_product_id: productId, isAdult, category: category || undefined };
+        ? { cj_product_id: productId, isAdult: false }
+        : { ae_product_id: productId, isAdult: false };
 
       const response = await fetch(`${apiUrl}/admin/import/${selectedPlatform}`, {
         method: 'POST',
@@ -185,7 +179,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
         body: JSON.stringify({
           platform: selectedPlatform,
           productIds: Array.from(selectedIds),
-          options: { isAdult, category: category || undefined }
+          options: { isAdult: false }
         }),
       });
 
@@ -376,83 +370,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
             </button>
           </div>
 
-          {/* Options avancées */}
-          <div className="mb-6">
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-            >
-              {showAdvanced ? '▼' : '▶'} Options avancées
-            </button>
-            
-            {showAdvanced && (
-              <div className="mt-3 p-4 bg-gray-50 rounded-xl space-y-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isAdult}
-                    onChange={(e) => setIsAdult(e.target.checked)}
-                    className="w-4 h-4 text-red-500 rounded"
-                  />
-                  <span className="text-sm text-gray-700">Produit adulte (+18)</span>
-                </label>
-                
-                <div>
-                  <label className="block text-sm text-gray-600 mb-1">Catégorie personnalisée</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg text-sm"
-                  >
-                    <option value="">Auto-détecter</option>
-                    <option value="lingerie">Lingerie</option>
-                    <option value="plaisir adulte">Plaisir Adulte</option>
-                    <option value="électronique">Électronique</option>
-                    <option value="soins">Soins</option>
-                    <option value="parfums">Parfums</option>
-                    <option value="bijoux">Bijoux</option>
-                    <option value="accessoires">Accessoires</option>
-                  </select>
-                </div>
-                
-                <div className="pt-2">
-                  <label className="block text-sm text-gray-600 mb-1">Import direct par ID ou URL AliExpress</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Ex: 100500123456789 ou https://aliexpress.com/item/..."
-                      className="flex-1 p-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-orange-500"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          const val = (e.target as HTMLInputElement).value;
-                          if (val) {
-                            // Extract ID if it's a URL
-                            const idMatch = val.match(/\/item\/(\d+)\.html/) || val.match(/id=(\d+)/);
-                            const id = idMatch ? idMatch[1] : val.trim();
-                            handleImport({ productId: id, productTitle: 'Produit direct' });
-                          }
-                        }
-                      }}
-                    />
-                    <button 
-                      className="px-4 py-2 bg-orange-500 text-white rounded-lg text-xs font-bold"
-                      onClick={(e) => {
-                        const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                        const val = input.value;
-                        if (val) {
-                          const idMatch = val.match(/\/item\/(\d+)\.html/) || val.match(/id=(\d+)/);
-                          const id = idMatch ? idMatch[1] : val.trim();
-                          handleImport({ productId: id, productTitle: 'Produit direct' });
-                        }
-                      }}
-                    >
-                      Importer ID
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Barre de recherche */}
 
           {/* Résultats */}
           {searchResults.length > 0 && (
