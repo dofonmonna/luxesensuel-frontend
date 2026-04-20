@@ -156,7 +156,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     } finally {
       setImportingId(null);
     }
-  }, [selectedPlatform, apiUrl, token, isAdult, category, importedIds, onImportSuccess]);
+  }, [selectedPlatform, apiUrl, token, importedIds, onImportSuccess]);
 
   // Import par lot
   const handleBatchImport = useCallback(async () => {
@@ -233,7 +233,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       setSearchError("Erreur de connexion lors de l'import par lot");
       setIsBatchImporting(false);
     }
-  }, [selectedIds, isBatchImporting, selectedPlatform, apiUrl, token, isAdult, category, onImportSuccess]);
+  }, [selectedIds, isBatchImporting, selectedPlatform, apiUrl, token, onImportSuccess]);
 
   const toggleSelectProduct = (productId: string) => {
     setSelectedIds(prev => {
