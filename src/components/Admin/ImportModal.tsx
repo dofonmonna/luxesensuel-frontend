@@ -78,7 +78,9 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     setSearchResults([]);
     setSearchError(null);
     setSelectedIds(new Set());
-    setKeyword(platform === 'cj' ? 'lingerie' : 'sexy lingerie');
+    if (!keyword.trim()) {
+      setKeyword(platform === 'cj' ? 'lingerie' : 'sexy lingerie');
+    }
   }, []);
 
   // Recherche de produits
