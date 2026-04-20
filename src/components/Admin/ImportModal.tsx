@@ -52,6 +52,8 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     message: string;
   } | null>(null);
   const [importedIds, setImportedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBatchImporting, setIsBatchImporting] = useState(false);
 
   // Configuration avancée
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -65,6 +67,8 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       setSearchError(null);
       setImportProgress(null);
       setImportedIds(new Set());
+      setSelectedIds(new Set());
+      setIsBatchImporting(false);
     }
   }, [isOpen]);
 
@@ -73,6 +77,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     setSelectedPlatform(platform);
     setSearchResults([]);
     setSearchError(null);
+    setSelectedIds(new Set());
     setKeyword(platform === 'cj' ? 'lingerie' : 'sexy lingerie');
   }, []);
 
@@ -83,6 +88,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     setIsSearching(true);
     setSearchError(null);
     setSearchResults([]);
+    setSelectedIds(new Set());
 
     try {
       const response = await fetch(`${apiUrl}/admin/import/${selectedPlatform}/search`, {
@@ -151,6 +157,101 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       setImportingId(null);
     }
   }, [selectedPlatform, apiUrl, token, isAdult, category, importedIds, onImportSuccess]);
+
+  // Import par lot
+  const handleBatchImport = useCallback(async () => {
+    if (selectedIds.size === 0 || isBatchImporting) return;
+
+    setIsBatchImporting(true);
+    setImportProgress({
+      progress: 0,
+      status: 'running',
+      message: `Initialisation de l'import de ${selectedIds.size} produits...`
+    });
+
+    try {
+      const response = await fetch(`${apiUrl}/admin/import/batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          platform: selectedPlatform,
+          productIds: Array.from(selectedIds),
+          options: { isAdult, category: category || undefined }
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setImportProgress({
+          jobId: data.jobId,
+          progress: 10,
+          status: 'running',
+          message: `Import en cours (Job: ${data.jobId})...`
+        });
+        
+        // Simulation de progression simple (le backend fait le travail en arrière-plan)
+        // Normalement on utiliserait WebSockets ici, mais on va faire un petit feedback visuel
+        let count = 0;
+        const total = selectedIds.size;
+        
+        const interval = setInterval(() => {
+          count++;
+          const progress = Math.min(90, Math.round((count / total) * 100));
+          setImportProgress(prev => prev ? {
+            ...prev,
+            progress,
+            message: `Importation : ${count}/${total} produits envoyés...`
+          } : null);
+          
+          if (count >= total) {
+            clearInterval(interval);
+            setImportProgress({
+              progress: 100,
+              status: 'completed',
+              message: `✅ Import de ${total} produits terminé avec succès !`
+            });
+            setIsBatchImporting(false);
+            setImportedIds(prev => {
+              const next = new Set(prev);
+              selectedIds.forEach(id => next.add(id));
+              return next;
+            });
+            setSelectedIds(new Set());
+            if (onImportSuccess) onImportSuccess();
+          }
+        }, 800);
+        
+      } else {
+        setSearchError(data.error || "Erreur lors de l'import par lot");
+        setIsBatchImporting(false);
+      }
+    } catch (err) {
+      setSearchError("Erreur de connexion lors de l'import par lot");
+      setIsBatchImporting(false);
+    }
+  }, [selectedIds, isBatchImporting, selectedPlatform, apiUrl, token, isAdult, category, onImportSuccess]);
+
+  const toggleSelectProduct = (productId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(productId)) next.delete(productId);
+      else next.add(productId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === searchResults.length) {
+      setSelectedIds(new Set());
+    } else {
+      const allIds = searchResults.map(p => p.productId || p.pid || '').filter(Boolean);
+      setSelectedIds(new Set(allIds));
+    }
+  };
 
   // Fermeture avec confirmation si import en cours
   const handleClose = useCallback(() => {
@@ -354,12 +455,34 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
                 <p className="text-sm text-gray-600">
                   <strong>{searchResults.length}</strong> produits trouvés
                 </p>
-                {importedIds.size > 0 && (
-                  <p className="text-sm text-green-600 flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4" />
-                    {importedIds.size} importé(s)
-                  </p>
+                {searchResults.length > 0 && (
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={toggleSelectAll}
+                      className="text-xs font-medium text-blue-600 hover:underline"
+                    >
+                      {selectedIds.size === searchResults.length ? 'Désélectionner tout' : 'Tout sélectionner'}
+                    </button>
+                    {selectedIds.size > 0 && (
+                      <button
+                        onClick={handleBatchImport}
+                        disabled={isBatchImporting}
+                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+                      >
+                        {isBatchImporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+                        Importer la sélection ({selectedIds.size})
+                      </button>
+                    )}
+                  </div>
                 )}
+                <div className="flex flex-col items-end gap-1">
+                  {importedIds.size > 0 && (
+                    <p className="text-sm text-green-600 flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4" />
+                      {importedIds.size} importé(s)
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -385,8 +508,17 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
                             (e.target as HTMLImageElement).src = '/placeholder.jpg';
                           }}
                         />
+                        <div className="absolute top-2 left-2">
+                          <input 
+                            type="checkbox"
+                            checked={selectedIds.has(pid)}
+                            onChange={() => toggleSelectProduct(pid)}
+                            className="w-5 h-5 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer shadow-sm"
+                            onClick={e => e.stopPropagation()}
+                          />
+                        </div>
                         {isImported && (
-                          <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
+                          <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full shadow-md">
                             <CheckCircle className="w-4 h-4" />
                           </div>
                         )}
