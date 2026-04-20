@@ -97,7 +97,11 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ keyword, page: 1 }),
+        body: JSON.stringify({ 
+          keyword, 
+          page: 1,
+          category: category || undefined 
+        }),
       });
 
       const data = await response.json();
