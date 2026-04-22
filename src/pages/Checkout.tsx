@@ -110,6 +110,7 @@ export function Checkout() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           order_id: orderId, 
+          origin: window.location.origin,
           customer: { 
             email: formData.email, 
             phone: `${formData.indicatif}${formData.telephone}`, 

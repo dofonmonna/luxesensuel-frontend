@@ -122,100 +122,42 @@ export function Shop() {
       </div>
 
       <div className="max-w-[1440px] mx-auto px-4 pb-20">
-        <div className="flex flex-col lg:grid lg:grid-cols-4 gap-8">
-          
-          {/* ── Sidebar Filtres ──────────────────────────────── */}
-          <aside className="lg:col-span-1 space-y-8">
-            
-            {/* Active Filters */}
-            {(categoryFilter || searchQuery) && (
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="font-bold text-gray-900 text-sm">Filtres actifs</h4>
-                  <button onClick={clearFilters} className="text-[10px] text-[#CC0000] font-bold hover:underline">Effacer</button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {categoryFilter && (
-                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-[#CC0000] text-[10px] font-bold rounded-full border border-red-100 capitalize">
-                      {categoryFilter}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => {
-                        const next = new URLSearchParams(searchParams);
-                        next.delete('cat');
-                        setSearchParams(next);
-                      }} />
-                    </span>
-                  )}
-                  {searchQuery && (
-                    <span className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-900 text-[10px] font-bold rounded-full border border-gray-100">
-                      "{searchQuery}"
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => {
-                        const next = new URLSearchParams(searchParams);
-                        next.delete('search');
-                        setSearchParams(next);
-                      }} />
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+        {/* Horizontal Categories */}
+        <div className="mb-10 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex items-center gap-3 min-w-max">
+            <button 
+              onClick={() => {
+                const next = new URLSearchParams(searchParams);
+                next.delete('cat');
+                setSearchParams(next);
+              }}
+              className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all border ${!categoryFilter ? 'bg-[#CC0000] border-[#CC0000] text-white shadow-lg shadow-red-100' : 'bg-white border-gray-200 text-gray-500 hover:border-[#CC0000] hover:text-[#CC0000]'}`}
+            >
+              Tous
+            </button>
+            {CATEGORIES.map(cat => (
+              <button 
+                key={cat}
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.set('cat', cat.toLowerCase());
+                  setSearchParams(next);
+                }}
+                className={`px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all border ${categoryFilter === cat.toLowerCase() ? 'bg-[#CC0000] border-[#CC0000] text-white shadow-lg shadow-red-100' : 'bg-white border-gray-200 text-gray-500 hover:border-[#CC0000] hover:text-[#CC0000]'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
-            {/* Categories List */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-6">
-                <Filter className="w-4 h-4 text-[#CC0000]" />
-                <h4 className="font-bold text-gray-900 text-sm uppercase tracking-widest">Catégories</h4>
-              </div>
-              <ul className="space-y-3">
-                <li>
-                  <button 
-                    onClick={() => {
-                      const next = new URLSearchParams(searchParams);
-                      next.delete('cat');
-                      setSearchParams(next);
-                    }}
-                    className={`w-full text-left text-sm py-1 transition-colors ${!categoryFilter ? 'text-[#CC0000] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
-                  >
-                    Toutes les collections
-                  </button>
-                </li>
-                {CATEGORIES.map(cat => (
-                  <li key={cat}>
-                    <button 
-                      onClick={() => {
-                        const next = new URLSearchParams(searchParams);
-                        next.set('cat', cat.toLowerCase());
-                        setSearchParams(next);
-                      }}
-                      className={`w-full text-left text-sm py-1 transition-colors capitalize ${categoryFilter === cat.toLowerCase() ? 'text-[#CC0000] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
-                    >
-                      {cat}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Banner Side */}
-            <div className="bg-gradient-sensual rounded-2xl p-6 text-white overflow-hidden relative group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
-              <div className="relative z-10">
-                <Gift className="w-8 h-8 mb-4 opacity-50" />
-                <h4 className="text-lg font-black mb-2">Livraison Gratuite</h4>
-                <p className="text-xs text-white/80 mb-6">Dès 50€ d'achat sur toute la boutique.</p>
-                <Link to="/shop?cat=promo" className="inline-block px-6 py-2 bg-white text-[#CC0000] text-[10px] font-black rounded-full uppercase tracking-widest hover:bg-red-50 transition-colors">
-                  En profiter
-                </Link>
-              </div>
-            </div>
-
-          </aside>
-
+        <div className="flex flex-col gap-8">
           {/* ── Grille Produits ──────────────────────────────── */}
-          <main className="lg:col-span-3">
+          <main className="w-full">
             
             {loading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map(i => (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
                   <div key={i} className="space-y-4">
                     <Skeleton className="aspect-square w-full rounded-2xl" />
                     <Skeleton className="h-4 w-3/4 rounded-md" />
@@ -225,7 +167,7 @@ export function Shop() {
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className={`grid ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-1'} gap-6`}>
+                <div className={`grid ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' : 'grid-cols-1'} gap-6`}>
                   {sortedProducts.map(p => (
                     <ProductCard 
                       key={p.id}
