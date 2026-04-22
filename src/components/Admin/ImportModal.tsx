@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
-import { Search, X, Download, RefreshCw, CheckCircle, AlertCircle, Package } from 'lucide-react';
+import { Search, X, Download, RefreshCw, CheckCircle, AlertCircle, Package, Tag } from 'lucide-react';
 import { ImportProgress } from './ImportProgress';
 
 // Types
@@ -43,6 +43,13 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   
+  // État Saisie Multiple
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [bulkInput, setBulkInput] = useState('');
+  
+  // État de filtrage import
+  const [selectedCategory, setSelectedCategory] = useState<string>('Lingerie');
+  
   // État d'import
   const [importingId, setImportingId] = useState<string | null>(null);
   const [importProgress, setImportProgress] = useState<{
@@ -64,6 +71,8 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       setImportedIds(new Set());
       setSelectedIds(new Set());
       setIsBatchImporting(false);
+      setIsBulkMode(false);
+      setBulkInput('');
     }
   }, [isOpen]);
 
@@ -82,6 +91,10 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
   const handleSearch = useCallback(async () => {
     if (!keyword.trim()) return;
     
+    // Détection d'ID ou URL directe
+    const aeIdMatch = keyword.match(/(\d{10,20})/);
+    const isDirectId = selectedPlatform === 'aliexpress' && aeIdMatch;
+
     setIsSearching(true);
     setSearchError(null);
     setSearchResults([]);
@@ -95,7 +108,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ 
-          keyword, 
+          keyword: isDirectId ? aeIdMatch[0] : keyword, 
           page: 1
         }),
       });
@@ -103,7 +116,18 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       const data = await response.json();
 
       if (response.ok) {
-        const products = data.produits || data.products || [];
+        let products = data.produits || data.products || [];
+        
+        // Si c'est une recherche par ID et qu'on n'a rien, on peut tenter un import direct simulé
+        if (isDirectId && products.length === 0) {
+          products = [{
+            productId: aeIdMatch[0],
+            productTitle: `Produit ID: ${aeIdMatch[0]} (Cliquez sur Importer)`,
+            productMainImageUrl: '/placeholder-ae.jpg',
+            salePrice: '---'
+          }];
+        }
+        
         setSearchResults(products);
         if (products.length === 0) {
           setSearchError('Aucun produit trouvé pour cette recherche');
@@ -118,6 +142,30 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     }
   }, [keyword, selectedPlatform, apiUrl, token]);
 
+  // Extraction d'IDs depuis le texte en vrac
+  const handleProcessBulk = useCallback(() => {
+    const regex = /(\d{10,20})/g;
+    const matches = bulkInput.match(regex) || [];
+    const uniqueIds = Array.from(new Set(matches));
+    
+    if (uniqueIds.length === 0) {
+      setSearchError('Aucun ID de produit valide trouvé dans le texte');
+      return;
+    }
+
+    const mockResults: SearchResult[] = uniqueIds.map(id => ({
+      productId: id,
+      productTitle: `Produit détecté : ${id}`,
+      productMainImageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=200', // Placeholder médical/soin neutre
+      salePrice: '---'
+    }));
+
+    setSearchResults(mockResults);
+    setSelectedIds(new Set(uniqueIds));
+    setSearchError(null);
+    setIsBulkMode(false);
+  }, [bulkInput]);
+
   // Import d'un produit
   const handleImport = useCallback(async (product: SearchResult) => {
     const productId = product.productId || product.pid || '';
@@ -126,9 +174,11 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
     setImportingId(productId);
 
     try {
-      const body = selectedPlatform === 'cj'
-        ? { cj_product_id: productId, isAdult: false }
-        : { ae_product_id: productId, isAdult: false };
+      const body = {
+        [`${selectedPlatform === 'cj' ? 'cj_product_id' : 'product_id'}`]: productId,
+        isAdult: false,
+        category: selectedCategory
+      };
 
       const response = await fetch(`${apiUrl}/admin/import/${selectedPlatform}`, {
         method: 'POST',
@@ -179,7 +229,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
         body: JSON.stringify({
           platform: selectedPlatform,
           productIds: Array.from(selectedIds),
-          options: { isAdult: false }
+          options: { isAdult: false, category: selectedCategory }
         }),
       });
 
@@ -339,38 +389,108 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
             </button>
           </div>
 
-          {/* Barre de recherche */}
-          <div className="flex gap-3 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ex: lingerie, body, parfum, bijoux..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-              />
+          {/* Barre de recherche ou Saisie Multiple */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-semibold text-gray-700">
+                {isBulkMode ? 'Saisie multiple (URLs ou IDs)' : 'Recherche par mot-clé ou lien'}
+              </label>
+              <button 
+                onClick={() => {
+                  setIsBulkMode(!isBulkMode);
+                  setSearchResults([]);
+                }}
+                className="text-xs font-bold text-red-500 hover:text-red-700 underline"
+              >
+                {isBulkMode ? 'Retour à la recherche classique' : 'Mode Saisie Multiple (+)'}
+              </button>
             </div>
-            <button
-              onClick={handleSearch}
-              disabled={isSearching || !keyword.trim()}
-              className={`px-6 py-3 rounded-xl font-semibold text-white transition-all ${
-                selectedPlatform === 'cj'
-                  ? 'bg-red-500 hover:bg-red-600 disabled:bg-red-300'
-                  : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300'
-              } disabled:cursor-not-allowed flex items-center gap-2`}
-            >
-              {isSearching ? (
-                <RefreshCw className="w-5 h-5 animate-spin" />
-              ) : (
-                <Search className="w-5 h-5" />
-              )}
-              Rechercher
-            </button>
+
+            {isBulkMode ? (
+              <div className="space-y-3">
+                <textarea
+                  value={bulkInput}
+                  onChange={(e) => setBulkInput(e.target.value)}
+                  placeholder="Collez ici vos liens AliExpress ou IDs de produits (un par ligne ou séparés par des virgules)..."
+                  className="w-full h-32 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 outline-none font-mono text-sm"
+                />
+                <button
+                  onClick={handleProcessBulk}
+                  disabled={!bulkInput.trim()}
+                  className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition-all disabled:bg-gray-300"
+                >
+                  Extraire les produits ({ (bulkInput.match(/\d{10,20}/g) || []).length })
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={selectedPlatform === 'aliexpress' 
+                      ? "Collez un lien AliExpress ou tapez un mot-clé..." 
+                      : "Ex: lingerie, body, parfum, bijoux..."}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  />
+                </div>
+                <button
+                  onClick={handleSearch}
+                  disabled={isSearching || !keyword.trim()}
+                  className={`px-6 py-3 rounded-xl font-semibold text-white transition-all ${
+                    selectedPlatform === 'cj'
+                      ? 'bg-red-500 hover:bg-red-600 disabled:bg-red-300'
+                      : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300'
+                  } disabled:cursor-not-allowed flex items-center gap-2`}
+                >
+                  {isSearching ? (
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Search className="w-5 h-5" />
+                  )}
+                  Rechercher
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Barre de recherche */}
+
+          {/* Options d'importation */}
+          <div className="bg-red-50/50 p-4 rounded-xl mb-6 border border-red-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                <Tag className="w-5 h-5 text-red-500" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-gray-900">Destination</p>
+                <p className="text-[10px] text-gray-500">Choisir la catégorie cible</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <select 
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-red-500 min-w-[160px]"
+              >
+                <option value="Lingerie">Lingerie</option>
+                <option value="Plaisir Adulte">Plaisir Adulte</option>
+                <option value="Soins">Soins</option>
+                <option value="Parfums">Parfums</option>
+                <option value="Accessoires">Accessoires</option>
+                <option value="Bijoux">Bijoux</option>
+                <option value="Électronique">Électronique</option>
+                <option value="Bien-être">Bien-être</option>
+                <option value="Confort">Confort</option>
+                <option value="Coffrets">Coffrets</option>
+                <option value="Couples">Couples</option>
+              </select>
+            </div>
+          </div>
 
           {/* Résultats */}
           {searchResults.length > 0 && (
@@ -379,26 +499,24 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
                 <p className="text-sm text-gray-600">
                   <strong>{searchResults.length}</strong> produits trouvés
                 </p>
-                {searchResults.length > 0 && (
-                  <div className="flex items-center gap-4">
-                    <button 
-                      onClick={toggleSelectAll}
-                      className="text-xs font-medium text-blue-600 hover:underline"
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={toggleSelectAll}
+                    className="text-xs font-medium text-blue-600 hover:underline"
+                  >
+                    {selectedIds.size === searchResults.length ? 'Désélectionner tout' : 'Tout sélectionner'}
+                  </button>
+                  {selectedIds.size > 0 && (
+                    <button
+                      onClick={handleBatchImport}
+                      disabled={isBatchImporting}
+                      className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
                     >
-                      {selectedIds.size === searchResults.length ? 'Désélectionner tout' : 'Tout sélectionner'}
+                      {isBatchImporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+                      Importer la sélection ({selectedIds.size})
                     </button>
-                    {selectedIds.size > 0 && (
-                      <button
-                        onClick={handleBatchImport}
-                        disabled={isBatchImporting}
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
-                      >
-                        {isBatchImporting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
-                        Importer la sélection ({selectedIds.size})
-                      </button>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
                 <div className="flex flex-col items-end gap-1">
                   {importedIds.size > 0 && (
                     <p className="text-sm text-green-600 flex items-center gap-1">

@@ -72,13 +72,19 @@ export interface Product {
 }
 
 export const productsApi = {
-  list: async (params?: { category?: string; search?: string }) => {
+  list: async (params?: { category?: string; search?: string; random?: boolean; limit?: number }) => {
     if (!(await isBackendUp())) {
       let products = [...MOCK_PRODUCTS];
       if (params?.category) products = products.filter(p => p.category === params.category);
       if (params?.search) {
         const q = params.search.toLowerCase();
         products = products.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      }
+      if (params?.random) {
+        products = products.sort(() => Math.random() - 0.5);
+      }
+      if (params?.limit) {
+        products = products.slice(0, params.limit);
       }
       return { products };
     }

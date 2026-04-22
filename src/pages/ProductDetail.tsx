@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   Minus, Plus, ShoppingCart, Zap, Star, Truck, 
   ShieldCheck, RotateCcw, ChevronRight, Heart,
-  Share2, MessageCircle, Info
+  Share2, MessageCircle, Info, Flame, Award
 } from 'lucide-react';
 import { productsApi, type Product } from '@/lib/api';
 import { useCart } from '@/hooks/useCart';

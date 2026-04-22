@@ -283,6 +283,25 @@ export function Admin() {
     finally { setActionLoading(null); }
   };
 
+  const reorganizeProducts = async () => {
+    setActionLoading('reorganize');
+    try {
+      const res = await fetch(`${API_URL}/admin/products/reorganize`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) { 
+        addToast('success', data.message || 'Produits réorganisés ✅'); 
+        fetchDashboardData(); 
+      }
+    } catch { 
+      addToast('error', 'Erreur lors de la réorganisation'); 
+    } finally { 
+      setActionLoading(null); 
+    }
+  };
+
   const updateProductPrice = async (id: string, newPrice: number) => {
     try {
       const res = await fetch(`${API_URL}/admin/products/${id}/price`, {
@@ -398,7 +417,7 @@ export function Admin() {
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
               <input
                 type="text"
-                placeholder="Ex: lingerie, body, parfum, bijoux..."
+                placeholder="Mot-clé ou lien AliExpress (ex: https://...)"
                 value={importKeyword}
                 onChange={(e) => setImportKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && searchSupplierProducts()}
@@ -542,6 +561,10 @@ export function Admin() {
               <button onClick={exportCSV}
                 style={{ padding: '10px 20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Upload size={18} /> Export CSV
+              </button>
+              <button onClick={reorganizeProducts} disabled={actionLoading === 'reorganize'}
+                style={{ padding: '10px 20px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <RefreshCw size={18} style={{ animation: actionLoading === 'reorganize' ? 'spin 1s linear infinite' : 'none' }} /> Réorganiser catégories
               </button>
             </div>
           </div>

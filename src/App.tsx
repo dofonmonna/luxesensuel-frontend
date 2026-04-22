@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import ScrollToTop from './components/ScrollToTop';
 // ✅ Imports NOMMÉS (sans default)
 import { StoreLayout } from './pages/StoreLayout';
 import { AdminLayout } from './pages/AdminLayout';
@@ -24,6 +25,7 @@ import { AECallback } from './pages/AECallback';
 export function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* STORE LAYOUT */}
         <Route element={<StoreLayout />}>

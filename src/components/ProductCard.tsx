@@ -85,7 +85,7 @@ export function ProductCard({
     >
       {/* Image */}
       <div className="relative aspect-square overflow-hidden bg-gray-50">
-        {!imgError ? (
+        {!imgError && image ? (
           <img
             src={image}
             alt={title}
@@ -93,8 +93,9 @@ export function ProductCard({
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
-            <ShoppingCart className="w-12 h-12" />
+          <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100 flex-col gap-2">
+            <ShoppingCart className="w-12 h-12 opacity-20" />
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-30">Image indisponible</span>
           </div>
         )}
 

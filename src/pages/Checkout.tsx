@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User, Minus, Plus } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { toast } from 'sonner';
 
@@ -8,7 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export function Checkout() {
   const navigate = useNavigate();
-  const { items, total, removeItem, clearCart } = useCart();
+  const { items, total, removeItem, clearCart, updateQuantity } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -312,13 +312,27 @@ export function Checkout() {
                   <div key={item.id} className="flex gap-4 items-center group">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 shrink-0 shadow-sm relative group-hover:scale-105 transition-transform">
                       <img src={item.image} alt="" className="w-full h-full object-cover" />
-                      <span className="absolute -top-2 -right-2 bg-gray-900 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">
-                        {item.quantity}
-                      </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight mb-1">{item.name}</p>
-                      <p className="text-sm font-black text-[#CC0000]">{(item.price * item.quantity).toFixed(2)} €</p>
+                      <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight mb-2">{item.name}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center bg-gray-50 rounded-lg border border-gray-100 h-8">
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-xs font-black text-gray-900 w-6 text-center">{item.quantity}</span>
+                          <button 
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <p className="text-sm font-black text-[#CC0000]">{(item.price * item.quantity).toFixed(2)} €</p>
+                      </div>
                     </div>
                     <button 
                       onClick={() => removeItem(item.id)}

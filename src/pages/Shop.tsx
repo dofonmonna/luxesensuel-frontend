@@ -24,7 +24,7 @@ export function Shop() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState('newest');
+  const [sortBy, setSortBy] = useState('random');
 
   const categoryFilter = searchParams.get('cat');
   const searchQuery = searchParams.get('search');
@@ -35,7 +35,8 @@ export function Shop() {
       try {
         const res = await productsApi.list({ 
           category: categoryFilter || undefined, 
-          search: searchQuery || undefined 
+          search: searchQuery || undefined,
+          random: sortBy === 'random'
         });
         setProducts(res.products);
       } catch (err) {
@@ -45,14 +46,15 @@ export function Shop() {
       }
     };
     loadProducts();
-  }, [categoryFilter, searchQuery]);
+  }, [categoryFilter, searchQuery, sortBy]);
 
   const sortedProducts = useMemo(() => {
     const result = [...products];
     if (sortBy === 'price-asc') return result.sort((a, b) => a.price - b.price);
     if (sortBy === 'price-desc') return result.sort((a, b) => b.price - a.price);
     if (sortBy === 'name') return result.sort((a, b) => a.name.localeCompare(b.name));
-    return result; // default to newest (as returned by API)
+    if (sortBy === 'newest') return result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return result; // default (random or already shuffled by API)
   }, [products, sortBy]);
 
   const clearFilters = () => {
@@ -107,6 +109,7 @@ export function Shop() {
                   </div>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="random">Sélection intelligente</SelectItem>
                   <SelectItem value="newest">Nouveautés</SelectItem>
                   <SelectItem value="price-asc">Prix croissant</SelectItem>
                   <SelectItem value="price-desc">Prix décroissant</SelectItem>
@@ -238,20 +241,21 @@ export function Shop() {
                   ))}
                 </div>
                 
-                {/* Pagination (Mock) */}
-                <div className="mt-16 flex justify-center">
-                  <div className="flex items-center gap-2">
-                    <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-400 cursor-not-allowed">
-                      <ChevronDown className="w-4 h-4 rotate-90" />
-                    </button>
-                    <button className="w-10 h-10 rounded-lg bg-[#CC0000] text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-red-100">1</button>
-                    <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 hover:border-[#CC0000] hover:text-[#CC0000] transition-colors">2</button>
-                    <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 hover:border-[#CC0000] hover:text-[#CC0000] transition-colors">3</button>
-                    <button className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:border-[#CC0000] hover:text-[#CC0000] transition-colors">
-                      <ChevronDown className="w-4 h-4 -rotate-90" />
+                {/* Simplified Pagination for infinite feel */}
+                {products.length >= 20 && (
+                  <div className="mt-16 flex justify-center">
+                    <button 
+                      onClick={() => {
+                        // In a real app, this would load more or go to next page
+                        // For this "intelligent" feel, we'll just keep it simple
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="btn-outline-sensual px-12 py-4 rounded-full text-base border-2 border-[#CC0000] text-[#CC0000] hover:bg-[#CC0000] hover:text-white transition-all font-bold"
+                    >
+                      Afficher plus de produits
                     </button>
                   </div>
-                </div>
+                )}
               </>
             ) : (
               <div className="bg-white rounded-3xl p-16 text-center shadow-sm border border-gray-100">

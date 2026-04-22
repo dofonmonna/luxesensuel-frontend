@@ -63,7 +63,7 @@ export function Home() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const res = await productsApi.list();
+        const res = await productsApi.list({ random: true, limit: 30 });
         setProducts(res.products);
       } catch (err) {
         console.error("Home API Error:", err);
