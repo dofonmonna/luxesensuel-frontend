@@ -144,7 +144,9 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
 
   // Extraction d'IDs depuis le texte en vrac
   const handleProcessBulk = useCallback(() => {
-    const regex = /(\d{10,20})/g;
+    // Les IDs CJ peuvent être des UUID (ex: 7E3FEDDA-5BFB-4F59-95A1-0F20B08D1121) ou des nombres longs (ex: 1385106472937066496)
+    // Les IDs AE sont généralement des nombres
+    const regex = /([a-zA-Z0-9-]{10,40})/g;
     const matches = bulkInput.match(regex) || [];
     const uniqueIds = Array.from(new Set(matches));
     
@@ -238,43 +240,11 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       if (response.ok) {
         setImportProgress({
           jobId: data.jobId,
-          progress: 10,
+          progress: 5,
           status: 'running',
-          message: `Import en cours (Job: ${data.jobId})...`
+          message: `Import démarré en arrière-plan (Job: ${data.jobId}). Veuillez patienter...`
         });
-        
-        // Simulation de progression simple (le backend fait le travail en arrière-plan)
-        // Normalement on utiliserait WebSockets ici, mais on va faire un petit feedback visuel
-        let count = 0;
-        const total = selectedIds.size;
-        
-        const interval = setInterval(() => {
-          count++;
-          const progress = Math.min(90, Math.round((count / total) * 100));
-          setImportProgress(prev => prev ? {
-            ...prev,
-            progress,
-            message: `Importation : ${count}/${total} produits envoyés...`
-          } : null);
-          
-          if (count >= total) {
-            clearInterval(interval);
-            setImportProgress({
-              progress: 100,
-              status: 'completed',
-              message: `✅ Import de ${total} produits terminé avec succès !`
-            });
-            setIsBatchImporting(false);
-            setImportedIds(prev => {
-              const next = new Set(prev);
-              selectedIds.forEach(id => next.add(id));
-              return next;
-            });
-            setSelectedIds(new Set());
-            if (onImportSuccess) onImportSuccess();
-          }
-        }, 800);
-        
+        // La progression réelle sera gérée par le composant <ImportProgress /> via WebSocket
       } else {
         setSearchError(data.error || "Erreur lors de l'import par lot");
         setIsBatchImporting(false);
@@ -283,7 +253,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
       setSearchError("Erreur de connexion lors de l'import par lot");
       setIsBatchImporting(false);
     }
-  }, [selectedIds, isBatchImporting, selectedPlatform, apiUrl, token, onImportSuccess]);
+  }, [selectedIds, isBatchImporting, selectedPlatform, apiUrl, token, selectedCategory]);
 
   const toggleSelectProduct = (productId: string) => {
     setSelectedIds(prev => {
@@ -630,9 +600,22 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
         {importProgress && (
           <div className="border-t border-gray-200 p-4 bg-gray-50">
             <ImportProgress 
+              jobId={importProgress.jobId}
+              token={token || ''}
               progress={importProgress.progress}
               status={importProgress.status}
               message={importProgress.message}
+              onComplete={() => {
+                setIsBatchImporting(false);
+                setImportedIds(prev => {
+                  const next = new Set(prev);
+                  selectedIds.forEach(id => next.add(id));
+                  return next;
+                });
+                setSelectedIds(new Set());
+                if (onImportSuccess) onImportSuccess();
+              }}
+              onError={(err) => setSearchError(err)}
             />
           </div>
         )}
