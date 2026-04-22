@@ -54,6 +54,16 @@ export function ImportProgress({
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
+  // Sync props to state if they change from outside
+  useEffect(() => {
+    setData(prev => ({
+      ...prev,
+      progress: initialProgress !== undefined ? initialProgress : prev.progress,
+      status: initialStatus !== undefined ? initialStatus : prev.status,
+      message: initialMessage !== undefined ? initialMessage : prev.message,
+    }));
+  }, [initialProgress, initialStatus, initialMessage]);
+
   // Connexion WebSocket
   useEffect(() => {
     if (!jobId || !token) return;
@@ -122,6 +132,51 @@ export function ImportProgress({
       }
     };
   }, [jobId, token, onComplete, onError]);
+
+  // ✅ Fallback Polling (si le WebSocket échoue ou est bloqué)
+  useEffect(() => {
+    if (!jobId || data.status === 'completed' || data.status === 'error') return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/admin/import/jobs`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) return;
+        
+        const { jobs } = await response.json();
+        const currentJob = jobs.find((j: any) => j.id === jobId || j.jobId === jobId);
+        
+        if (currentJob) {
+          // Si le polling a des données plus fraîches ou confirme la fin
+          setData(prev => {
+            if (prev.status === 'completed') return prev;
+            
+            const newData = {
+              ...prev,
+              progress: currentJob.progress || prev.progress,
+              status: currentJob.status || prev.status,
+              message: currentJob.message || prev.message,
+              processedItems: currentJob.processedItems || prev.processedItems,
+              totalItems: currentJob.totalItems || prev.totalItems,
+              timestamp: Date.now()
+            };
+
+            // Trigger completion from polling if needed
+            if (newData.status === 'completed' && onComplete) {
+              setTimeout(() => onComplete(newData), 500);
+            }
+
+            return newData;
+          });
+        }
+      } catch (err) {
+        console.warn('Polling error:', err);
+      }
+    }, 3000); // Poll toutes les 3 secondes
+
+    return () => clearInterval(pollInterval);
+  }, [jobId, token, data.status, onComplete]);
 
   // Ping/Pong pour maintenir la connexion
   useEffect(() => {
