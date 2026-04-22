@@ -40,6 +40,7 @@ export function ImportProgress({
   status: initialStatus = 'pending',
   message: initialMessage = 'En attente...',
   token,
+  apiUrl,
   onComplete,
   onError 
 }: ImportProgressProps) {
