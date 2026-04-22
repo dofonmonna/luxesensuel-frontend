@@ -26,6 +26,16 @@ const PROMOS = [
   '⭐ +25 000 clients satisfaits — Note 4.9/5',
 ];
 
+const LANGUAGES = [
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'en', label: 'English',  flag: '🇺🇸' },
+  { code: 'es', label: 'Español',  flag: '🇪🇸' },
+  { code: 'de', label: 'Deutsch',  flag: '🇩🇪' },
+  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
+  { code: 'pt', label: 'Português', flag: '🇵🇹' },
+  { code: 'ar', label: 'العربية',   flag: '🇦🇪' },
+];
+
 export function Header() {
   const navigate = useNavigate();
   const { items } = useCart();
@@ -68,19 +78,44 @@ export function Header() {
     if (query.trim()) navigate(`/shop?search=${encodeURIComponent(query.trim())}`);
   };
 
+  const changeLanguage = (langCode: string) => {
+    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (select) {
+      select.value = langCode;
+      select.dispatchEvent(new Event('change'));
+    }
+  };
+
   return (
     <header className={`w-full sticky top-0 z-50 bg-white transition-shadow duration-200 ${scrolled ? 'shadow-[0_2px_8px_rgba(0,0,0,0.12)]' : ''}`}>
 
-      {/* ── NIVEAU 1 : Bandeau annonce ──────────────────────── */}
-      <div className="bg-[#CC0000] text-white text-center py-1.5 px-4 overflow-hidden">
-        <div className="flex items-center justify-center gap-2 text-xs font-medium tracking-wide">
-          <span
-            key={promoIdx}
-            className="animate-fade-in"
-            style={{ animationDuration: '0.5s' }}
-          >
-            {PROMOS[promoIdx]}
-          </span>
+      {/* ── NIVEAU 1 : Bandeau annonce + Traducteur ────────── */}
+      <div className="bg-[#CC0000] text-white py-1.5 px-4 overflow-hidden">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between relative">
+          
+          <div className="flex-1 flex justify-center gap-2 text-[10px] sm:text-xs font-medium tracking-wide">
+            <span
+              key={promoIdx}
+              className="animate-fade-in whitespace-nowrap"
+              style={{ animationDuration: '0.5s' }}
+            >
+              {PROMOS[promoIdx]}
+            </span>
+          </div>
+
+          <div className="hidden md:flex items-center gap-3 border-l border-white/20 pl-4">
+            <select 
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer border-none appearance-none hover:text-white/80 transition-colors"
+            >
+              {LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code} className="text-gray-900 bg-white">
+                  {lang.flag} {lang.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3 h-3 opacity-50" />
+          </div>
         </div>
       </div>
 
