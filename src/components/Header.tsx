@@ -14,7 +14,6 @@ const CATEGORIES = [
   { label: 'Cosmétiques',     href: '/shop?cat=cosmetiques',  emoji: '💄' },
   { label: 'Bijoux',          href: '/shop?cat=bijoux',       emoji: '💎' },
   { label: 'Bien-être',       href: '/shop?cat=bienetre',     emoji: '🌿' },
-  { label: 'Adulte',          href: '/shop?cat=adulte',       emoji: '🔞' },
   { label: 'Nouveautés',      href: '/shop?cat=new',          emoji: '🆕', badge: 'NEW' },
   { label: 'Promotions',      href: '/shop?cat=promo',        emoji: '🔥', badge: 'HOT' },
 ];

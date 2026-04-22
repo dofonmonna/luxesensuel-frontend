@@ -47,7 +47,6 @@ const HERO_SLIDES = [
 
 const CATEGORY_ICONS = [
   { title: 'Lingerie', icon: Heart, slug: 'lingerie' },
-  { title: 'Plaisir', icon: Sparkles, slug: 'plaisir adulte' },
   { title: 'Électronique', icon: Zap, slug: 'électronique' },
   { title: 'Soins', icon: Sparkles, slug: 'soins' },
   { title: 'Accessoires', icon: ShoppingBag, slug: 'accessoires' },
