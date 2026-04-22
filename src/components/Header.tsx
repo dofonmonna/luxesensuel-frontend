@@ -79,10 +79,20 @@ export function Header() {
   };
 
   const changeLanguage = (langCode: string) => {
+    // On essaie de trouver le sélecteur caché de Google
     const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
     if (select) {
       select.value = langCode;
       select.dispatchEvent(new Event('change'));
+    } else {
+      // Si pas encore chargé, on réessaie une fois après 1 seconde
+      setTimeout(() => {
+        const retrySelect = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+        if (retrySelect) {
+          retrySelect.value = langCode;
+          retrySelect.dispatchEvent(new Event('change'));
+        }
+      }, 1000);
     }
   };
 
