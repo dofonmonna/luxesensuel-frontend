@@ -45,6 +45,17 @@ export function Header() {
   const [catOpen, setCatOpen] = useState(false);
   const catRef = useRef<HTMLDivElement>(null);
 
+  // Détection de la langue initiale via le cookie googtrans
+  const [currentLang, setCurrentLang] = useState(() => {
+    if (typeof document !== 'undefined') {
+      const match = document.cookie.match(/googtrans=\/[^\/]+\/([^;]+)/);
+      if (match && match[1]) {
+        return match[1] === 'zh-CN' ? 'zh' : match[1];
+      }
+    }
+    return 'fr';
+  });
+
   // Total articles panier
   const cartCount = items.reduce((acc, i) => acc + i.quantity, 0);
 
@@ -78,6 +89,13 @@ export function Header() {
   };
 
   const changeLanguage = (langCode: string) => {
+    setCurrentLang(langCode);
+    
+    // Forcer la mise à jour du cookie pour que le script au prochain rechargement ne le change pas
+    const targetLang = langCode === 'zh' ? 'zh-CN' : langCode;
+    document.cookie = `googtrans=/fr/${targetLang}; path=/`;
+    document.cookie = `googtrans=/fr/${targetLang}; domain=.${document.domain}; path=/`;
+
     // On essaie de trouver le sélecteur caché de Google
     const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
     if (select) {
@@ -114,6 +132,7 @@ export function Header() {
 
           <div className="hidden md:flex items-center gap-3 border-l border-white/20 pl-4">
             <select 
+              value={currentLang}
               onChange={(e) => changeLanguage(e.target.value)}
               className="bg-transparent text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer border-none appearance-none hover:text-white/80 transition-colors"
             >
@@ -301,7 +320,24 @@ export function Header() {
               </button>
             </form>
           </div>
-          <div className="py-2">
+          
+          {/* Sélecteur de langue Mobile */}
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Langue / Language</span>
+            <select 
+              value={currentLang}
+              onChange={(e) => changeLanguage(e.target.value)}
+              className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-[#CC0000] focus:border-[#CC0000] block p-2 outline-none"
+            >
+              {LANGUAGES.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.flag} {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col py-2">
             {CATEGORIES.map(cat => (
               <Link
                 key={cat.label}

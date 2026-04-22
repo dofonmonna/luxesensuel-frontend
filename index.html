@@ -39,6 +39,19 @@
       }
     </style>
     <script type="text/javascript">
+      // Auto-translate based on browser language
+      (function() {
+        if (document.cookie.indexOf('googtrans') === -1) {
+          var lang = (navigator.language || navigator.userLanguage || '').split('-')[0];
+          var supported = ['en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'fr'];
+          if (lang && lang !== 'fr' && supported.indexOf(lang) > -1) {
+            var targetLang = lang === 'zh' ? 'zh-CN' : lang;
+            document.cookie = 'googtrans=/fr/' + targetLang + '; path=/';
+            document.cookie = 'googtrans=/fr/' + targetLang + '; domain=.' + document.domain + '; path=/';
+          }
+        }
+      })();
+
       function googleTranslateElementInit() {
         new google.translate.TranslateElement({
           pageLanguage: 'fr',
