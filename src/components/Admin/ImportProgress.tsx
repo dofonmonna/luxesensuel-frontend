@@ -27,6 +27,7 @@ export interface ImportProgressProps {
   status?: string;
   message?: string;
   token?: string;
+  apiUrl?: string;
   onComplete?: (result: any) => void;
   onError?: (error: string) => void;
 }
@@ -54,13 +55,16 @@ export function ImportProgress({
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
+  // Déterminer l'URL de base pour l'API
+  const baseApiUrl = (apiUrl || API_URL || '').replace(/\/api$/, '');
+
   // Sync props to state if they change from outside
   useEffect(() => {
     setData(prev => ({
       ...prev,
       progress: initialProgress !== undefined ? initialProgress : prev.progress,
-      status: initialStatus !== undefined ? initialStatus : prev.status,
-      message: initialMessage !== undefined ? initialMessage : prev.message,
+      status: (initialStatus as any) || prev.status,
+      message: initialMessage || prev.message,
     }));
   }, [initialProgress, initialStatus, initialMessage]);
 
@@ -68,7 +72,10 @@ export function ImportProgress({
   useEffect(() => {
     if (!jobId || !token) return;
 
-    const socket = io(API_URL, {
+    // L'URL du WebSocket doit pointer vers la racine, pas /api
+    const socketUrl = baseApiUrl || 'http://localhost:4000';
+
+    const socket = io(socketUrl, {
       path: '/socket.io',
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -105,18 +112,22 @@ export function ImportProgress({
     // Écouter les mises à jour de progression
     socket.on('import-progress', (update: ImportProgressData) => {
       if (update.jobId === jobId) {
-        setData(prev => ({
-          ...prev,
-          ...update,
-          timestamp: Date.now(),
-        }));
+        setData(prev => {
+          const newData = {
+            ...prev,
+            ...update,
+            timestamp: Date.now(),
+          };
 
-        // Callbacks
-        if (update.status === 'completed' && onComplete) {
-          onComplete(update);
-        } else if (update.status === 'error' && onError) {
-          onError(update.message);
-        }
+          // Callbacks (seulement si le statut change vers completed)
+          if (update.status === 'completed' && prev.status !== 'completed' && onComplete) {
+            setTimeout(() => onComplete(newData), 800);
+          } else if (update.status === 'error' && prev.status !== 'error' && onError) {
+            onError(update.message);
+          }
+          
+          return newData;
+        });
       }
     });
 
@@ -131,7 +142,7 @@ export function ImportProgress({
         socket.disconnect();
       }
     };
-  }, [jobId, token, onComplete, onError]);
+  }, [jobId, token, onComplete, onError, baseApiUrl]);
 
   // ✅ Fallback Polling (si le WebSocket échoue ou est bloqué)
   useEffect(() => {
@@ -139,7 +150,7 @@ export function ImportProgress({
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`${API_URL}/api/admin/import/jobs`, {
+        const response = await fetch(`${baseApiUrl}/api/admin/import/jobs`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) return;
@@ -148,7 +159,6 @@ export function ImportProgress({
         const currentJob = jobs.find((j: any) => j.id === jobId || j.jobId === jobId);
         
         if (currentJob) {
-          // Si le polling a des données plus fraîches ou confirme la fin
           setData(prev => {
             if (prev.status === 'completed') return prev;
             
@@ -163,8 +173,8 @@ export function ImportProgress({
             };
 
             // Trigger completion from polling if needed
-            if (newData.status === 'completed' && onComplete) {
-              setTimeout(() => onComplete(newData), 500);
+            if (newData.status === 'completed' && prev.status !== 'completed' && onComplete) {
+              setTimeout(() => onComplete(newData), 800);
             }
 
             return newData;
@@ -173,10 +183,10 @@ export function ImportProgress({
       } catch (err) {
         console.warn('Polling error:', err);
       }
-    }, 3000); // Poll toutes les 3 secondes
+    }, 4000); 
 
     return () => clearInterval(pollInterval);
-  }, [jobId, token, data.status, onComplete]);
+  }, [jobId, token, data.status, onComplete, baseApiUrl]);
 
   // Ping/Pong pour maintenir la connexion
   useEffect(() => {

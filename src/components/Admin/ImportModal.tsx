@@ -602,6 +602,7 @@ export function ImportModal({ isOpen, onClose, onImportSuccess, apiUrl, token }:
             <ImportProgress 
               jobId={importProgress.jobId}
               token={token || ''}
+              apiUrl={apiUrl}
               progress={importProgress.progress}
               status={importProgress.status}
               message={importProgress.message}
