@@ -1,0 +1,20 @@
+# robots.txt - LuxeSensuel
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /cart
+Disallow: /checkout
+Disallow: /confirmation
+Disallow: /confirm-reception
+Disallow: /login
+Disallow: /signup
+Disallow: /profile
+Disallow: /settings
+Disallow: /callback
+
+# Sitemap
+Sitemap: https://prismatic-cheesecake-92caa2.netlify.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1

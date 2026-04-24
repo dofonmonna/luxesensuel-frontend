@@ -7,6 +7,7 @@ import {
 import { productsApi, type Product } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SEO } from '@/components/SEO';
 import {
   Select,
   SelectContent,
@@ -63,6 +64,16 @@ export function Shop() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat]">
+      <SEO
+        title={categoryFilter ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} - Boutique` : searchQuery ? `Résultats pour "${searchQuery}"` : 'Boutique - Tous nos produits'}
+        description={categoryFilter ? `Découvrez notre sélection ${categoryFilter} chez LuxeSensuel. Produits premium, livraison discrète et paiement sécurisé.` : 'Parcourez notre catalogue complet de lingerie fine, soins corporels, parfums et accessoires de luxe. Livraison discrète garantie.'}
+        keywords={`${categoryFilter || 'lingerie, soins, parfums, accessoires'}, boutique en ligne, luxe, livraison discrète`}
+        url={`https://prismatic-cheesecake-92caa2.netlify.app/shop${categoryFilter ? '?cat=' + categoryFilter : ''}`}
+        breadcrumbs={[
+          { name: 'Accueil', url: '/' },
+          { name: categoryFilter ? categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1) : 'Boutique', url: '/shop' },
+        ]}
+      />
       
       {/* ── Header Page ────────────────────────────────────── */}
       <div className="bg-white border-b border-gray-100 py-8 mb-6">

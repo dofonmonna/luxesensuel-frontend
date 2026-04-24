@@ -11,6 +11,10 @@ import { toast } from 'sonner';
 import { ProductCard } from '@/components/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { SEO } from '@/components/SEO';
+import { ViewersCount, LowStockBadge } from '@/components/SocialProof';
+import { RecentlyViewed } from '@/components/RecentlyViewed';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 const money = (v: number) => v.toFixed(2) + ' €';
 const getRating = (id: string) => parseFloat((4.2 + ((id.charCodeAt(0) % 8) / 10)).toFixed(1));
@@ -63,6 +67,14 @@ export function ProductDetail() {
   const sold = product ? getSold(product.id) : 0;
   const reviews = product ? getReviews(product.id) : 0;
 
+  // Track recently viewed
+  const { addViewed } = useRecentlyViewed();
+  useEffect(() => {
+    if (product) {
+      addViewed({ id: product.id, name: product.name, price, image: product.image, category: product.category });
+    }
+  }, [product?.id]);
+
   const handleAdd = () => {
     if (!product) return;
     addItem({ id: product.id, name: product.name, price, image: product.image, quantity });
@@ -97,6 +109,32 @@ export function ProductDetail() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] pb-24 lg:pb-12">
       
+      <SEO
+        title={product.name}
+        description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Produit d'exception chez LuxeSensuel. Livraison discrète et paiement sécurisé.`}
+        keywords={`${product.name}, ${product.category || 'lingerie'}, luxe, boutique en ligne, LuxeSensuel`}
+        image={product.image}
+        url={`https://prismatic-cheesecake-92caa2.netlify.app/product/${product.id}`}
+        type="product"
+        product={{
+          name: product.name,
+          price: price,
+          currency: 'EUR',
+          availability: product.stock > 0 ? 'InStock' : 'OutOfStock',
+          image: product.image,
+          category: product.category || 'Produit',
+          rating: rating,
+          reviewCount: reviews,
+          sku: product.id.slice(0, 8).toUpperCase(),
+          description: product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 300) || '',
+        }}
+        breadcrumbs={[
+          { name: 'Accueil', url: '/' },
+          { name: 'Boutique', url: '/shop' },
+          { name: product.name, url: `/product/${product.id}` },
+        ]}
+      />
+
       {/* ── Breadcrumb ── */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-[1440px] mx-auto px-4 py-3 flex items-center gap-2 text-[11px] text-gray-400 font-medium uppercase tracking-wider">
@@ -118,7 +156,10 @@ export function ProductDetail() {
             <div className="relative aspect-square rounded-2xl overflow-hidden border border-gray-100 group">
               <img 
                 src={mainImg} 
-                alt={product.name} 
+                alt={product.name}
+                loading="lazy"
+                width={800}
+                height={800}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4 flex flex-col gap-2">
@@ -237,6 +278,12 @@ export function ProductDetail() {
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* Social Proof Badges */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <ViewersCount productId={product.id} />
+              <LowStockBadge stock={product.stock} />
             </div>
 
             {/* Main Action Buttons */}
@@ -390,6 +437,9 @@ export function ProductDetail() {
         </div>
 
       </div>
+
+      {/* Récemment consultés */}
+      <RecentlyViewed />
 
       {/* Mobile Sticky Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 p-4 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex gap-4">

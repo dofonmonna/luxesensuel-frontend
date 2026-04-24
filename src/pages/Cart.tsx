@@ -2,6 +2,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Check, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 export function Cart() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ export function Cart() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-12 px-4">
+      <SEO title="Mon Panier" description="Consultez votre panier d'achat LuxeSensuel. Paiement sécurisé et livraison discrète." noindex={true} />
       <div className="max-w-6xl mx-auto">
         
         <h1 className="text-3xl font-black text-gray-900 mb-8 flex items-center gap-4">

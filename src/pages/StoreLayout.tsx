@@ -1,6 +1,10 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
+import { WelcomePopup } from '../components/WelcomePopup';
+import { ExitIntentPopup } from '../components/ExitIntentPopup';
+import { SocialProofToast } from '../components/SocialProof';
+import { WhatsAppButton } from '../components/WhatsAppButton';
 
 export const StoreLayout = () => {
   const location = useLocation();
@@ -15,6 +19,12 @@ export const StoreLayout = () => {
       </main>
       
       {!isAuthPage && <Footer />}
+
+      {/* Conversion Boosters */}
+      <WelcomePopup />
+      <ExitIntentPopup />
+      <SocialProofToast />
+      {!isAuthPage && <WhatsAppButton />}
     </div>
   );
 };

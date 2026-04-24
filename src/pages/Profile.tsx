@@ -4,6 +4,7 @@ import { collection, doc, getDoc, getDocs, query, where, orderBy } from 'firebas
 import { useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, Loader2, LogOut, Package, Truck, UserCircle2, ShoppingBag, MapPin, Calendar, ChevronRight, ShieldCheck, CreditCard, Phone } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 export function Profile() {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export function Profile() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] pb-20 pt-10 px-4 md:px-8">
+      <SEO title="Mon Profil" description="Gérez votre profil et suivez vos commandes LuxeSensuel." noindex={true} />
       <div className="mx-auto max-w-6xl">
         
         {/* En-tête du profil */}

@@ -6,6 +6,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
 import { Loader2, User, Mail, Lock, Phone, MapPin, Globe, ArrowRight, Eye, EyeOff, ShieldCheck, Sparkles, Search } from "lucide-react";
 import { COUNTRIES } from "@/utils/countries";
+import { SEO } from '@/components/SEO';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -17,11 +18,11 @@ export function Signup() {
     lastName: "", 
     email: "", 
     password: "",
-    phonePrefix: "+225",
+    phonePrefix: "+33",
     phone: "", 
     address: "", 
     city: "", 
-    country: "Côte d'Ivoire",
+    country: "France",
   });
 
   const filteredCountries = useMemo(() => {
@@ -77,6 +78,7 @@ export function Signup() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
+      <SEO title="Créer un compte" description="Inscrivez-vous sur LuxeSensuel pour profiter d'offres exclusives et suivre vos commandes." noindex={true} />
       
       {/* Decorative backgrounds */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 opacity-60" />

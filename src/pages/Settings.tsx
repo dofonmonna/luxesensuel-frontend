@@ -4,6 +4,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, ArrowLeft, Save, User, Phone, MapPin, Building, Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 export function Settings() {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ export function Settings() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-12 px-4">
+      <SEO title="Paramètres" description="Modifiez vos informations personnelles LuxeSensuel." noindex={true} />
       <div className="max-w-2xl mx-auto">
         <button 
           onClick={() => navigate('/profile')} 

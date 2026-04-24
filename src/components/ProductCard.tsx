@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProductCardProps {
   id?: string;
@@ -51,18 +52,28 @@ export function ProductCard({
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { trackAddToCart } = useAnalytics();
   const [wished, setWished] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   const discountPct = oldPrice
     ? Math.round(((oldPrice - price) / oldPrice) * 100)
     : discount
-    ? parseInt(discount.replace(/\D/g, ''))
-    : null;
+      ? parseInt(discount.replace(/\D/g, ''))
+      : null;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addItem({ id: id || title, name: title, price, image, quantity: 1 });
+
+    // 📊 Track AddToCart
+    trackAddToCart({
+      id: id || title,
+      name: title,
+      price,
+      category,
+    });
+
     toast.success('Ajouté au panier !', {
       description: title.slice(0, 40) + (title.length > 40 ? '…' : ''),
     });
@@ -89,6 +100,9 @@ export function ProductCard({
           <img
             src={image}
             alt={title}
+            loading="lazy"
+            width={400}
+            height={400}
             onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -193,7 +207,7 @@ export function ProductCard({
               </span>
             )}
           </div>
-          
+
           <button
             onClick={handleAddToCart}
             className="w-10 h-10 rounded-2xl bg-gray-900 hover:bg-[#CC0000] text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-[0_8px_20px_rgba(204,0,0,0.2)] active:scale-90 group/cart"

@@ -4,6 +4,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, UserCircle } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -28,6 +29,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center px-6 py-20 relative overflow-hidden">
+      <SEO title="Connexion" description="Connectez-vous à votre compte LuxeSensuel pour suivre vos commandes et accéder à vos favoris." noindex={true} />
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 opacity-50" />
@@ -117,4 +119,4 @@ export function Login() {
       </div>
     </div>
   );
-}
+}

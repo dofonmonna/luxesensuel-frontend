@@ -3,11 +3,47 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/icon.svg" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="LuxeSensuel" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LuxeSensuel | Boutique de Lingerie & Accessoires d'Exception</title>
     <meta name="description" content="LuxeSensuel - Découvrez notre collection exclusive de lingerie fine, nuisettes et accessoires de luxe. Livraison internationale discrète." />
-    <meta name="keywords" content="lingerie de luxe, sexy underwear, international shipping, boutique lingerie, LuxeSensuel" />
+    <meta name="keywords" content="lingerie de luxe, sexy underwear, international shipping, boutique lingerie, LuxeSensuel, lingerie fine, nuisettes, accessoires" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="LuxeSensuel" />
+    <meta name="theme-color" content="#CC0000" />
+    <link rel="canonical" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+
+    <!-- OpenGraph par défaut -->
+    <meta property="og:title" content="LuxeSensuel | Boutique de Lingerie & Accessoires d'Exception" />
+    <meta property="og:description" content="Découvrez notre collection exclusive de lingerie fine, nuisettes et accessoires de luxe. Livraison internationale discrète." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1200" />
+    <meta property="og:url" content="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LuxeSensuel" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="es_ES" />
+    <meta property="og:locale:alternate" content="de_DE" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LuxeSensuel | Lingerie & Accessoires de Luxe" />
+    <meta name="twitter:description" content="Collection exclusive de lingerie fine et accessoires. Livraison discrète mondiale." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1200" />
+
+    <!-- Hreflang pour multilingue -->
+    <link rel="alternate" hreflang="fr" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="en" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="es" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="de" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="it" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="pt" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://prismatic-cheesecake-92caa2.netlify.app/" />
 
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@200;300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
     
@@ -17,58 +53,23 @@
         background-color: #F5F5F5;
         color: #1a1a1a;
         font-family: 'Montserrat', sans-serif;
-        top: 0 !important; /* Fix Google Translate bar space */
       }
       /* Pour éviter le flash au chargement */
       #root {
         min-height: 100vh;
         background-color: #F5F5F5;
       }
-      /* Google Translate Premium Look */
-      .goog-te-banner-frame.skiptranslate {
-        display: none !important;
-      }
-      #google_translate_element {
-        position: absolute;
-        top: -9999px;
-      }
-      .goog-te-gadget {
-        font-family: 'Montserrat', sans-serif !important;
-      }
-      .goog-text-highlight {
-        background-color: transparent !important;
-        box-shadow: none !important;
-      }
     </style>
-    <script type="text/javascript">
-      // Auto-translate based on browser language
-      (function() {
-        if (document.cookie.indexOf('googtrans') === -1) {
-          var lang = (navigator.language || navigator.userLanguage || '').split('-')[0];
-          var supported = ['en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'fr'];
-          if (lang && lang !== 'fr' && supported.indexOf(lang) > -1) {
-            var targetLang = lang === 'zh' ? 'zh-CN' : lang;
-            document.cookie = 'googtrans=/fr/' + targetLang + '; path=/';
-            document.cookie = 'googtrans=/fr/' + targetLang + '; domain=.' + document.domain + '; path=/';
-          }
-        }
-      })();
-
-      function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-          pageLanguage: 'fr',
-          includedLanguages: 'en,fr,es,de,it,pt,ar,zh-CN',
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false
-        }, 'google_translate_element');
-      }
-      window.googleTranslateElementInit = googleTranslateElementInit;
-    </script>
-    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
   </head>
   <body>
-    <div id="google_translate_element"></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
   </body>
 </html>

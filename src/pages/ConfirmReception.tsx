@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { CheckCircle, XCircle, Loader2, PackageCheck, Star, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -34,6 +35,7 @@ export function ConfirmReception() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center p-6 relative overflow-hidden">
+      <SEO title="Confirmation de Réception" description="Confirmez la réception de votre commande LuxeSensuel." noindex={true} />
       
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />

@@ -2,29 +2,48 @@ import { CheckCircle, Mail, PackageCheck, ShoppingBag, Truck, Home, ShieldCheck,
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useCart } from '../hooks/useCart';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { SEO } from '@/components/SEO';
 
 export function Confirmation() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const orderNumber = params.get('order');
   const method = params.get('method');
-  const { clearCart } = useCart();
+  const { clearCart, items, totalPrice } = useCart();
+  const { trackPurchase } = useAnalytics();
 
-  // Vider le panier à l'arrivée sur cette page
+  // Vider le panier + Track Purchase
   useEffect(() => {
     clearCart();
+
+    // 📊 Track Purchase (événement le plus important !)
+    if (orderNumber) {
+      trackPurchase({
+        id: orderNumber,
+        orderNumber: orderNumber,
+        total: totalPrice,
+        currency: 'EUR',
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+        })),
+      });
+    }
   }, []);
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center px-4 py-20 relative overflow-hidden">
-      
+      <SEO title="Commande Confirmée" description="Votre commande LuxeSensuel a été confirmée avec succès." noindex={true} />
+
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 opacity-50" />
 
       <div className="max-w-4xl w-full relative z-10">
         <div className="bg-white rounded-[3rem] shadow-sm border border-gray-100 p-8 md:p-14 overflow-hidden relative">
-          
+
           {/* Header */}
           <div className="text-center mb-12">
             <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-[2.5rem] bg-emerald-50 shadow-sm animate-in zoom-in duration-500">
@@ -37,7 +56,7 @@ export function Confirmation() {
               Merci pour votre confiance !
             </h1>
             <p className="text-gray-400 text-sm font-medium max-w-2xl mx-auto leading-relaxed">
-              Votre commande est désormais entre nos mains expertes. 
+              Votre commande est désormais entre nos mains expertes.
               Préparez-vous à vivre l'expérience Luxe Dropshoping très prochainement.
             </p>
           </div>
@@ -66,21 +85,21 @@ export function Confirmation() {
           {/* Processus */}
           <div className="grid gap-6 md:grid-cols-3 mb-12">
             {[
-              { 
-                icon: <Mail size={24} className="text-blue-500" />, 
-                title: 'Email envoyé', 
+              {
+                icon: <Mail size={24} className="text-blue-500" />,
+                title: 'Email envoyé',
                 desc: 'Un récapitulatif complet vous a été envoyé avec votre numéro de suivi.',
                 bg: 'bg-blue-50'
               },
-              { 
-                icon: <Truck size={24} className="text-[#CC0000]" />, 
-                title: 'Préparation', 
+              {
+                icon: <Truck size={24} className="text-[#CC0000]" />,
+                title: 'Préparation',
                 desc: 'Expédition sous 24-48h dans un emballage totalement discret.',
                 bg: 'bg-red-50'
               },
-              { 
-                icon: <PackageCheck size={24} className="text-emerald-500" />, 
-                title: 'Livraison', 
+              {
+                icon: <PackageCheck size={24} className="text-emerald-500" />,
+                title: 'Livraison',
                 desc: 'Livraison estimée sous 3-5 jours. Vous serez notifié par SMS.',
                 bg: 'bg-emerald-50'
               }
@@ -100,11 +119,11 @@ export function Confirmation() {
           {/* Circuit Visuel */}
           <div className="rounded-[2.5rem] bg-[#111827] p-8 md:p-10 mb-12 relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-red-600 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 opacity-20" />
-            
+
             <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-10 flex items-center gap-3">
               <span className="w-8 h-px bg-white/20" /> Circuit de votre commande
             </h3>
-            
+
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
               {[
                 { label: 'Commande', color: 'bg-emerald-500', active: true },
@@ -159,13 +178,13 @@ export function Confirmation() {
             </p>
           </div>
         </div>
-        
+
         {/* Suggestion Section */}
         <div className="mt-10 bg-[#CC0000] rounded-[2.5rem] p-10 text-white flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 opacity-10 group-hover:scale-110 transition-transform" />
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
-              {[1,2,3,4,5].map(i => <Star key={i} size={14} className="fill-white" />)}
+              {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} className="fill-white" />)}
             </div>
             <h3 className="text-2xl font-black mb-2">Votre avis compte énormément</h3>
             <p className="text-white/70 text-sm max-w-md leading-relaxed">

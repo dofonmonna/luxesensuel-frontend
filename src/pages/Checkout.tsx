@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User, Minus, Plus } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -17,8 +18,8 @@ export function Checkout() {
     nom: '',
     email: '',
     telephone: '',
-    indicatif: '+225',
-    pays: "Côte d'Ivoire",
+    indicatif: '+33',
+    pays: 'France',
     adresse: '',
     ville: '',
     codePostal: ''
@@ -156,6 +157,7 @@ export function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-10 px-4">
+      <SEO title="Paiement Sécurisé" description="Finalisez votre commande LuxeSensuel. Paiement 100% sécurisé SSL, livraison discrète." noindex={true} />
       <div className="max-w-6xl mx-auto">
         
         {/* Breadcrumb / Back Link */}
@@ -241,7 +243,6 @@ export function Checkout() {
                     onChange={(e) => setFormData({...formData, pays: e.target.value})} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-bold appearance-none"
                   >
-                    <option value="Côte d'Ivoire">Côte d'Ivoire</option>
                     <option value="France">France</option>
                     <option value="Belgique">Belgique</option>
                     <option value="Suisse">Suisse</option>
