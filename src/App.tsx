@@ -182,9 +182,9 @@ export function App() {
 
         />
 
-      </Router>
+      </AnalyticsProvider>
 
-    </AnalyticsProvider>
+    </Router>
 
   );
 
