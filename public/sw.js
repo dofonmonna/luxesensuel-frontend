@@ -2,7 +2,7 @@
  * Service Worker — LuxeSensuel PWA
  * Cache-first pour les assets statiques, network-first pour les API
  */
-const CACHE_NAME = 'luxesensuel-v1';
+const CACHE_NAME = 'luxesensuel-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
