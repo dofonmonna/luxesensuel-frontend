@@ -3,6 +3,7 @@
  * Détecte la langue du navigateur et traduit les produits en temps réel
  */
 import { useState, useEffect, useCallback } from 'react';
+import { useGeoLocation } from './useGeoLocation';
 
 export type Language = 'fr' | 'en' | 'es' | 'de' | 'it' | 'pt' | 'ar' | 'zh' | 'nl' | 'ja';
 
@@ -44,45 +45,34 @@ const LANGUAGE_FLAGS: Record<Language, string> = {
 // Cache de traductions pour éviter les appels répétés
 const translationCache: Map<string, Map<Language, TranslatedProduct>> = new Map();
 
+const SUPPORTED_LANGS: Language[] = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'nl', 'ja'];
+
 export function useTranslation() {
+  const { geo } = useGeoLocation();
   const [currentLang, setCurrentLang] = useState<Language>('fr');
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Détection automatique de la langue
+  // Détection: cookie > geo IP > navigateur > 'fr'
   useEffect(() => {
-    const detectLanguage = (): Language => {
-      const browserLang = navigator.language.split('-')[0] as Language;
-      const supportedLangs: Language[] = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'nl', 'ja'];
-
-      // Vérifier le cookie de langue d'abord
-      const cookieLang = document.cookie.match(/user_lang=([^;]+)/);
-      if (cookieLang && supportedLangs.includes(cookieLang[1] as Language)) {
-        return cookieLang[1] as Language;
-      }
-
-      // Sinon utiliser la langue du navigateur
-      if (supportedLangs.includes(browserLang)) {
-        return browserLang;
-      }
-
-      return 'fr';
-    };
-
-    setCurrentLang(detectLanguage());
-  }, []);
+    const cookieLang = document.cookie.match(/user_lang=([^;]+)/);
+    if (cookieLang && SUPPORTED_LANGS.includes(cookieLang[1] as Language)) {
+      setCurrentLang(cookieLang[1] as Language);
+      return;
+    }
+    if (geo?.language && SUPPORTED_LANGS.includes(geo.language as Language)) {
+      setCurrentLang(geo.language as Language);
+      return;
+    }
+    const browserLang = (navigator.language || 'fr').split('-')[0] as Language;
+    if (SUPPORTED_LANGS.includes(browserLang)) {
+      setCurrentLang(browserLang);
+    }
+  }, [geo]);
 
   // Sauvegarder la langue choisie
   const changeLanguage = useCallback((lang: Language) => {
     setCurrentLang(lang);
     document.cookie = `user_lang=${lang}; path=/; max-age=${60 * 60 * 24 * 365}`;
-
-    // Mettre à jour Google Translate si présent
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-    if (select) {
-      const gtLang = lang === 'zh' ? 'zh-CN' : lang === 'ar' ? 'ar' : lang;
-      select.value = gtLang;
-      select.dispatchEvent(new Event('change'));
-    }
   }, []);
 
   // Traduire un produit
@@ -111,8 +101,9 @@ export function useTranslation() {
     setIsTranslating(true);
 
     try {
-      // Appel à l'API de traduction du backend
-      const response = await fetch('/api/translate/product', {
+      // Appel à l'API de traduction du backend (Render en prod, localhost en dev)
+      const apiBase = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${apiBase}/translate/product`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

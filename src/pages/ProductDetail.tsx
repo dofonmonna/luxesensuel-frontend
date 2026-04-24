@@ -15,8 +15,8 @@ import { SEO } from '@/components/SEO';
 import { ViewersCount, LowStockBadge } from '@/components/SocialProof';
 import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
-
-const money = (v: number) => v.toFixed(2) + ' €';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useT } from '@/i18n/I18nProvider';
 const getRating = (id: string) => parseFloat((4.2 + ((id.charCodeAt(0) % 8) / 10)).toFixed(1));
 const getSold   = (id: string) => 50 + (id.charCodeAt(0) % 500);
 const getReviews= (id: string) => 5 + ((id.charCodeAt(1) || 65) % 150);
@@ -32,6 +32,8 @@ export function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
+  const { t } = useT();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [recommendations, setReco] = useState<Product[]>([]);
@@ -78,7 +80,7 @@ export function ProductDetail() {
   const handleAdd = () => {
     if (!product) return;
     addItem({ id: product.id, name: product.name, price, image: product.image, quantity });
-    toast.success('Ajouté au panier !', {
+    toast.success(t('product.add_to_cart'), {
       description: `${quantity}x ${product.name}`,
     });
   };
@@ -228,22 +230,22 @@ export function ProductDetail() {
                 <Zap className="w-16 h-16 text-[#CC0000]" />
               </div>
               <div className="flex items-baseline gap-4 mb-1">
-                <span className="text-4xl font-black text-[#CC0000]">{money(price)}</span>
-                <span className="text-lg text-gray-400 line-through font-medium">{money(oldPrice)}</span>
+                <span className="text-4xl font-black text-[#CC0000]">{formatPrice(price)}</span>
+                <span className="text-lg text-gray-400 line-through font-medium">{formatPrice(oldPrice)}</span>
               </div>
               <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                <Award className="w-3.5 h-3.5" /> Économisez {money(oldPrice - price)} aujourd'hui
+                <Award className="w-3.5 h-3.5" /> -{discount}% {formatPrice(oldPrice - price)}
               </p>
             </div>
 
             {/* Stock status */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-black uppercase tracking-widest text-gray-400">Quantité</p>
+                <p className="text-xs font-black uppercase tracking-widest text-gray-400">{t('product.quantity')}</p>
                 {product.stock > 0 ? (
-                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">En stock: {product.stock} unités</span>
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">{t('product.in_stock')}: {product.stock}</span>
                 ) : (
-                  <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">Épuisé</span>
+                  <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full">{t('product.out_of_stock')}</span>
                 )}
               </div>
               <div className="flex items-center gap-4">
@@ -293,14 +295,14 @@ export function ProductDetail() {
                 className="flex-1 h-16 rounded-2xl bg-white border-2 border-[#CC0000] text-[#CC0000] font-black uppercase tracking-widest hover:bg-red-50 transition-all active:scale-95 flex items-center justify-center gap-3 shadow-lg shadow-red-50"
               >
                 <ShoppingCart className="w-5 h-5" />
-                Ajouter au panier
+                {t('product.add_to_cart')}
               </button>
               <button 
                 onClick={() => { handleAdd(); navigate('/checkout'); }}
                 className="flex-1 h-16 rounded-2xl bg-[#CC0000] text-white font-black uppercase tracking-widest hover:bg-[#aa0000] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-red-200"
               >
                 <Zap className="w-5 h-5 fill-current" />
-                Acheter maintenant
+                {t('product.buy_now')}
               </button>
             </div>
 

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User, Minus, Plus } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useT } from '@/i18n/I18nProvider';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 
@@ -9,7 +11,9 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export function Checkout() {
   const navigate = useNavigate();
-  const { items, total, removeItem, clearCart, updateQuantity } = useCart();
+  const { items, total, removeItem, updateQuantity } = useCart();
+  const { formatPrice } = useCurrency();
+  const { t } = useT();
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -28,11 +32,11 @@ export function Checkout() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
-      toast.error('Votre panier est vide');
+      toast.error(t('cart.empty'));
       return;
     }
     if (!formData.prenom || !formData.nom || !formData.email || !formData.adresse || !formData.telephone) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
+      toast.error(t('common.error'));
       return;
     }
     setIsLoading(true);
@@ -69,7 +73,7 @@ export function Checkout() {
       setOrderId(order_id);
       setShowPaymentModal(true);
     } catch (error: any) {
-      toast.error(`Une erreur est survenue: ${error.message}`);
+      toast.error(`${t('common.error')}: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -143,12 +147,12 @@ export function Checkout() {
           <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <Trash2 className="w-10 h-10 text-gray-200" />
           </div>
-          <p className="text-gray-500 mb-8 font-medium">Votre panier est vide</p>
+          <p className="text-gray-500 mb-8 font-medium">{t('cart.empty')}</p>
           <button 
             onClick={() => navigate('/shop')} 
             className="btn-sensual w-full rounded-2xl py-4"
           >
-            Retour aux achats
+            {t('cart.continue_shopping')}
           </button>
         </div>
       </div>
@@ -157,7 +161,7 @@ export function Checkout() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-10 px-4">
-      <SEO title="Paiement Sécurisé" description="Finalisez votre commande LuxeSensuel. Paiement 100% sécurisé SSL, livraison discrète." noindex={true} />
+      <SEO title={t('checkout.title')} description={t('checkout.title')} noindex={true} />
       <div className="max-w-6xl mx-auto">
         
         {/* Breadcrumb / Back Link */}
@@ -166,7 +170,7 @@ export function Checkout() {
           className="group flex items-center gap-2 mb-8 text-sm font-bold text-gray-400 hover:text-[#CC0000] transition-colors uppercase tracking-widest"
         >
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> 
-          Retour au panier
+          {t('common.back')}
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -179,8 +183,8 @@ export function Checkout() {
                   <Truck className="w-6 h-6 text-[#CC0000]" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-black text-gray-900 leading-tight">Informations de livraison</h1>
-                  <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mt-1">Étape 1 sur 2 : Vos coordonnées</p>
+                  <h1 className="text-2xl font-black text-gray-900 leading-tight">{t('checkout.shipping_info')}</h1>
+                  <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mt-1">{t('checkout.title')}</p>
                 </div>
               </div>
 
@@ -189,7 +193,7 @@ export function Checkout() {
                   <div className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
-                      type="text" placeholder="Prénom *" required disabled={isLoading} 
+                      type="text" placeholder={t('checkout.firstname') + ' *'} required disabled={isLoading} 
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={formData.prenom} onChange={(e) => setFormData({...formData, prenom: e.target.value})} 
                     />
@@ -197,7 +201,7 @@ export function Checkout() {
                   <div className="relative group">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
-                      type="text" placeholder="Nom *" required disabled={isLoading} 
+                      type="text" placeholder={t('checkout.lastname') + ' *'} required disabled={isLoading} 
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={formData.nom} onChange={(e) => setFormData({...formData, nom: e.target.value})} 
                     />
@@ -207,7 +211,7 @@ export function Checkout() {
                 <div className="relative group">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    type="email" placeholder="Email *" required disabled={isLoading} 
+                    type="email" placeholder={t('checkout.email') + ' *'} required disabled={isLoading} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} 
                   />
@@ -229,7 +233,7 @@ export function Checkout() {
                   <div className="flex-1 relative group">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
-                      type="tel" placeholder="Téléphone *" required disabled={isLoading} 
+                      type="tel" placeholder={t('checkout.phone') + ' *'} required disabled={isLoading} 
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={formData.telephone} onChange={(e) => setFormData({...formData, telephone: e.target.value})} 
                     />
@@ -253,7 +257,7 @@ export function Checkout() {
                 <div className="relative group">
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    type="text" placeholder="Adresse complète *" required disabled={isLoading} 
+                    type="text" placeholder={t('checkout.address') + ' *'} required disabled={isLoading} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={formData.adresse} onChange={(e) => setFormData({...formData, adresse: e.target.value})} 
                   />
@@ -262,7 +266,7 @@ export function Checkout() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="sm:col-span-1">
                     <input 
-                      type="text" placeholder="Code postal" disabled={isLoading} 
+                      type="text" placeholder={t('checkout.postal_code')} disabled={isLoading} 
                       className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={formData.codePostal} onChange={(e) => setFormData({...formData, codePostal: e.target.value})} 
                     />
@@ -270,7 +274,7 @@ export function Checkout() {
                   <div className="sm:col-span-2 relative group">
                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
-                      type="text" placeholder="Ville *" required disabled={isLoading} 
+                      type="text" placeholder={t('checkout.city') + ' *'} required disabled={isLoading} 
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={formData.ville} onChange={(e) => setFormData({...formData, ville: e.target.value})} 
                     />
@@ -287,7 +291,7 @@ export function Checkout() {
                     ) : (
                       <>
                         <CreditCard className="w-5 h-5" />
-                        PAYER MAINTENANT
+                        {t('checkout.place_order')}
                       </>
                     )}
                   </button>
@@ -298,8 +302,8 @@ export function Checkout() {
             <div className="bg-red-50/50 rounded-3xl p-6 border border-red-100 flex items-start gap-4">
               <ShieldCheck className="w-6 h-6 text-[#CC0000] shrink-0" />
               <div>
-                <h4 className="font-bold text-sm text-gray-900 mb-1">Paiement 100% sécurisé</h4>
-                <p className="text-xs text-gray-500 leading-relaxed">Vos informations sont cryptées et protégées par les protocoles de sécurité les plus avancés du marché (SSL 256 bits).</p>
+                <h4 className="font-bold text-sm text-gray-900 mb-1">{t('footer.payment_secure')}</h4>
+                <p className="text-xs text-gray-500 leading-relaxed">{t('promo.secure')}</p>
               </div>
             </div>
           </div>
@@ -307,7 +311,7 @@ export function Checkout() {
           {/* DROITE - Résumé de la commande */}
           <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-28">
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-8 pb-4 border-b border-gray-50">Résumé de commande</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-8 pb-4 border-b border-gray-50">{t('checkout.title')}</h2>
               
               <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                 {items.map(item => (
@@ -333,7 +337,7 @@ export function Checkout() {
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
-                        <p className="text-sm font-black text-[#CC0000]">{(item.price * item.quantity).toFixed(2)} €</p>
+                        <p className="text-sm font-black text-[#CC0000]">{formatPrice(item.price * item.quantity)}</p>
                       </div>
                     </div>
                     <button 
@@ -348,22 +352,22 @@ export function Checkout() {
 
               <div className="space-y-4 pt-6 border-t border-gray-50">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-400 font-medium">Sous-total</span>
-                  <span className="text-gray-900 font-bold">{total().toFixed(2)} €</span>
+                  <span className="text-gray-400 font-medium">{t('cart.subtotal')}</span>
+                  <span className="text-gray-900 font-bold">{formatPrice(total())}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-400 font-medium">Frais de livraison</span>
-                  <span className="text-emerald-600 font-black">GRATUIT</span>
+                  <span className="text-gray-400 font-medium">{t('cart.shipping')}</span>
+                  <span className="text-emerald-600 font-black">{t('cart.free_shipping')}</span>
                 </div>
                 <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-base font-black text-gray-900 uppercase tracking-widest text-[10px]">Total TTC</span>
-                  <span className="text-3xl font-black text-[#CC0000]">{total().toFixed(2)} €</span>
+                  <span className="text-base font-black text-gray-900 uppercase tracking-widest text-[10px]">{t('cart.total')}</span>
+                  <span className="text-3xl font-black text-[#CC0000]">{formatPrice(total())}</span>
                 </div>
               </div>
 
               <div className="mt-8 flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <Truck className="w-5 h-5 text-blue-500" />
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Livraison discrète garantie sous 3-5 jours</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{t('footer.shipping_discreet')}</p>
               </div>
             </div>
           </div>
@@ -385,8 +389,8 @@ export function Checkout() {
               <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck className="w-8 h-8 text-[#CC0000]" />
               </div>
-              <h2 className="text-3xl font-black text-gray-900 mb-2">Choisir le paiement</h2>
-              <p className="text-gray-500 text-sm">Sélectionnez votre mode de paiement sécurisé pour finaliser votre commande.</p>
+              <h2 className="text-3xl font-black text-gray-900 mb-2">{t('checkout.payment')}</h2>
+              <p className="text-gray-500 text-sm">{t('footer.payment_secure')}</p>
             </div>
 
             <div className="space-y-4">
@@ -430,14 +434,14 @@ export function Checkout() {
             {isLoading && (
               <div className="mt-8 flex items-center justify-center gap-3 text-gray-400 font-bold text-sm uppercase tracking-widest animate-pulse">
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Redirection sécurisée...
+                {t('checkout.processing')}
               </div>
             )}
 
             <div className="mt-10 pt-8 border-t border-gray-100 text-center">
               <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2">
                 <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                Transactions 100% sécurisées
+                {t('footer.payment_secure')}
               </p>
             </div>
           </div>

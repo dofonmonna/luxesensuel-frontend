@@ -1,8 +1,9 @@
 /**
  * Système multi-devises avec détection géographique
- * PayDunya supporte : EUR, USD, XOF, XAF, GHS, NGN, etc.
+ * Utilise useGeoLocation (cache 30j, 1 seul appel IP partagé)
  */
 import { useState, useEffect, useCallback } from 'react';
+import { useGeoLocation } from './useGeoLocation';
 
 export type Currency = 'EUR' | 'USD' | 'GBP' | 'CAD' | 'AUD' | 'CHF' | 'XOF' | 'XAF' | 'GHS' | 'NGN' | 'MAD';
 
@@ -56,33 +57,20 @@ export function useCurrency() {
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [rates, setRates] = useState<Record<Currency, number>>(EXCHANGE_RATES);
 
-  // Détection auto de la devise par géolocalisation
+  // Détection unifiée via useGeoLocation (cache 30 jours, partagé)
+  const { geo } = useGeoLocation();
   useEffect(() => {
-    const detectCurrency = async () => {
-      // Vérifier le cookie d'abord
-      const cookieCurrency = document.cookie.match(/user_currency=([A-Z]{3})/);
-      if (cookieCurrency && CURRENCIES[cookieCurrency[1] as Currency]) {
-        setCurrency(cookieCurrency[1] as Currency);
-        return;
-      }
-
-      // Essayer de détecter par l'IP
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        const detectedCurrency = COUNTRY_TO_CURRENCY[data.country_code];
-        if (detectedCurrency) {
-          setCurrency(detectedCurrency);
-          document.cookie = `user_currency=${detectedCurrency}; path=/; max-age=${60 * 60 * 24 * 30}`;
-        }
-      } catch {
-        // Fallback sur EUR
-        setCurrency('EUR');
-      }
-    };
-
-    detectCurrency();
-  }, []);
+    // 1. Cookie utilisateur prioritaire
+    const cookieCurrency = document.cookie.match(/user_currency=([A-Z]{3})/);
+    if (cookieCurrency && CURRENCIES[cookieCurrency[1] as Currency]) {
+      setCurrency(cookieCurrency[1] as Currency);
+      return;
+    }
+    // 2. Devise déduite de la géoloc IP
+    if (geo?.currency && CURRENCIES[geo.currency as Currency]) {
+      setCurrency(geo.currency as Currency);
+    }
+  }, [geo]);
 
   // Mettre à jour les taux depuis l'API
   const updateRates = useCallback(async () => {

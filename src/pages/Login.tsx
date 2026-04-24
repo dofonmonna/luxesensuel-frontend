@@ -5,12 +5,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Mail, Lock, Loader2, ArrowRight, ShieldCheck, UserCircle } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { useT } from '@/i18n/I18nProvider';
 
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { t } = useT();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +20,10 @@ export function Login() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success("BIENVENUE CHEZ LUXE DROPSHOPING ✦");
+      toast.success('LuxeSensuel ✦');
       navigate('/profile');
     } catch (error) {
-      toast.error("Identifiants incorrects ou compte inexistant.");
+      toast.error(t('common.error'));
     } finally {
       setIsLoading(false);
     }
@@ -29,7 +31,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center px-6 py-20 relative overflow-hidden">
-      <SEO title="Connexion" description="Connectez-vous à votre compte LuxeSensuel pour suivre vos commandes et accéder à vos favoris." noindex={true} />
+      <SEO title={t('auth.login')} description={t('auth.login')} noindex={true} />
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 opacity-50" />
@@ -41,8 +43,8 @@ export function Login() {
               LUXE<span className="text-[#CC0000] italic">Dropshoping</span>
             </span>
           </Link>
-          <h1 className="text-2xl font-black text-gray-900 leading-tight">Bon retour parmi nous</h1>
-          <p className="text-sm text-gray-400 font-medium uppercase tracking-widest mt-2">Accédez à votre boutique d'exception</p>
+          <h1 className="text-2xl font-black text-gray-900 leading-tight">{t('auth.login')}</h1>
+          <p className="text-sm text-gray-400 font-medium uppercase tracking-widest mt-2">{t('auth.signin')}</p>
         </div>
 
         <div className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
@@ -51,7 +53,7 @@ export function Login() {
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
               <input 
                 type="email" 
-                placeholder="VOTRE ADRESSE EMAIL" 
+                placeholder={t('auth.email')}
                 required
                 className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-xs font-bold tracking-widest placeholder:text-gray-300 placeholder:font-medium" 
                 onChange={(e)=>setEmail(e.target.value)} 
@@ -62,7 +64,7 @@ export function Login() {
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
               <input 
                 type="password" 
-                placeholder="VOTRE MOT DE PASSE" 
+                placeholder={t('auth.password')}
                 required
                 className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-xs font-bold tracking-widest placeholder:text-gray-300 placeholder:font-medium" 
                 onChange={(e)=>setPassword(e.target.value)} 
@@ -71,7 +73,7 @@ export function Login() {
 
             <div className="flex justify-end">
               <button type="button" className="text-[10px] font-black uppercase tracking-widest text-[#CC0000] hover:underline">
-                Mot de passe oublié ?
+                {t('auth.forgot_password')}
               </button>
             </div>
 
@@ -84,7 +86,7 @@ export function Login() {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Connexion
+                  {t('auth.signin')}
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -93,13 +95,13 @@ export function Login() {
 
           <div className="mt-10 pt-8 border-t border-gray-50 text-center">
             <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-4">
-              Nouveau chez Luxe Dropshoping ?
+              {t('auth.no_account')}
             </p>
             <Link 
               to="/signup" 
               className="inline-flex items-center gap-2 text-xs font-black text-[#CC0000] hover:gap-3 transition-all uppercase tracking-widest"
             >
-              Créer un compte
+              {t('auth.create_account')}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -108,12 +110,12 @@ export function Login() {
         <div className="mt-12 flex items-center justify-center gap-6">
           <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            Paiements Sécurisés
+            {t('footer.payment_secure')}
           </div>
           <div className="w-px h-3 bg-gray-200" />
           <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
             <UserCircle className="w-4 h-4 text-blue-500" />
-            Confidentialité Totale
+            {t('footer.privacy')}
           </div>
         </div>
       </div>

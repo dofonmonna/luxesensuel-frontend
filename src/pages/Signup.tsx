@@ -7,9 +7,11 @@ import { toast } from "sonner";
 import { Loader2, User, Mail, Lock, Phone, MapPin, Globe, ArrowRight, Eye, EyeOff, ShieldCheck, Sparkles, Search } from "lucide-react";
 import { COUNTRIES } from "@/utils/countries";
 import { SEO } from '@/components/SEO';
+import { useT } from '@/i18n/I18nProvider';
 
 export function Signup() {
   const navigate = useNavigate();
+  const { t } = useT();
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
@@ -65,12 +67,12 @@ export function Signup() {
         role: "client",
         createdAt: new Date().toISOString(),
       });
-      toast.success("Bienvenue chez Luxe Dropshoping ✦");
+      toast.success('LuxeSensuel ✦');
       setTimeout(() => navigate("/profile"), 500);
     } catch (err: any) {
-      if (err.code === "auth/email-already-in-use") toast.error("Cet email est déjà utilisé.");
-      else if (err.code === "auth/weak-password") toast.error("Mot de passe trop faible (6 caractères min).");
-      else toast.error("Erreur lors de la création du compte.");
+      if (err.code === "auth/email-already-in-use") toast.error(t('common.error') + ' (email)');
+      else if (err.code === "auth/weak-password") toast.error(t('common.error') + ' (password)');
+      else toast.error(t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -115,7 +117,7 @@ export function Signup() {
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    required type="text" placeholder="Prénom" 
+                    required type="text" placeholder={t('checkout.firstname')} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={form.firstName} onChange={set("firstName")} 
                   />
@@ -123,7 +125,7 @@ export function Signup() {
                 <div className="relative group">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    required type="text" placeholder="Nom" 
+                    required type="text" placeholder={t('checkout.lastname')} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={form.lastName} onChange={set("lastName")} 
                   />
@@ -136,7 +138,7 @@ export function Signup() {
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                 <input 
-                  required type="email" placeholder="Adresse email" 
+                  required type="email" placeholder={t('auth.email')} 
                   className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                   value={form.email} onChange={set("email")} 
                 />
@@ -153,7 +155,7 @@ export function Signup() {
                 <div className="relative flex-1 group">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    required type="tel" placeholder="Téléphone" 
+                    required type="tel" placeholder={t('checkout.phone')} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={form.phone} onChange={set("phone")} 
                   />
@@ -170,7 +172,7 @@ export function Signup() {
                 <div className="relative group">
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <input 
-                    required type="text" placeholder="Adresse complète (Quartier, Rue, Porte...)" 
+                    required type="text" placeholder={t('checkout.address')} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                     value={form.address} onChange={set("address")} 
                   />
@@ -179,7 +181,7 @@ export function Signup() {
                   <div className="relative group">
                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
-                      required type="text" placeholder="Ville" 
+                      required type="text" placeholder={t('checkout.city')} 
                       className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                       value={form.city} onChange={set("city")} 
                     />
@@ -209,7 +211,7 @@ export function Signup() {
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                 <input 
-                  required type={showPass ? "text" : "password"} placeholder="Mot de passe (6 car. min)" 
+                  required type={showPass ? "text" : "password"} placeholder={t('auth.password')} 
                   className="w-full pl-12 pr-14 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-medium"
                   value={form.password} onChange={set("password")} 
                 />
@@ -232,7 +234,7 @@ export function Signup() {
                   <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
                   <>
-                    <span>CRÉER MON COMPTE</span>
+                    <span>{t('auth.create_account')}</span>
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}

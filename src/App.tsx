@@ -58,6 +58,8 @@ import { Retours } from './pages/Legal/Retours';
 
 import { CookieBanner } from './components/CookieBanner';
 
+import { I18nProvider } from './i18n/I18nProvider';
+
 
 
 export function App() {
@@ -66,14 +68,15 @@ export function App() {
 
     <Router>
 
-      <AnalyticsProvider>
+      <I18nProvider>
 
-        <ScrollToTop />
+        <AnalyticsProvider>
 
-        <Routes>
+          <ScrollToTop />
 
-          {/* STORE LAYOUT */}
+          <Routes>
 
+            {/* STORE LAYOUT */}
           <Route element={<StoreLayout />}>
 
             <Route path="/" element={<Home />} />
@@ -146,7 +149,7 @@ export function App() {
 
                   <p className="text-white/40 uppercase tracking-widest text-sm">
 
-                    Page introuvable
+                    Page not found / Page introuvable
 
                   </p>
 
@@ -183,6 +186,8 @@ export function App() {
         />
 
       </AnalyticsProvider>
+
+    </I18nProvider>
 
     </Router>
 

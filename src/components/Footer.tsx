@@ -1,30 +1,35 @@
 import { Instagram, Facebook, Mail, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useT } from '@/i18n/I18nProvider';
+import type { LocaleKey } from '@/i18n/locales';
 
-const footerLinks = {
+interface FooterLink { key: LocaleKey; href: string; }
+
+const footerLinks: { shop: FooterLink[]; service: FooterLink[]; legal: FooterLink[] } = {
   shop: [
-    { label: 'Lingerie', href: '/shop?cat=lingerie' },
-    { label: 'Soins & Huiles', href: '/shop?cat=soins' },
-    { label: 'Parfums', href: '/shop?cat=parfums' },
-    { label: 'Accessoires', href: '/shop?cat=accessoires' },
-    { label: 'Nouveautés', href: '/shop?cat=new' },
+    { key: 'cat.lingerie', href: '/shop?cat=lingerie' },
+    { key: 'cat.soins', href: '/shop?cat=soins' },
+    { key: 'cat.parfums', href: '/shop?cat=parfums' },
+    { key: 'cat.bijoux', href: '/shop?cat=bijoux' },
+    { key: 'cat.new', href: '/shop?cat=new' },
   ],
   service: [
-    { label: 'Suivre ma commande', href: '/profile' },
-    { label: 'Retours & Remboursements', href: '/retours' },
-    { label: 'Livraison & Délais', href: '/cgv' },
-    { label: 'Paiement sécurisé', href: '/cgv' },
-    { label: 'Nous contacter', href: 'mailto:luxesensuel11@gmail.com' },
+    { key: 'nav.account', href: '/profile' },
+    { key: 'footer.returns', href: '/retours' },
+    { key: 'footer.shipping_discreet', href: '/cgv' },
+    { key: 'footer.payment_secure', href: '/cgv' },
+    { key: 'footer.contact', href: 'mailto:luxesensuel11@gmail.com' },
   ],
   legal: [
-    { label: 'Mentions légales', href: '/mentions-legales' },
-    { label: 'CGV', href: '/cgv' },
-    { label: 'Politique de confidentialité', href: '/confidentialite' },
-    { label: 'Politique de retour', href: '/retours' },
+    { key: 'footer.legal', href: '/mentions-legales' },
+    { key: 'footer.cgv', href: '/cgv' },
+    { key: 'footer.privacy', href: '/confidentialite' },
+    { key: 'footer.returns', href: '/retours' },
   ],
 };
 
 export const Footer = () => {
+  const { t } = useT();
   return (
     <footer className="bg-white border-t border-gray-100 pt-16 pb-8 font-[Montserrat]">
       <div className="max-w-[1440px] mx-auto px-4">
@@ -36,8 +41,8 @@ export const Footer = () => {
               <Truck className="w-6 h-6 text-[#CC0000]" />
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-1">Livraison Discrète</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">Colis neutre sans mention du contenu. Votre vie privée est notre priorité.</p>
+              <h4 className="font-bold text-gray-900 mb-1">{t('footer.shipping_discreet')}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{t('promo.shipping_discreet')}</p>
             </div>
           </div>
           <div className="flex items-start gap-4 p-6 rounded-2xl bg-gray-50/50">
@@ -45,8 +50,8 @@ export const Footer = () => {
               <ShieldCheck className="w-6 h-6 text-[#CC0000]" />
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-1">Paiement Sécurisé</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">Transactions 100% cryptées SSL. PayPal, Stripe & Cryptos acceptés.</p>
+              <h4 className="font-bold text-gray-900 mb-1">{t('footer.payment_secure')}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{t('promo.secure')}</p>
             </div>
           </div>
           <div className="flex items-start gap-4 p-6 rounded-2xl bg-gray-50/50">
@@ -54,8 +59,8 @@ export const Footer = () => {
               <RotateCcw className="w-6 h-6 text-[#CC0000]" />
             </div>
             <div>
-              <h4 className="font-bold text-gray-900 mb-1">Satisfait ou Remboursé</h4>
-              <p className="text-xs text-gray-500 leading-relaxed">30 jours pour changer d'avis. Retours simples et rapides garantis.</p>
+              <h4 className="font-bold text-gray-900 mb-1">{t('footer.returns')}</h4>
+              <p className="text-xs text-gray-500 leading-relaxed">{t('promo.satisfied')}</p>
             </div>
           </div>
         </div>
@@ -92,12 +97,12 @@ export const Footer = () => {
 
           {/* Links */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Boutique</h4>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">{t('nav.shop')}</h4>
             <ul className="space-y-4">
-              {footerLinks.shop.map((link, i) => (
-                <li key={i}>
+              {footerLinks.shop.map((link) => (
+                <li key={link.key}>
                   <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
-                    {link.label}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -105,12 +110,12 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Assistance</h4>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">{t('footer.help')}</h4>
             <ul className="space-y-4">
-              {footerLinks.service.map((link, i) => (
-                <li key={i}>
+              {footerLinks.service.map((link, idx) => (
+                <li key={`svc-${idx}`}>
                   <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
-                    {link.label}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -118,12 +123,12 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">Informations</h4>
+            <h4 className="font-bold text-gray-900 mb-6 uppercase text-xs tracking-widest">{t('footer.legal')}</h4>
             <ul className="space-y-4">
-              {footerLinks.legal.map((link, i) => (
-                <li key={i}>
+              {footerLinks.legal.map((link, idx) => (
+                <li key={`leg-${idx}`}>
                   <Link to={link.href} className="text-sm text-gray-500 hover:text-[#CC0000] transition-colors">
-                    {link.label}
+                    {t(link.key)}
                   </Link>
                 </li>
               ))}
@@ -134,7 +139,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-xs text-gray-400">
-            © {new Date().getFullYear()} LuxeSensuel. Tous droits réservés.
+            © {new Date().getFullYear()} LuxeSensuel. {t('footer.copyright')}.
           </p>
           <div className="flex items-center gap-6 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4" />
