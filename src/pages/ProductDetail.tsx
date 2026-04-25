@@ -17,7 +17,7 @@ import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useT } from '@/i18n/I18nProvider';
 import { TranslatedProductCard } from '@/components/TranslatedProductCard';
-const getRating = (id: string) => parseFloat((4.2 + ((id.charCodeAt(0) % 8) / 10)).toFixed(1));
+const getRating = (id: string) => parseFloat((3.5 + ((id.charCodeAt(0) % 16) / 10)).toFixed(1));
 const getSold   = (id: string) => 50 + (id.charCodeAt(0) % 500);
 const getReviews= (id: string) => 5 + ((id.charCodeAt(1) || 65) % 150);
 
@@ -65,7 +65,7 @@ export function ProductDetail() {
   const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
   const descImages = product ? extractImages(product.description || '') : [];
   const allThumbs = product ? [product.image, ...descImages].slice(0, 6) : [];
-  const rating = product ? getRating(product.id) : 4.5;
+  const rating = product?.rating ?? (product ? getRating(product.id) : 4.5);
   const sold = product ? getSold(product.id) : 0;
   const reviews = product ? getReviews(product.id) : 0;
 

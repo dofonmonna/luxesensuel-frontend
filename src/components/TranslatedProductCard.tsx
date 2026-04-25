@@ -32,7 +32,7 @@ interface TranslatedProductCardProps {
   sold?: number;
 }
 
-function Stars({ rating = 4.5 }: { rating: number }) {
+function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3, 4, 5].map(s => (
@@ -238,9 +238,9 @@ export function TranslatedProductCard({
 
         {/* Stars + reviews */}
         <div className="flex items-center gap-1.5 mb-2">
-          <Stars rating={product.rating || 4.5} />
+          {product.rating != null && <Stars rating={product.rating} />}
           <span className="text-[10px] text-gray-400 font-medium">
-            {(product.rating || 4.5).toFixed(1)}
+            {product.rating != null ? product.rating.toFixed(1) : ''}
             {product.reviews ? ` (${product.reviews})` : ''}
           </span>
           {sold && (

@@ -47,7 +47,7 @@ export function ProductCard({
   badge,
   discount,
   rank,
-  rating = 4.5,
+  rating,
   reviews,
   sold,
   category,
@@ -187,9 +187,9 @@ export function ProductCard({
 
         {/* Stars + reviews */}
         <div className="flex items-center gap-1.5 mb-2">
-          <Stars rating={rating} />
+          {rating != null && <Stars rating={rating} />}
           <span className="text-[10px] text-gray-400 font-medium">
-            {rating.toFixed(1)}
+            {rating != null ? rating.toFixed(1) : ''}
             {reviews ? ` (${reviews})` : ''}
           </span>
           {sold && (
