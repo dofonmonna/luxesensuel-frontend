@@ -573,7 +573,7 @@ export function Admin() {
               { key: 'parfums', label: 'Parfums', emoji: '🌸' },
               { key: 'bijoux', label: 'Bijoux', emoji: '💎' },
               { key: 'accessoires', label: 'Accessoires', emoji: '👜' },
-              { key: 'bien-etre', label: 'Bien-être', emoji: '🧘' },
+              { key: 'bienetre', label: 'Bien-être', emoji: '🧘' },
               { key: 'confort', label: 'Confort', emoji: '🛋️' },
               { key: 'coffrets', label: 'Coffrets', emoji: '🎁' },
               { key: 'couples', label: 'Couples', emoji: '💑' },
@@ -626,7 +626,7 @@ export function Admin() {
                       <option value="parfums">Parfums</option>
                       <option value="bijoux">Bijoux</option>
                       <option value="accessoires">Accessoires</option>
-                      <option value="bien-etre">Bien-être</option>
+                      <option value="bienetre">Bien-être</option>
                       <option value="confort">Confort</option>
                       <option value="coffrets">Coffrets</option>
                       <option value="couples">Couples</option>
@@ -664,7 +664,7 @@ export function Admin() {
                 <option value="parfums">Parfums</option>
                 <option value="bijoux">Bijoux</option>
                 <option value="accessoires">Accessoires</option>
-                <option value="bien-etre">Bien-être</option>
+                <option value="bienetre">Bien-être</option>
                 <option value="confort">Confort</option>
                 <option value="coffrets">Coffrets</option>
                 <option value="couples">Couples</option>
@@ -731,7 +731,7 @@ export function Admin() {
                       <option value="parfums">Parfums</option>
                       <option value="bijoux">Bijoux</option>
                       <option value="accessoires">Accessoires</option>
-                      <option value="bien-etre">Bien-être</option>
+                      <option value="bienetre">Bien-être</option>
                       <option value="confort">Confort</option>
                       <option value="coffrets">Coffrets</option>
                       <option value="couples">Couples</option>
