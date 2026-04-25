@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 const CATEGORIES = [
-  "Lingerie", "Électronique", "Soins", "Parfums", "Accessoires", "Bijoux", "Bien-être", "Confort", "Coffrets"
+  "Lingerie", "Électronique", "Soins", "Parfums", "Accessoires", "Bijoux", "Bien-être", "Confort", "Coffrets", "Couples", "Plaisir Adulte"
 ];
 
 export function Shop() {

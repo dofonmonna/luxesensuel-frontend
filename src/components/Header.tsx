@@ -114,7 +114,7 @@ export function Header() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder={t('nav.search')}
-              className="w-full h-11 pl-4 pr-14 rounded-lg border-2 border-gray-200 focus:border-[#CC0000] outline-none text-sm font-[Montserrat] transition-colors duration-200 bg-gray-50 focus:bg-white"
+              className="w-full h-11 pl-4 pr-14 rounded-lg border-2 border-gray-200 focus:border-[#CC0000] outline-none text-sm font-[Montserrat] transition-colors duration-200 bg-gray-50 focus:bg-white overflow-hidden text-ellipsis whitespace-nowrap box-border"
             />
             <button
               type="submit"

@@ -34,6 +34,7 @@ export function ProductDetail() {
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
   const { t } = useT();
+  const { translateProduct, currentLang } = useTranslation();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [recommendations, setReco] = useState<Product[]>([]);
@@ -42,6 +43,8 @@ export function ProductDetail() {
   const [mainImg, setMainImg] = useState('');
   const [inWish, setInWish] = useState(false);
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'avis'>('desc');
+  const [translatedDesc, setTranslatedDesc] = useState<string>('');
+  const [translatedName, setTranslatedName] = useState<string>('');
 
   useEffect(() => {
     let mounted = true;
@@ -68,6 +71,19 @@ export function ProductDetail() {
   const rating = product?.rating ?? (product ? getRating(product.id) : 4.5);
   const sold = product ? getSold(product.id) : 0;
   const reviews = product ? getReviews(product.id) : 0;
+
+  // Translate product name and description to client language
+  useEffect(() => {
+    if (!product || currentLang === 'fr') {
+      setTranslatedDesc(product?.description?.replace(/<[^>]*>/g, '').trim() || '');
+      setTranslatedName(product?.name || '');
+      return;
+    }
+    translateProduct(product).then(t => {
+      setTranslatedDesc(t.description || '');
+      setTranslatedName(t.name || '');
+    });
+  }, [product?.id, currentLang]);
 
   // Track recently viewed
   const { addViewed } = useRecentlyViewed();
@@ -144,7 +160,7 @@ export function ProductDetail() {
           <ChevronRight className="w-3 h-3" />
           <Link to="/shop" className="hover:text-[#CC0000]">Boutique</Link>
           <ChevronRight className="w-3 h-3" />
-          <span className="text-gray-900 line-clamp-1">{product.name}</span>
+          <span className="text-gray-900 line-clamp-1">{translatedName || product.name}</span>
         </div>
       </div>
 
@@ -203,7 +219,7 @@ export function ProductDetail() {
               </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 leading-tight">
-              {product.name}
+              {translatedName || product.name}
             </h1>
 
             {/* Rating & Social Proof */}
@@ -351,12 +367,12 @@ export function ProductDetail() {
                 {descImages.length > 0 ? (
                   <div className="flex flex-col items-center gap-4">
                     {descImages.map((img, i) => (
-                      <img key={i} src={img} alt="" className="w-full rounded-2xl shadow-sm border border-gray-100" />
+                      <img key={i} src={img} alt="" className="w-full max-h-[400px] object-contain rounded-2xl shadow-sm border border-gray-100" />
                     ))}
                   </div>
                 ) : (
                   <p className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap">
-                    {product.description?.replace(/<[^>]*>/g, '').trim() || 'Ce produit d\'exception est le fruit d\'une sélection rigoureuse pour garantir qualité et élégance.'}
+                    {translatedDesc || 'Ce produit d\'exception est le fruit d\'une sélection rigoureuse pour garantir qualité et élégance.'}
                   </p>
                 )}
               </div>
