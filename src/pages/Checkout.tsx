@@ -136,7 +136,11 @@ export function Checkout() {
         throw new Error('URL DunyaPay manquante');
       }
     } catch (error: any) {
-      toast.error(`Erreur DunyaPay: ${error.message}`);
+      const rawMsg = error.message || '';
+      const friendlyMsg = rawMsg.includes('activation') || rawMsg.includes('email confirmation') || rawMsg.includes('1001')
+        ? 'Le paiement Mobile Money est temporairement indisponible. Veuillez utiliser PayPal ou réessayer plus tard.'
+        : `Erreur paiement: ${rawMsg}`;
+      toast.error(friendlyMsg);
       setIsLoading(false);
     }
   };
