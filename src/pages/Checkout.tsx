@@ -6,6 +6,7 @@ import { useCurrency } from '@/hooks/useCurrency';
 import { useT } from '@/i18n/I18nProvider';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
+import { COUNTRIES } from '@/utils/countries';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -224,10 +225,9 @@ export function Checkout() {
                       onChange={(e) => setFormData({...formData, indicatif: e.target.value})} 
                       className="w-full px-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-black appearance-none"
                     >
-                      <option value="+225">🇨🇮 +225</option>
-                      <option value="+33">🇫🇷 +33</option>
-                      <option value="+1">🇺🇸 +1</option>
-                      <option value="+44">🇬🇧 +44</option>
+                      {COUNTRIES.filter(c => c.prefix).map(c => (
+                        <option key={c.code} value={c.prefix}>{c.flag} {c.prefix}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="flex-1 relative group">
@@ -244,13 +244,15 @@ export function Checkout() {
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                   <select 
                     value={formData.pays} disabled={isLoading} 
-                    onChange={(e) => setFormData({...formData, pays: e.target.value})} 
+                    onChange={(e) => {
+                      const country = COUNTRIES.find(c => c.name === e.target.value);
+                      setFormData({...formData, pays: e.target.value, indicatif: country?.prefix || '+33'});
+                    }} 
                     className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-bold appearance-none"
                   >
-                    <option value="France">France</option>
-                    <option value="Belgique">Belgique</option>
-                    <option value="Suisse">Suisse</option>
-                    <option value="Canada">Canada</option>
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+                    ))}
                   </select>
                 </div>
 

@@ -121,7 +121,7 @@ export function Shop() {
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="random">Sélection intelligente</SelectItem>
+                  <SelectItem value="random">Par défaut</SelectItem>
                   <SelectItem value="newest">Nouveautés</SelectItem>
                   <SelectItem value="price-asc">Prix croissant</SelectItem>
                   <SelectItem value="price-desc">Prix décroissant</SelectItem>
