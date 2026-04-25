@@ -185,11 +185,87 @@ export function Admin() {
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
+  // Extraire les IDs de produits depuis une entrée (URLs ou IDs séparés par virgule, espace ou saut de ligne)
+  const extractProductIds = (input: string): string[] => {
+    const items = input.split(/[,\s\n]+/).map(s => s.trim()).filter(Boolean);
+    const ids: string[] = [];
+    
+    for (const item of items) {
+      // Détecter URL AliExpress et extraire l'ID
+      const aeMatch = item.match(/aliexpress\.com\/(?:item\/(?:\d+)\/(\d+)\.html|item\/(\d+)\.html)/);
+      if (aeMatch) {
+        ids.push(aeMatch[1] || aeMatch[2]);
+        continue;
+      }
+      // Détecter URL CJ Dropshipping
+      const cjMatch = item.match(/cjdropshipping\.com\/(?:product\/)?(\d+)/);
+      if (cjMatch) {
+        ids.push(cjMatch[1]);
+        continue;
+      }
+      // Sinon considérer comme ID direct
+      if (/^\d+$/.test(item)) {
+        ids.push(item);
+      }
+    }
+    
+    return [...new Set(ids)]; // Dédupliquer
+  };
+
   const searchSupplierProducts = async () => {
     if (!importKeyword.trim()) return;
     setImportLoading(true);
     setImportResults([]);
     setSelectedProducts(new Set());
+    
+    // Vérifier si c'est une liste d'IDs/URLs
+    const ids = extractProductIds(importKeyword);
+    const isMultiIdInput = ids.length > 1 || (ids.length === 1 && importKeyword.includes(',') || importKeyword.includes('\n'));
+    
+    if (isMultiIdInput && ids.length > 0) {
+      // Mode multi-IDs : récupérer chaque produit individuellement
+      addToast('info', `Recherche de ${ids.length} produit(s)...`);
+      const results: SearchResult[] = [];
+      
+      for (const id of ids) {
+        try {
+          // Appel à un endpoint de preview (on créera côté backend)
+          const res = await fetch(`${API_URL}/admin/import/${importSource}/preview`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ productId: id })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.produit) {
+              results.push({
+                pid: id,
+                productId: id,
+                productTitle: data.produit.name || data.produit.title || `Produit ${id}`,
+                productNameEn: data.produit.name,
+                productMainImageUrl: data.produit.image || data.produit.picUrl,
+                productImage: data.produit.image,
+                salePrice: String(data.produit.price || 0),
+                sellPrice: String(data.produit.price || 0)
+              });
+            }
+          }
+        } catch (err) {
+          console.error(`Erreur recherche produit ${id}:`, err);
+        }
+      }
+      
+      setImportResults(results);
+      if (results.length === 0) {
+        addToast('warning', 'Aucun produit trouvé avec ces IDs');
+      } else {
+        addToast('success', `${results.length} produit(s) trouvé(s)`);
+      }
+      setImportLoading(false);
+      return;
+    }
+    
+    // Mode recherche normale par mot-clé
     try {
       const res = await fetch(`${API_URL}/admin/import/${importSource}/search`, {
         method: 'POST',
@@ -447,7 +523,7 @@ export function Admin() {
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
               <input
                 type="text"
-                placeholder="Mot-clé ou lien AliExpress (ex: https://...)"
+                placeholder="Mot-clé, URL ou IDs séparés par virgule (ex: 123, 456, 789)"
                 value={importKeyword}
                 onChange={(e) => setImportKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && searchSupplierProducts()}
