@@ -511,12 +511,12 @@ export function Admin() {
                           style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: importSource === 'cj' ? '#ff4747' : '#ff6a00' }}
                         />
                       </div>
-                      <div style={{ height: '160px', overflow: 'hidden', background: '#f8fafc', position: 'relative' }} onClick={() => {
+                      <div style={{ height: '160px', overflow: 'hidden', background: '#f8fafc', position: 'relative', cursor: 'pointer' }} onClick={() => {
                         const newSet = new Set(selectedProducts);
                         if (newSet.has(pid)) newSet.delete(pid);
                         else newSet.add(pid);
                         setSelectedProducts(newSet);
-                      }} style={{cursor: 'pointer'}}>
+                      }}>
                         <img
                           src={image}
                           alt={name}
