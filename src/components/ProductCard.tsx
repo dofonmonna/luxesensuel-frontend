@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useT } from '@/i18n/I18nProvider';
 import { toast } from 'sonner';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
@@ -52,6 +54,8 @@ export function ProductCard({
 }: ProductCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
+  const { t } = useT();
   const { trackAddToCart } = useAnalytics();
   const [wished, setWished] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -74,7 +78,7 @@ export function ProductCard({
       category,
     });
 
-    toast.success('Ajouté au panier !', {
+    toast.success(t('product.add_to_cart'), {
       description: title.slice(0, 40) + (title.length > 40 ? '…' : ''),
     });
   };
@@ -82,7 +86,7 @@ export function ProductCard({
   const handleWish = (e: React.MouseEvent) => {
     e.stopPropagation();
     setWished(v => !v);
-    toast(wished ? 'Retiré des favoris' : 'Ajouté aux favoris');
+    toast(wished ? t('product.remove_wishlist') : t('product.add_wishlist'));
   };
 
   const handleClick = () => {
@@ -109,7 +113,7 @@ export function ProductCard({
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100 flex-col gap-2">
             <ShoppingCart className="w-12 h-12 opacity-20" />
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-30">Image indisponible</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-30">{t('common.error')}</span>
           </div>
         )}
 
@@ -199,11 +203,11 @@ export function ProductCard({
         <div className="flex items-center justify-between mt-auto">
           <div className="flex flex-col">
             <span className="text-lg font-black text-[#CC0000] leading-none">
-              {price.toFixed(2)} €
+              {formatPrice(price)}
             </span>
             {oldPrice && (
               <span className="text-[10px] text-gray-400 line-through mt-1">
-                {oldPrice.toFixed(2)} €
+                {formatPrice(oldPrice)}
               </span>
             )}
           </div>

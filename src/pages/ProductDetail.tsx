@@ -8,7 +8,6 @@ import {
 import { productsApi, type Product } from '@/lib/api';
 import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
-import { ProductCard } from '@/components/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { SEO } from '@/components/SEO';
@@ -17,6 +16,7 @@ import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useT } from '@/i18n/I18nProvider';
+import { TranslatedProductCard } from '@/components/TranslatedProductCard';
 const getRating = (id: string) => parseFloat((4.2 + ((id.charCodeAt(0) % 8) / 10)).toFixed(1));
 const getSold   = (id: string) => 50 + (id.charCodeAt(0) % 500);
 const getReviews= (id: string) => 5 + ((id.charCodeAt(1) || 65) % 150);
@@ -426,13 +426,9 @@ export function ProductDetail() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
             {recommendations.slice(0, 5).map(p => (
-              <ProductCard 
+              <TranslatedProductCard
                 key={p.id}
-                id={p.id}
-                image={p.image}
-                title={p.name}
-                price={p.price}
-                category={p.category}
+                product={p}
               />
             ))}
           </div>

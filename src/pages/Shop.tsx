@@ -5,7 +5,7 @@ import {
   X, Grid, List, ArrowUpDown, Info, Gift
 } from 'lucide-react';
 import { productsApi, type Product } from '@/lib/api';
-import { ProductCard } from '@/components/ProductCard';
+import { TranslatedProductCard } from '@/components/TranslatedProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SEO } from '@/components/SEO';
 import {
@@ -180,16 +180,10 @@ export function Shop() {
               <>
                 <div className={`grid ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' : 'grid-cols-1'} gap-6`}>
                   {sortedProducts.map(p => (
-                    <ProductCard 
+                    <TranslatedProductCard
                       key={p.id}
-                      id={p.id}
-                      image={p.image}
-                      title={p.name}
-                      price={p.price}
-                      category={p.category}
+                      product={p}
                       badge={p.is_new ? 'nouveau' : undefined}
-                      rating={4.7}
-                      reviews={12}
                     />
                   ))}
                 </div>

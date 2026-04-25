@@ -30,6 +30,8 @@ export const LOCALES = {
 
     // Produits
     'product.add_to_cart': 'Ajouter au panier',
+    'product.add_wishlist': 'Ajouté aux favoris',
+    'product.remove_wishlist': 'Retiré des favoris',
     'product.buy_now': 'Acheter maintenant',
     'product.out_of_stock': 'Rupture de stock',
     'product.in_stock': 'En stock',
@@ -153,6 +155,8 @@ export const LOCALES = {
     'cat.promo': 'Sale',
 
     'product.add_to_cart': 'Add to cart',
+    'product.add_wishlist': 'Added to favorites',
+    'product.remove_wishlist': 'Removed from favorites',
     'product.buy_now': 'Buy now',
     'product.out_of_stock': 'Out of stock',
     'product.in_stock': 'In stock',
@@ -268,6 +272,8 @@ export const LOCALES = {
     'cat.promo': 'Ofertas',
 
     'product.add_to_cart': 'Añadir al carrito',
+    'product.add_wishlist': 'Añadido a favoritos',
+    'product.remove_wishlist': 'Eliminado de favoritos',
     'product.buy_now': 'Comprar ahora',
     'product.out_of_stock': 'Agotado',
     'product.in_stock': 'En stock',
@@ -383,6 +389,8 @@ export const LOCALES = {
     'cat.promo': 'Angebote',
 
     'product.add_to_cart': 'In den Warenkorb',
+    'product.add_wishlist': 'Zu Favoriten hinzugefügt',
+    'product.remove_wishlist': 'Aus Favoriten entfernt',
     'product.buy_now': 'Jetzt kaufen',
     'product.out_of_stock': 'Ausverkauft',
     'product.in_stock': 'Auf Lager',
@@ -498,6 +506,8 @@ export const LOCALES = {
     'cat.promo': 'Offerte',
 
     'product.add_to_cart': 'Aggiungi al carrello',
+    'product.add_wishlist': 'Aggiunto ai preferiti',
+    'product.remove_wishlist': 'Rimosso dai preferiti',
     'product.buy_now': 'Acquista ora',
     'product.out_of_stock': 'Esaurito',
     'product.in_stock': 'Disponibile',
@@ -613,6 +623,8 @@ export const LOCALES = {
     'cat.promo': 'Promoções',
 
     'product.add_to_cart': 'Adicionar ao carrinho',
+    'product.add_wishlist': 'Adicionado aos favoritos',
+    'product.remove_wishlist': 'Removido dos favoritos',
     'product.buy_now': 'Comprar agora',
     'product.out_of_stock': 'Esgotado',
     'product.in_stock': 'Em estoque',
@@ -728,6 +740,8 @@ export const LOCALES = {
     'cat.promo': 'تخفيضات',
 
     'product.add_to_cart': 'أضف إلى السلة',
+    'product.add_wishlist': 'أضيف إلى المفضلات',
+    'product.remove_wishlist': 'حذف من المفضلات',
     'product.buy_now': 'اشترِ الآن',
     'product.out_of_stock': 'نفد المخزون',
     'product.in_stock': 'متوفر',

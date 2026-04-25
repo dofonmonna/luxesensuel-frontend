@@ -6,7 +6,7 @@ import {
   Flame, ShoppingBag, Gift, Award
 } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
-import { ProductCard } from '@/components/ProductCard';
+import { TranslatedProductCard } from '@/components/TranslatedProductCard';
 import { Newsletter } from '@/components/Newsletter';
 import { productsApi, type Product } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -254,16 +254,11 @@ export function Home() {
             {loading ? (
               [1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)
             ) : products.slice(0, 5).map((p, i) => (
-              <ProductCard 
+              <TranslatedProductCard
                 key={p.id}
-                id={p.id}
-                image={p.image}
-                title={p.name}
-                price={p.price * 0.7}
-                oldPrice={p.price}
+                product={{ ...p, price: p.price * 0.7, original_price: p.price }}
                 badge={i === 0 ? 'hot' : 'promo'}
                 sold={120 + i * 45}
-                rating={4.8}
               />
             ))}
           </div>
@@ -287,15 +282,11 @@ export function Home() {
               {loading ? (
                 [1, 2].map(i => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)
               ) : products.slice(5, 7).map((p, i) => (
-                <ProductCard 
+                <TranslatedProductCard
                   key={p.id}
-                  id={p.id}
-                  image={p.image}
-                  title={p.name}
-                  price={p.price}
+                  product={p}
                   badge="hot"
                   rank={i + 1}
-                  category={p.category}
                 />
               ))}
             </div>
@@ -311,14 +302,10 @@ export function Home() {
               {loading ? (
                 [1, 2].map(i => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)
               ) : products.slice(8, 10).map((p) => (
-                <ProductCard 
+                <TranslatedProductCard
                   key={p.id}
-                  id={p.id}
-                  image={p.image}
-                  title={p.name}
-                  price={p.price}
+                  product={p}
                   badge="nouveau"
-                  category={p.category}
                 />
               ))}
             </div>
@@ -338,15 +325,9 @@ export function Home() {
           {loading ? (
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)
           ) : products.map((p) => (
-            <ProductCard 
+            <TranslatedProductCard
               key={p.id}
-              id={p.id}
-              image={p.image}
-              title={p.name}
-              price={p.price}
-              category={p.category}
-              rating={4.7}
-              reviews={Math.floor(Math.random() * 50) + 10}
+              product={p}
             />
           ))}
         </div>
