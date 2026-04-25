@@ -220,14 +220,19 @@ export function Admin() {
     
     // Vérifier si c'est une liste d'IDs/URLs
     const ids = extractProductIds(importKeyword);
-    const isMultiIdInput = ids.length > 1 || (ids.length === 1 && importKeyword.includes(',') || importKeyword.includes('\n'));
+    const isMultiIdInput = ids.length > 1 || (ids.length === 1 && (importKeyword.includes(',') || importKeyword.includes('\n')));
     
     if (isMultiIdInput && ids.length > 0) {
       // Mode multi-IDs : récupérer chaque produit individuellement
-      addToast('info', `Recherche de ${ids.length} produit(s)...`);
+      const MAX_IDS = 20;
+      const idsToFetch = ids.slice(0, MAX_IDS);
+      if (ids.length > MAX_IDS) {
+        addToast('warning', `Limite de ${MAX_IDS} IDs par recherche. Les ${ids.length - MAX_IDS} suivants sont ignorés.`);
+      }
+      addToast('info', `Recherche de ${idsToFetch.length} produit(s)...`);
       const results: SearchResult[] = [];
       
-      for (const id of ids) {
+      for (const id of idsToFetch) {
         try {
           // Appel à un endpoint de preview (on créera côté backend)
           const res = await fetch(`${API_URL}/admin/import/${importSource}/preview`, {
