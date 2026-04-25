@@ -31,6 +31,7 @@ export function Shop() {
   const searchQuery = searchParams.get('search');
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const loadProducts = async () => {
       setLoading(true);
       try {

@@ -20,6 +20,7 @@ interface Product {
   image: string;
   sales: number;
   status: 'active' | 'inactive';
+  category?: string;
 }
 
 interface Order {
@@ -115,7 +116,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
 
 export function Admin() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import' | 'categories'>('overview');
   const [stats, setStats] = useState<Stats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -123,6 +124,7 @@ export function Admin() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilterAdmin, setCategoryFilterAdmin] = useState<string>('all');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -313,6 +315,30 @@ export function Admin() {
     } catch { addToast('error', 'Erreur mise à jour'); }
   };
 
+  const toggleProductStatus = async (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    try {
+      const res = await fetch(`${API_URL}/admin/products/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) { addToast('success', `Produit ${newStatus === 'active' ? 'activé' : 'désactivé'}`); fetchDashboardData(); }
+    } catch { addToast('error', 'Erreur changement statut'); }
+  };
+
+  const recategorizeProduct = async (id: string, newCategory: string) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/products/${id}/category`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ category: newCategory })
+      });
+      if (res.ok) { addToast('success', 'Catégorie mise à jour'); fetchDashboardData(); }
+      else { const d = await res.json(); addToast('error', d.error || 'Erreur mise à jour catégorie'); }
+    } catch { addToast('error', 'Erreur connexion'); }
+  };
+
   const deleteProduct = async (id: string) => {
     try {
       await fetch(`${API_URL}/admin/products/${id}`, {
@@ -340,9 +366,10 @@ export function Admin() {
   const filteredProducts = useMemo(() => {
     let result = products;
     if (statusFilter !== 'all') result = result.filter(p => p.status === statusFilter);
+    if (categoryFilterAdmin !== 'all') result = result.filter(p => (p.category || '') === categoryFilterAdmin);
     if (searchTerm) result = result.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     return result;
-  }, [products, statusFilter, searchTerm]);
+  }, [products, statusFilter, categoryFilterAdmin, searchTerm]);
 
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -370,6 +397,7 @@ export function Admin() {
         {[
           { id: 'overview', label: 'Vue d\'ensemble' },
           { id: 'products', label: `Produits (${products.length})` },
+          { id: 'categories', label: 'Catégories' },
           { id: 'orders', label: `Commandes (${orders.length})` },
           { id: 'import', label: '📦 Importer produits' },
         ].map(tab => (
@@ -533,6 +561,86 @@ export function Admin() {
         </div>
       )}
 
+      {activeTab === 'categories' && (
+        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', color: '#1e293b' }}>
+            Répartition par catégorie
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+            {[
+              { key: 'lingerie', label: 'Lingerie', emoji: '✨' },
+              { key: 'soins', label: 'Soins', emoji: '🧴' },
+              { key: 'parfums', label: 'Parfums', emoji: '🌸' },
+              { key: 'bijoux', label: 'Bijoux', emoji: '💎' },
+              { key: 'accessoires', label: 'Accessoires', emoji: '👜' },
+              { key: 'bien-etre', label: 'Bien-être', emoji: '🧘' },
+              { key: 'confort', label: 'Confort', emoji: '🛋️' },
+              { key: 'coffrets', label: 'Coffrets', emoji: '🎁' },
+              { key: 'couples', label: 'Couples', emoji: '💑' },
+              { key: 'electronique', label: 'Électronique', emoji: '⚡' },
+              { key: 'plaisir-adulte', label: 'Plaisir Adulte', emoji: '🔥' },
+              { key: '', label: 'Non classé', emoji: '❓' },
+            ].map(cat => {
+              const count = products.filter(p => (p.category || '') === cat.key).length;
+              const pct = products.length > 0 ? Math.round((count / products.length) * 100) : 0;
+              return (
+                <div key={cat.key || 'none'} style={{
+                  padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0',
+                  background: count === 0 ? '#f8fafc' : 'white', cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                  onClick={() => { setCategoryFilterAdmin(cat.key || 'all'); setActiveTab('products'); }}
+                >
+                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>{cat.emoji}</div>
+                  <div style={{ fontWeight: '700', fontSize: '14px', color: '#1e293b', marginBottom: '4px' }}>{cat.label}</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: count === 0 ? '#94a3b8' : '#ff4747' }}>{count}</div>
+                  <div style={{ marginTop: '8px', background: '#f1f5f9', borderRadius: '4px', height: '6px', overflow: 'hidden' }}>
+                    <div style={{ width: `${pct}%`, background: '#ff4747', height: '100%', borderRadius: '4px', transition: 'width 0.3s' }} />
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>{pct}% du catalogue</div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Produits non classés</h3>
+            {products.filter(p => !p.category).length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>✅ Tous les produits sont classés</div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                {products.filter(p => !p.category).slice(0, 20).map(p => (
+                  <div key={p._id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <img src={p.image || '/placeholder.jpg'} alt={p.name} style={{ width: '40px', height: '40px', borderRadius: '6px', objectFit: 'cover' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontWeight: '500', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                    </div>
+                    <select
+                      value=""
+                      onChange={(e) => { if (e.target.value) recategorizeProduct(p._id, e.target.value); }}
+                      style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '11px' }}
+                    >
+                      <option value="">+ Cat.</option>
+                      <option value="lingerie">Lingerie</option>
+                      <option value="soins">Soins</option>
+                      <option value="parfums">Parfums</option>
+                      <option value="bijoux">Bijoux</option>
+                      <option value="accessoires">Accessoires</option>
+                      <option value="bien-etre">Bien-être</option>
+                      <option value="confort">Confort</option>
+                      <option value="coffrets">Coffrets</option>
+                      <option value="couples">Couples</option>
+                      <option value="electronique">Électronique</option>
+                      <option value="plaisir-adulte">Plaisir Adulte</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {activeTab === 'products' && (
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
           <div style={{ padding: '20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
@@ -544,9 +652,25 @@ export function Admin() {
               </div>
               <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                 style={{ padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <option value="all">Tous</option>
+                <option value="all">Tous statuts</option>
                 <option value="active">Actif</option>
                 <option value="inactive">Inactif</option>
+              </select>
+              <select value={categoryFilterAdmin} onChange={(e) => setCategoryFilterAdmin(e.target.value)}
+                style={{ padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <option value="all">Toutes catégories</option>
+                <option value="lingerie">Lingerie</option>
+                <option value="soins">Soins</option>
+                <option value="parfums">Parfums</option>
+                <option value="bijoux">Bijoux</option>
+                <option value="accessoires">Accessoires</option>
+                <option value="bien-etre">Bien-être</option>
+                <option value="confort">Confort</option>
+                <option value="coffrets">Coffrets</option>
+                <option value="couples">Couples</option>
+                <option value="electronique">Électronique</option>
+                <option value="plaisir-adulte">Plaisir Adulte</option>
+                <option value="">Non classé</option>
               </select>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -573,6 +697,8 @@ export function Admin() {
             <thead>
               <tr style={{ background: '#f8fafc' }}>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Produit</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Catégorie</th>
+                <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Statut</th>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Source</th>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Prix</th>
                 <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: '12px', color: '#64748b' }}>Stock</th>
@@ -592,6 +718,39 @@ export function Admin() {
                         <div style={{ fontSize: '11px', color: '#64748b' }}>{product._id.slice(-6)}</div>
                       </div>
                     </div>
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <select
+                      value={product.category || ''}
+                      onChange={(e) => recategorizeProduct(product._id, e.target.value)}
+                      style={{ padding: '6px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', minWidth: '120px' }}
+                    >
+                      <option value="">— Non classé —</option>
+                      <option value="lingerie">Lingerie</option>
+                      <option value="soins">Soins</option>
+                      <option value="parfums">Parfums</option>
+                      <option value="bijoux">Bijoux</option>
+                      <option value="accessoires">Accessoires</option>
+                      <option value="bien-etre">Bien-être</option>
+                      <option value="confort">Confort</option>
+                      <option value="coffrets">Coffrets</option>
+                      <option value="couples">Couples</option>
+                      <option value="electronique">Électronique</option>
+                      <option value="plaisir-adulte">Plaisir Adulte</option>
+                    </select>
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <button
+                      onClick={() => toggleProductStatus(product._id, product.status)}
+                      style={{
+                        padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',
+                        border: 'none', cursor: 'pointer',
+                        background: product.status === 'active' ? '#dcfce7' : '#fee2e2',
+                        color: product.status === 'active' ? '#16a34a' : '#dc2626'
+                      }}
+                    >
+                      {product.status === 'active' ? '✓ Actif' : '✕ Inactif'}
+                    </button>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',

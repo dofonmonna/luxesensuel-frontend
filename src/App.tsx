@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 
 import { Toaster } from 'sonner';
 
@@ -7,63 +8,48 @@ import ScrollToTop from './components/ScrollToTop';
 import { AnalyticsProvider } from './components/AnalyticsProvider';
 
 // ✅ Imports NOMMÉS (sans default)
-
 import { StoreLayout } from './pages/StoreLayout';
-
 import { AdminLayout } from './pages/AdminLayout';
 
-// Pages Storefront
-
+// Pages Storefront - eager (first load)
 import { Home } from './pages/Home';
-
 import { Shop } from './pages/Shop';
 
-import { ProductDetail } from './pages/ProductDetail';
+// Pages Storefront - lazy loaded
+const ProductDetail = lazy(() => import('./pages/ProductDetail').then(m => ({ default: m.ProductDetail })));
+const Cart = lazy(() => import('./pages/Cart').then(m => ({ default: m.Cart })));
+const Checkout = lazy(() => import('./pages/Checkout').then(m => ({ default: m.Checkout })));
+const Confirmation = lazy(() => import('./pages/Confirmation').then(m => ({ default: m.Confirmation })));
+const ConfirmReception = lazy(() => import('./pages/ConfirmReception').then(m => ({ default: m.ConfirmReception })));
+const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const Signup = lazy(() => import('./pages/Signup').then(m => ({ default: m.Signup })));
+const Profile = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
 
-import { Cart } from './pages/Cart';
+// Admin - lazy loaded
+const Admin = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.Admin })));
+const AdminLogin = lazy(() => import('./pages/AdminLogin').then(m => ({ default: m.AdminLogin })));
 
-import { Checkout } from './pages/Checkout';
+// Callback - lazy loaded
+const AECallback = lazy(() => import('./pages/AECallback').then(m => ({ default: m.AECallback })));
 
-import { Confirmation } from './pages/Confirmation';
-
-import { ConfirmReception } from './pages/ConfirmReception';
-
-import { Login } from './pages/Login';
-
-import { Signup } from './pages/Signup';
-
-import { Profile } from './pages/Profile';
-
-import { Settings } from './pages/Settings';
-
-// Admin
-
-import { Admin } from './pages/Admin';
-
-import { AdminLogin } from './pages/AdminLogin';
-
-// Callback
-
-import { AECallback } from './pages/AECallback';
-
-// Legal
-
-import { CGV } from './pages/Legal/CGV';
-
-import { MentionsLegales } from './pages/Legal/MentionsLegales';
-
-import { Confidentialite } from './pages/Legal/Confidentialite';
-
-import { Retours } from './pages/Legal/Retours';
+// Legal - lazy loaded
+const CGV = lazy(() => import('./pages/Legal/CGV').then(m => ({ default: m.CGV })));
+const MentionsLegales = lazy(() => import('./pages/Legal/MentionsLegales').then(m => ({ default: m.MentionsLegales })));
+const Confidentialite = lazy(() => import('./pages/Legal/Confidentialite').then(m => ({ default: m.Confidentialite })));
+const Retours = lazy(() => import('./pages/Legal/Retours').then(m => ({ default: m.Retours })));
 
 import { CookieBanner } from './components/CookieBanner';
-
 import { I18nProvider } from './i18n/I18nProvider';
 
-
+const LoadingFallback = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
+    <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#CC0000', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 export function App() {
-
   return (
 
     <Router>
@@ -83,35 +69,35 @@ export function App() {
 
             <Route path="/shop" element={<Shop />} />
 
-            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/product/:id" element={<Suspense fallback={<LoadingFallback />}><ProductDetail /></Suspense>} />
 
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/cart" element={<Suspense fallback={<LoadingFallback />}><Cart /></Suspense>} />
 
-            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/checkout" element={<Suspense fallback={<LoadingFallback />}><Checkout /></Suspense>} />
 
-            <Route path="/confirmation" element={<Confirmation />} />
+            <Route path="/confirmation" element={<Suspense fallback={<LoadingFallback />}><Confirmation /></Suspense>} />
 
-            <Route path="/confirm-reception" element={<ConfirmReception />} />
+            <Route path="/confirm-reception" element={<Suspense fallback={<LoadingFallback />}><ConfirmReception /></Suspense>} />
 
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
 
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/signup" element={<Suspense fallback={<LoadingFallback />}><Signup /></Suspense>} />
 
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<Suspense fallback={<LoadingFallback />}><Profile /></Suspense>} />
 
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/settings" element={<Suspense fallback={<LoadingFallback />}><Settings /></Suspense>} />
 
-            <Route path="/callback" element={<AECallback />} />
+            <Route path="/callback" element={<Suspense fallback={<LoadingFallback />}><AECallback /></Suspense>} />
 
             {/* Pages Légales */}
 
-            <Route path="/cgv" element={<CGV />} />
+            <Route path="/cgv" element={<Suspense fallback={<LoadingFallback />}><CGV /></Suspense>} />
 
-            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/mentions-legales" element={<Suspense fallback={<LoadingFallback />}><MentionsLegales /></Suspense>} />
 
-            <Route path="/confidentialite" element={<Confidentialite />} />
+            <Route path="/confidentialite" element={<Suspense fallback={<LoadingFallback />}><Confidentialite /></Suspense>} />
 
-            <Route path="/retours" element={<Retours />} />
+            <Route path="/retours" element={<Suspense fallback={<LoadingFallback />}><Retours /></Suspense>} />
 
           </Route>
 
@@ -119,7 +105,7 @@ export function App() {
 
           {/* ADMIN LOGIN — hors layout admin */}
 
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/login" element={<Suspense fallback={<LoadingFallback />}><AdminLogin /></Suspense>} />
 
 
 
@@ -127,7 +113,7 @@ export function App() {
 
           <Route path="/admin" element={<AdminLayout />}>
 
-            <Route index element={<Admin />} />
+            <Route index element={<Suspense fallback={<LoadingFallback />}><Admin /></Suspense>} />
 
           </Route>
 
