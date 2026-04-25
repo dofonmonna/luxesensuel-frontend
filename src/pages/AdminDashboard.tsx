@@ -137,6 +137,7 @@ export function Admin() {
   const [importLoading, setImportLoading] = useState(false);
   const [importingId, setImportingId] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const [importCategory, setImportCategory] = useState('general');
 
   const token = localStorage.getItem('Luxe_admin_token');
 
@@ -215,8 +216,8 @@ export function Admin() {
     setImportingId(productId);
     try {
       const body = importSource === 'cj'
-        ? { cj_product_id: productId }
-        : { ae_product_id: productId };
+        ? { cj_product_id: productId, category: importCategory }
+        : { ae_product_id: productId, category: importCategory };
 
       const res = await fetch(`${API_URL}/admin/import/${importSource}`, {
         method: 'POST',
@@ -255,7 +256,8 @@ export function Admin() {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ 
           platform: importSource, 
-          productIds: Array.from(selectedProducts) 
+          productIds: Array.from(selectedProducts),
+          options: { category: importCategory }
         })
       });
       const data = await res.json();
@@ -440,7 +442,7 @@ export function Admin() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
             <div style={{ position: 'relative', flex: 1 }}>
               <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
               <input
@@ -465,6 +467,29 @@ export function Admin() {
                 <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
               ) : '🔍 Rechercher'}
             </button>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', padding: '12px', background: '#f8fafc', borderRadius: '8px' }}>
+            <label style={{ fontSize: '14px', fontWeight: '600', color: '#475569' }}>Catégorie d'import :</label>
+            <select 
+              value={importCategory} 
+              onChange={(e) => setImportCategory(e.target.value)}
+              style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '14px', background: 'white', cursor: 'pointer' }}
+            >
+              <option value="general">Général</option>
+              <option value="lingerie">Lingerie</option>
+              <option value="soins">Soins</option>
+              <option value="parfums">Parfums</option>
+              <option value="accessoires">Accessoires</option>
+              <option value="bijoux">Bijoux</option>
+              <option value="bienetre">Bien-être</option>
+              <option value="confort">Confort</option>
+              <option value="coffrets">Coffrets</option>
+              <option value="couples">Couples</option>
+              <option value="electronique">Électronique</option>
+              <option value="plaisir-adulte">Plaisir Adulte</option>
+            </select>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>Les produits seront importés dans cette catégorie</span>
           </div>
 
           {importResults.length > 0 && (
