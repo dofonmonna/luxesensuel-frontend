@@ -16,6 +16,7 @@ import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useT } from '@/i18n/I18nProvider';
+import { useTranslation } from '@/hooks/useTranslation';
 import { TranslatedProductCard } from '@/components/TranslatedProductCard';
 const getRating = (id: string) => parseFloat((3.5 + ((id.charCodeAt(0) % 16) / 10)).toFixed(1));
 const getSold   = (id: string) => 50 + (id.charCodeAt(0) % 500);
