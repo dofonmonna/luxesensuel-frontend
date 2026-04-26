@@ -218,11 +218,10 @@ export function Admin() {
     setImportResults([]);
     setSelectedProducts(new Set());
     
-    // Vérifier si c'est une liste d'IDs/URLs
+    // Vérifier si l'entrée contient des IDs (numériques ou URLs)
     const ids = extractProductIds(importKeyword);
-    const isMultiIdInput = ids.length > 1 || (ids.length === 1 && (importKeyword.includes(',') || importKeyword.includes('\n')));
     
-    if (isMultiIdInput && ids.length > 0) {
+    if (ids.length > 0) {
       // Mode multi-IDs : récupérer chaque produit individuellement
       const MAX_IDS = 20;
       const idsToFetch = ids.slice(0, MAX_IDS);
