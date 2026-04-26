@@ -230,10 +230,10 @@ export function Admin() {
       }
       addToast('info', `Recherche de ${idsToFetch.length} produit(s)...`);
       const results: SearchResult[] = [];
+      const notFound: string[] = [];
       
       for (const id of idsToFetch) {
         try {
-          // Appel à un endpoint de preview (on créera côté backend)
           const res = await fetch(`${API_URL}/admin/import/${importSource}/preview`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -252,18 +252,26 @@ export function Admin() {
                 salePrice: String(data.produit.price || 0),
                 sellPrice: String(data.produit.price || 0)
               });
+            } else {
+              notFound.push(id);
             }
+          } else {
+            notFound.push(id);
           }
         } catch (err) {
+          notFound.push(id);
           console.error(`Erreur recherche produit ${id}:`, err);
         }
       }
       
       setImportResults(results);
       if (results.length === 0) {
-        addToast('warning', 'Aucun produit trouvé avec ces IDs');
+        addToast('warning', 'Aucun produit trouvé — vérifiez que les IDs existent sur AliExpress/CJ');
       } else {
-        addToast('success', `${results.length} produit(s) trouvé(s)`);
+        addToast('success', `${results.length}/${idsToFetch.length} produit(s) trouvé(s)`);
+      }
+      if (notFound.length > 0) {
+        addToast('warning', `IDs introuvables: ${notFound.slice(0, 5).join(', ')}${notFound.length > 5 ? '...' : ''}`);
       }
       setImportLoading(false);
       return;
