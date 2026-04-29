@@ -14,7 +14,7 @@ interface GeoData {
 }
 
 const CACHE_KEY = 'luxesensuel_geo';
-const CACHE_TTL = 30 * 24 * 60 * 60 * 1000; // 30 jours
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 // Mapping pays → langue principale
 const COUNTRY_TO_LANG: Record<string, Language> = {
