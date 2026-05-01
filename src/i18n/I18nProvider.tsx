@@ -32,18 +32,35 @@ function writeCookieLang(lang: SupportedLang) {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { geo } = useGeoLocation();
-  const [lang, setLangState] = useState<SupportedLang>(() => readCookieLang() || 'fr');
 
-  // Mise à jour automatique quand la géoloc remonte une langue
+  // Priorité : cookie > géo > 'fr'
+  const [lang, setLangState] = useState<SupportedLang>(() => {
+    const cookie = readCookieLang();
+    if (cookie) return cookie;
+    // Lire le cache géo directement au init
+    try {
+      const raw = localStorage.getItem('luxesensuel_geo');
+      if (raw) {
+        const cached = JSON.parse(raw);
+        const geoLang = cached?.language as SupportedLang;
+        if (geoLang && geoLang in LOCALES) return geoLang;
+      }
+    } catch { /* ignore */ }
+    return 'fr';
+  });
+
+  // Détection géo — une seule fois quand geo arrive et PAS de cookie
+  const [geoApplied, setGeoApplied] = useState(false);
   useEffect(() => {
-    if (!geo) return;
+    if (geoApplied || !geo) return;
     const cookieLang = readCookieLang();
-    if (cookieLang) return; // l'utilisateur a déjà choisi
+    if (cookieLang) { setGeoApplied(true); return; }
     const detected = geo.language as SupportedLang;
-    if (detected in LOCALES && detected !== lang) {
+    if (detected in LOCALES) {
       setLangState(detected);
     }
-  }, [geo, lang]);
+    setGeoApplied(true);
+  }, [geo, geoApplied]);
 
   // Synchroniser <html lang> et <html dir>
   useEffect(() => {
@@ -51,10 +68,22 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
   }, [lang]);
 
+  // Changement de langue explicite par l'utilisateur
   const setLang = (newLang: SupportedLang) => {
     if (!(newLang in LOCALES)) return;
     setLangState(newLang);
     writeCookieLang(newLang);
+    // Mettre à jour le cache géo pour éviter le conflit au prochain chargement
+    try {
+      const raw = localStorage.getItem('luxesensuel_geo');
+      if (raw) {
+        const cached = JSON.parse(raw);
+        cached.language = newLang;
+        localStorage.setItem('luxesensuel_geo', JSON.stringify(cached));
+      }
+    } catch { /* ignore */ }
+    // Notifier tous les hooks useTranslation du changement
+    window.dispatchEvent(new CustomEvent('luxe:langchange', { detail: { lang: newLang } }));
   };
 
   const value = useMemo<I18nContextValue>(() => {
@@ -66,11 +95,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       t: (key: LocaleKey, fallback?: string) => {
         const v = (dict as Record<string, string>)[key];
         if (v !== undefined) return v;
-        // Fallback sur français si la clé manque dans la langue cible
         const fr = (LOCALES.fr as Record<string, string>)[key];
         return fr ?? fallback ?? key;
       },
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

@@ -42,37 +42,83 @@ const LANGUAGE_FLAGS: Record<Language, string> = {
   ja: '🇯🇵',
 };
 
-// Cache de traductions pour éviter les appels répétés
-const translationCache: Map<string, Map<Language, TranslatedProduct>> = new Map();
+// ─── Cache mémoire + localStorage persistant ────────────────────────────────
+const TRANS_CACHE_KEY = 'luxe_trans_v2';
+const translationCache: Map<string, Map<Language, TranslatedProduct>> = (() => {
+  try {
+    const raw = localStorage.getItem(TRANS_CACHE_KEY);
+    if (raw) {
+      const obj = JSON.parse(raw) as Record<string, Record<Language, TranslatedProduct>>;
+      const m = new Map<string, Map<Language, TranslatedProduct>>();
+      for (const [id, langs] of Object.entries(obj)) {
+        m.set(id, new Map(Object.entries(langs) as [Language, TranslatedProduct][]));
+      }
+      return m;
+    }
+  } catch { /* ignore */ }
+  return new Map();
+})();
+
+const CACHE_MAX_BYTES = 2 * 1024 * 1024; // 2 MB max
+
+function persistCache() {
+  try {
+    const obj: Record<string, Record<string, TranslatedProduct>> = {};
+    translationCache.forEach((langs, id) => {
+      obj[id] = {};
+      langs.forEach((tp, lang) => { obj[id][lang] = tp; });
+    });
+    const serialized = JSON.stringify(obj);
+    if (serialized.length > CACHE_MAX_BYTES) {
+      // Trop gros : on vide le cache localStorage mais on garde la mémoire
+      localStorage.removeItem(TRANS_CACHE_KEY);
+      return;
+    }
+    localStorage.setItem(TRANS_CACHE_KEY, serialized);
+  } catch { /* quota dépassé — silencieux */ }
+}
 
 const SUPPORTED_LANGS: Language[] = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'nl', 'ja'];
 
+function detectLangFromCookie(): Language | null {
+  const m = document.cookie.match(/user_lang=([a-z]{2})/);
+  if (m && SUPPORTED_LANGS.includes(m[1] as Language)) return m[1] as Language;
+  return null;
+}
+
 export function useTranslation() {
   const { geo } = useGeoLocation();
-  const [currentLang, setCurrentLang] = useState<Language>('fr');
+  const [currentLang, setCurrentLang] = useState<Language>(() => {
+    return detectLangFromCookie() || 'fr';
+  });
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Détection: cookie > geo IP > navigateur > 'fr'
+  // Écoute les changements de langue déclenchés par I18nProvider
   useEffect(() => {
-    const cookieLang = document.cookie.match(/user_lang=([^;]+)/);
-    if (cookieLang && SUPPORTED_LANGS.includes(cookieLang[1] as Language)) {
-      setCurrentLang(cookieLang[1] as Language);
-      return;
-    }
+    const handler = (e: Event) => {
+      const lang = (e as CustomEvent<{ lang: Language }>).detail?.lang;
+      if (lang && SUPPORTED_LANGS.includes(lang)) setCurrentLang(lang);
+    };
+    window.addEventListener('luxe:langchange', handler);
+    return () => window.removeEventListener('luxe:langchange', handler);
+  }, []);
+
+  // Détection géo (une seule fois si pas de cookie)
+  useEffect(() => {
+    if (detectLangFromCookie()) return;
     if (geo?.language && SUPPORTED_LANGS.includes(geo.language as Language)) {
       setCurrentLang(geo.language as Language);
       return;
     }
     const browserLang = (navigator.language || 'fr').split('-')[0] as Language;
-    if (SUPPORTED_LANGS.includes(browserLang)) {
-      setCurrentLang(browserLang);
-    }
+    if (SUPPORTED_LANGS.includes(browserLang)) setCurrentLang(browserLang);
   }, [geo]);
 
   // Sauvegarder la langue choisie
   const changeLanguage = useCallback((lang: Language) => {
     setCurrentLang(lang);
     document.cookie = `user_lang=${lang}; path=/; max-age=${60 * 60 * 24 * 365}`;
+    window.dispatchEvent(new CustomEvent('luxe:langchange', { detail: { lang } }));
   }, []);
 
   // Traduire un produit
@@ -116,11 +162,12 @@ export function useTranslation() {
 
       const translated = await response.json();
 
-      // Mettre en cache
+      // Mettre en cache mémoire + localStorage
       if (!translationCache.has(product.id)) {
         translationCache.set(product.id, new Map());
       }
       translationCache.get(product.id)!.set(targetLang, translated);
+      persistCache();
 
       return translated;
     } catch (error) {
@@ -138,7 +185,7 @@ export function useTranslation() {
     }
   }, [currentLang]);
 
-  // Traduire plusieurs produits en batch
+  // Traduire plusieurs produits en batch (1 seul appel API)
   const translateProducts = useCallback(async (
     products: any[],
     targetLang: Language = currentLang
@@ -154,11 +201,38 @@ export function useTranslation() {
       }));
     }
 
-    const translations = await Promise.all(
-      products.map(p => translateProduct(p, targetLang))
-    );
+    // Séparer les produits déjà en cache de ceux à traduire
+    const toFetch: any[] = [];
+    products.forEach(p => {
+      if (!translationCache.get(p.id)?.get(targetLang)) toFetch.push(p);
+    });
 
-    return translations;
+    if (toFetch.length > 0) {
+      setIsTranslating(true);
+      try {
+        const apiBase = import.meta.env.VITE_API_URL || '/api';
+        const res = await fetch(`${apiBase}/translate/batch`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ products: toFetch, targetLang }),
+        });
+        if (res.ok) {
+          const { translations } = await res.json() as { translations: TranslatedProduct[] };
+          translations.forEach(t => {
+            if (!translationCache.has(t.id)) translationCache.set(t.id, new Map());
+            translationCache.get(t.id)!.set(targetLang, t);
+          });
+          persistCache();
+        }
+      } catch { /* fallback individuel */ }
+      finally { setIsTranslating(false); }
+    }
+
+    // Reconstituer le tableau final
+    return products.map(p => {
+      const cached = translationCache.get(p.id)?.get(targetLang);
+      return cached || { id: p.id, name: p.name, description: p.description, category: p.category, subcategory: p.subcategory, tags: p.tags || [] };
+    });
   }, [translateProduct, currentLang]);
 
   return {

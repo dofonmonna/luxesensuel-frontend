@@ -7,6 +7,7 @@ import {
 import { productsApi, type Product } from '@/lib/api';
 import { TranslatedProductCard } from '@/components/TranslatedProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useTranslation } from '@/hooks/useTranslation';
 import { SEO } from '@/components/SEO';
 import {
   Select,
@@ -26,6 +27,7 @@ export function Shop() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('random');
+  const { translateProducts, currentLang } = useTranslation();
 
   const categoryFilter = searchParams.get('cat');
   const searchQuery = searchParams.get('search');
@@ -41,6 +43,10 @@ export function Shop() {
           random: sortBy === 'random'
         });
         setProducts(res.products);
+        // Pré-remplir le cache en un seul appel batch
+        if (currentLang !== 'fr') {
+          translateProducts(res.products, currentLang).catch(() => {});
+        }
       } catch (err) {
         console.error("Erreur chargement produits:", err);
       } finally {
@@ -48,7 +54,7 @@ export function Shop() {
       }
     };
     loadProducts();
-  }, [categoryFilter, searchQuery, sortBy]);
+  }, [categoryFilter, searchQuery, sortBy, currentLang]);
 
   const sortedProducts = useMemo(() => {
     const result = [...products];

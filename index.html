@@ -65,6 +65,20 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Cache busting automatique à chaque build -->
+    <script>
+      (function () {
+        var BUILD = '__BUILD_VERSION__';
+        var stored = localStorage.getItem('luxe_build');
+        if (stored !== BUILD) {
+          localStorage.removeItem('luxesensuel_geo');
+          localStorage.removeItem('luxe_trans_v2');
+          localStorage.setItem('luxe_build', BUILD);
+        }
+      })();
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {

@@ -11,6 +11,7 @@ import { Newsletter } from '@/components/Newsletter';
 import { productsApi, type Product } from '@/lib/api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SEO } from '@/components/SEO';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   Carousel,
   CarouselContent,
@@ -59,12 +60,17 @@ export function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
+  const { translateProducts, currentLang } = useTranslation();
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         const res = await productsApi.list({ random: true, limit: 30 });
         setProducts(res.products);
+        // Pré-remplir le cache de traduction en un seul appel batch
+        if (currentLang !== 'fr') {
+          translateProducts(res.products, currentLang).catch(() => {});
+        }
       } catch (err) {
         console.error("Home API Error:", err);
       } finally {
@@ -72,7 +78,7 @@ export function Home() {
       }
     };
     loadProducts();
-  }, []);
+  }, [currentLang]);
 
   // Timer Flash Deals
   useEffect(() => {

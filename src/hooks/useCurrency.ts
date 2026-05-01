@@ -57,20 +57,35 @@ export function useCurrency() {
   const [currency, setCurrency] = useState<Currency>('EUR');
   const [rates, setRates] = useState<Record<Currency, number>>(EXCHANGE_RATES);
 
-  // Détection unifiée via useGeoLocation (cache 30 jours, partagé)
+  // Détection unifiée via useGeoLocation (cache partagé)
   const { geo } = useGeoLocation();
   useEffect(() => {
-    // 1. Cookie utilisateur prioritaire
-    const cookieCurrency = document.cookie.match(/user_currency=([A-Z]{3})/);
-    if (cookieCurrency && CURRENCIES[cookieCurrency[1] as Currency]) {
-      setCurrency(cookieCurrency[1] as Currency);
-      return;
-    }
-    // 2. Devise déduite de la géoloc IP
-    if (geo?.currency && CURRENCIES[geo.currency as Currency]) {
-      setCurrency(geo.currency as Currency);
-    }
+    const detect = () => {
+      // 1. Cookie utilisateur prioritaire
+      const cookieCurrency = document.cookie.match(/user_currency=([A-Z]{3})/);
+      if (cookieCurrency && CURRENCIES[cookieCurrency[1] as Currency]) {
+        setCurrency(cookieCurrency[1] as Currency);
+        return;
+      }
+      // 2. Devise déduite de la géoloc IP
+      if (geo?.currency && CURRENCIES[geo.currency as Currency]) {
+        setCurrency(geo.currency as Currency);
+      }
+    };
+    detect();
   }, [geo]);
+
+  // Re-lire le cookie devise si l'utilisateur change de langue (changement de pays possible)
+  useEffect(() => {
+    const handler = () => {
+      const cookieCurrency = document.cookie.match(/user_currency=([A-Z]{3})/);
+      if (cookieCurrency && CURRENCIES[cookieCurrency[1] as Currency]) {
+        setCurrency(cookieCurrency[1] as Currency);
+      }
+    };
+    window.addEventListener('luxe:langchange', handler);
+    return () => window.removeEventListener('luxe:langchange', handler);
+  }, []);
 
   // Mettre à jour les taux depuis l'API
   const updateRates = useCallback(async () => {
