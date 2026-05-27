@@ -169,6 +169,15 @@ export function Header() {
               <Search className="w-5 h-5 text-gray-600 group-hover:text-[#CC0000] transition-colors" />
             </button>
 
+            {/* Compte mobile — toujours visible sur mobile */}
+            <button
+              onClick={() => navigate('/login')}
+              className="md:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors group"
+              title={t('nav.login')}
+            >
+              <User className="w-5 h-5 text-gray-600 group-hover:text-[#CC0000] transition-colors" />
+            </button>
+
             {/* Panier */}
             <button
               onClick={() => navigate('/cart')}
