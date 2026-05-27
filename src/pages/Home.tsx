@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  TrendingUp, Sparkles, Heart, Zap, ChevronRight, 
-  ShieldCheck, Truck, RotateCcw, Star, 
-  Flame, ShoppingBag, Gift, Award
+import {
+  Sparkles, Heart, Zap, ChevronRight,
+  ShieldCheck, Truck, RotateCcw, Star,
+  Flame, ShoppingBag, Gift, Users, Globe, Quote
 } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
 import { TranslatedProductCard } from '@/components/TranslatedProductCard';
@@ -22,29 +22,44 @@ import {
 
 const HERO_SLIDES = [
   {
-    title: "Collection Lingerie de Nuit",
-    subtitle: "Élégance & Séduction",
-    description: "Découvrez nos nouvelles pièces en soie et dentelle fine pour des moments inoubliables.",
+    title: "Lingerie Fine & Séduction",
+    subtitle: "✦ Nouvelle Collection",
+    description: "Dentelle, satin, soie — des pièces d'exception pour sublimer chaque instant.",
     image: "https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1600",
     cta: "Explorer la collection",
-    color: "bg-[#1a1a2e]"
+    badge: "Livraison discrète garantie",
   },
   {
-    title: "Bien-être & Massages",
-    subtitle: "Rituels Sensoriels",
-    description: "Éveillez vos sens avec nos huiles de massage et bougies parfumées haut de gamme.",
+    title: "Bien-être & Rituels Sensoriels",
+    subtitle: "✦ Soins Premium",
+    description: "Huiles de massage, bougies parfumées et soins corps d'exception.",
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=1600",
     cta: "Voir les soins",
-    color: "bg-[#2d3436]"
+    badge: "Qualité haut de gamme",
   },
   {
-    title: "Coffrets Cadeaux",
-    subtitle: "L'Art d'Offrir",
-    description: "Des sélections élégantes pour surprendre et ravir votre partenaire.",
+    title: "L'Art d'Offrir",
+    subtitle: "✦ Coffrets Cadeaux",
+    description: "Des sélections élégantes, emballées avec soin pour surprendre votre partenaire.",
     image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600",
     cta: "Découvrir les coffrets",
-    color: "bg-[#636e72]"
-  }
+    badge: "Packaging luxe inclus",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Amina K.", city: "Abidjan", rating: 5,
+    text: "Colis reçu en 4 jours, emballage totalement neutre. Qualité vraiment premium, je recommande sans hésiter !",
+  },
+  {
+    name: "Fatou D.", city: "Dakar", rating: 5,
+    text: "Livraison discrète comme promis. Mon partenaire a adoré le cadeau. Déjà ma 3e commande sur ce site !",
+  },
+  {
+    name: "Marie & Julien", city: "Paris", rating: 5,
+    text: "Produits de qualité professionnelle, packaging luxueux. On reviendra c'est certain !",
+  },
 ];
 
 const CATEGORY_ICONS = [
@@ -118,22 +133,33 @@ export function Home() {
                       alt={slide.title} 
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent flex flex-col justify-center px-8 md:px-16">
-                      <p className="text-[#CC0000] font-bold text-sm md:text-base mb-2 uppercase tracking-widest animate-fade-in">
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center px-8 md:px-16">
+                      <span className="inline-block bg-[#CC0000]/90 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full w-fit mb-4">
+                        {slide.badge}
+                      </span>
+                      <p className="text-[#f9c8c8] font-bold text-sm md:text-base mb-2 uppercase tracking-widest">
                         {slide.subtitle}
                       </p>
-                      <h2 className="text-white text-4xl md:text-6xl font-black mb-4 leading-tight max-w-xl animate-fade-in">
+                      <h2 className="text-white text-3xl md:text-5xl font-black mb-4 leading-tight max-w-xl">
                         {slide.title}
                       </h2>
-                      <p className="text-gray-200 text-sm md:text-lg mb-8 max-w-md line-clamp-2 animate-fade-in opacity-80">
+                      <p className="text-gray-200 text-sm md:text-base mb-8 max-w-md opacity-90">
                         {slide.description}
                       </p>
-                      <Link 
-                        to="/shop" 
-                        className="btn-sensual w-fit px-8 py-3.5 text-base rounded-full shadow-lg shadow-black/20 hover:scale-105 transition-transform"
-                      >
-                        {slide.cta}
-                      </Link>
+                      <div className="flex flex-wrap items-center gap-4">
+                        <Link
+                          to="/shop"
+                          className="btn-sensual px-8 py-3.5 text-sm font-bold rounded-full shadow-lg shadow-black/30 hover:scale-105 transition-transform"
+                        >
+                          {slide.cta} →
+                        </Link>
+                        <div className="flex items-center gap-1.5 text-white/80 text-xs">
+                          <div className="flex">
+                            {[1,2,3,4,5].map(s => <Star key={s} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />)}
+                          </div>
+                          <span className="font-semibold">4.9 · 25 000+ clients</span>
+                        </div>
+                      </div>
                     </div>
                   </CarouselItem>
                 ))}
@@ -213,6 +239,48 @@ export function Home() {
             <div>
               <p className="text-xs font-bold text-gray-900">Pack Discret</p>
               <p className="text-[10px] text-gray-400">Emballage neutre & soigné</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── BANDE DE CONFIANCE ──────────────────────────────── */}
+      <section className="max-w-[1440px] mx-auto px-4 mb-8">
+        <div className="bg-gradient-to-r from-[#CC0000] to-[#990000] rounded-2xl px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-white shadow-lg shadow-red-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xl font-black leading-none">25 000+</p>
+              <p className="text-[11px] text-white/80 mt-0.5">Clients satisfaits</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <Star className="w-5 h-5 fill-yellow-300 text-yellow-300" />
+            </div>
+            <div>
+              <p className="text-xl font-black leading-none">4.9 / 5</p>
+              <p className="text-[11px] text-white/80 mt-0.5">Note moyenne</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <Globe className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xl font-black leading-none">50+ pays</p>
+              <p className="text-[11px] text-white/80 mt-0.5">Livraison mondiale</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xl font-black leading-none">100%</p>
+              <p className="text-[11px] text-white/80 mt-0.5">Paiement sécurisé</p>
             </div>
           </div>
         </div>
@@ -345,6 +413,38 @@ export function Home() {
           >
             Afficher plus de produits
           </button>
+        </div>
+      </section>
+
+      {/* ── TÉMOIGNAGES ─────────────────────────────────────── */}
+      <section className="max-w-[1440px] mx-auto px-4 mb-16">
+        <div className="text-center mb-10">
+          <p className="text-[#CC0000] text-xs font-bold uppercase tracking-widest mb-2">Ils nous font confiance</p>
+          <h2 className="text-3xl font-black text-gray-900">Ce que disent <span className="text-[#CC0000]">nos clients</span></h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 hover:shadow-md transition-shadow">
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} className={`w-4 h-4 ${s <= t.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                ))}
+              </div>
+              <div className="relative">
+                <Quote className="absolute -top-1 -left-1 w-6 h-6 text-red-100" />
+                <p className="text-sm text-gray-600 leading-relaxed pl-4 italic">"{t.text}"</p>
+              </div>
+              <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CC0000]/20 to-[#CC0000]/5 flex items-center justify-center text-sm font-black text-[#CC0000]">
+                  {t.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{t.name}</p>
+                  <p className="text-[11px] text-gray-400">{t.city} · Achat vérifié</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 

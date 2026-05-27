@@ -3,7 +3,6 @@ import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { WelcomePopup } from '../components/WelcomePopup';
 import { ExitIntentPopup } from '../components/ExitIntentPopup';
-import { SocialProofToast } from '../components/SocialProof';
 import { WhatsAppButton } from '../components/WhatsAppButton';
 
 export const StoreLayout = () => {
@@ -20,10 +19,8 @@ export const StoreLayout = () => {
       
       {!isAuthPage && <Footer />}
 
-      {/* Conversion Boosters */}
       <WelcomePopup />
       <ExitIntentPopup />
-      <SocialProofToast />
       {!isAuthPage && <WhatsAppButton />}
     </div>
   );
