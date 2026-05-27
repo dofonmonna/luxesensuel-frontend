@@ -128,7 +128,11 @@ export function useCurrency() {
       if (m && CURRENCIES[m[1] as Currency]) setCurrency(m[1] as Currency);
     };
     window.addEventListener('luxe:langchange', handler);
-    return () => window.removeEventListener('luxe:langchange', handler);
+    window.addEventListener('luxe:currencychange', handler);
+    return () => {
+      window.removeEventListener('luxe:langchange', handler);
+      window.removeEventListener('luxe:currencychange', handler);
+    };
   }, []);
 
   // Changer la devise manuellement

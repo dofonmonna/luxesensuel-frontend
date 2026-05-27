@@ -4,10 +4,12 @@
 import { useNavigate } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
+import { useCurrency } from '@/hooks/useCurrency';
 
 export function RecentlyViewed() {
   const { recentProducts } = useRecentlyViewed();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
 
   if (recentProducts.length < 2) return null;
 
@@ -46,7 +48,7 @@ export function RecentlyViewed() {
                   {product.name}
                 </p>
                 <p className="text-sm font-black text-[#CC0000]">
-                  {product.price.toFixed(2)} €
+                  {formatPrice(product.price)}
                 </p>
               </div>
             </div>
