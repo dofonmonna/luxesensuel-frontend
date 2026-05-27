@@ -1,20 +1,159 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, CreditCard, Truck, ShieldCheck, Trash2, Loader2, Smartphone, X, ChevronRight, MapPin, Mail, Phone, User, Minus, Plus, Search, ChevronDown, Check } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useT } from '@/i18n/I18nProvider';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 import { COUNTRIES } from '@/utils/countries';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
+// ── Sélecteur d'indicatif téléphonique ────────────────────────────────────
+function PhonePrefixPicker({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = COUNTRIES.filter(c => c.prefix).find(c => c.prefix === value) || COUNTRIES[0];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const filtered = COUNTRIES.filter(c => c.prefix).filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.prefix.includes(search) ||
+    c.code.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div ref={ref} className="relative w-32 shrink-0">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen(v => !v)}
+        className="w-full px-3 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-black flex items-center justify-between gap-1 hover:bg-white hover:border-gray-200"
+      >
+        <span className="text-lg leading-none">{selected.flag}</span>
+        <span className="flex-1 text-left text-xs">{selected.prefix}</span>
+        <ChevronDown className={`w-3 h-3 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[300] overflow-hidden">
+          <div className="p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Rechercher..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 rounded-xl outline-none focus:bg-white focus:ring-1 focus:ring-[#CC0000]"
+              />
+            </div>
+          </div>
+          <div className="max-h-52 overflow-y-auto overscroll-contain">
+            {filtered.map(c => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => { onChange(c.prefix); setOpen(false); setSearch(''); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 ${c.prefix === value ? 'bg-red-50 text-[#CC0000] font-semibold' : 'text-gray-700'}`}
+              >
+                <span className="text-lg leading-none">{c.flag}</span>
+                <span className="flex-1 text-left text-xs truncate">{c.name}</span>
+                <span className="text-xs font-black text-gray-500">{c.prefix}</span>
+                {c.prefix === value && <Check className="w-3.5 h-3.5 text-[#CC0000] shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Sélecteur de pays ─────────────────────────────────────────────────────
+function CountryPicker({ value, onChange, disabled }: { value: string; onChange: (name: string, prefix: string) => void; disabled?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = COUNTRIES.find(c => c.name === value) || COUNTRIES[0];
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const filtered = COUNTRIES.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.code.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen(v => !v)}
+        className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none text-sm font-bold flex items-center gap-3 hover:bg-white hover:border-gray-200 transition-all"
+      >
+        <span className="text-lg leading-none">{selected.flag}</span>
+        <span className="flex-1 text-left truncate">{selected.name}</span>
+        <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+      {open && (
+        <div className="absolute left-0 top-full mt-1 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 z-[300] overflow-hidden">
+          <div className="p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Rechercher un pays..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 rounded-xl outline-none focus:bg-white focus:ring-1 focus:ring-[#CC0000]"
+              />
+            </div>
+          </div>
+          <div className="max-h-52 overflow-y-auto overscroll-contain">
+            {filtered.map(c => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => { onChange(c.name, c.prefix); setOpen(false); setSearch(''); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 ${c.name === value ? 'bg-red-50 text-[#CC0000] font-semibold' : 'text-gray-700'}`}
+              >
+                <span className="text-lg leading-none">{c.flag}</span>
+                <span className="flex-1 text-left">{c.name}</span>
+                {c.name === value && <Check className="w-3.5 h-3.5 text-[#CC0000] shrink-0" />}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Checkout() {
   const navigate = useNavigate();
   const { items, total, removeItem, updateQuantity } = useCart();
   const { formatPrice } = useCurrency();
   const { t } = useT();
+  const { geo } = useGeoLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -29,6 +168,19 @@ export function Checkout() {
     ville: '',
     codePostal: ''
   });
+
+  // Auto-remplir pays + indicatif depuis la géoloc IP
+  useEffect(() => {
+    if (!geo?.country) return;
+    const detected = COUNTRIES.find(c => c.code === geo.country);
+    if (detected) {
+      setFormData(prev => ({
+        ...prev,
+        pays: detected.name,
+        indicatif: detected.prefix || prev.indicatif,
+      }));
+    }
+  }, [geo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,17 +375,11 @@ export function Checkout() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-32 shrink-0">
-                    <select 
-                      value={formData.indicatif} disabled={isLoading} 
-                      onChange={(e) => setFormData({...formData, indicatif: e.target.value})} 
-                      className="w-full px-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-black appearance-none"
-                    >
-                      {COUNTRIES.filter(c => c.prefix).map(c => (
-                        <option key={c.code} value={c.prefix}>{c.flag} {c.prefix}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <PhonePrefixPicker
+                    value={formData.indicatif}
+                    onChange={(v) => setFormData({...formData, indicatif: v})}
+                    disabled={isLoading}
+                  />
                   <div className="flex-1 relative group">
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
                     <input 
@@ -244,21 +390,11 @@ export function Checkout() {
                   </div>
                 </div>
 
-                <div className="relative group">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />
-                  <select 
-                    value={formData.pays} disabled={isLoading} 
-                    onChange={(e) => {
-                      const country = COUNTRIES.find(c => c.name === e.target.value);
-                      setFormData({...formData, pays: e.target.value, indicatif: country?.prefix || '+33'});
-                    }} 
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-[#CC0000] transition-all text-sm font-bold appearance-none"
-                  >
-                    {COUNTRIES.map(c => (
-                      <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <CountryPicker
+                  value={formData.pays}
+                  onChange={(name, prefix) => setFormData({...formData, pays: name, indicatif: prefix || formData.indicatif})}
+                  disabled={isLoading}
+                />
 
                 <div className="relative group">
                   <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-[#CC0000] transition-colors" />

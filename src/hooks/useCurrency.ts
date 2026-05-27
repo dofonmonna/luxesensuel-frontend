@@ -93,7 +93,7 @@ export function useCurrency() {
     if (m && CURRENCIES[m[1] as Currency]) return m[1] as Currency;
     // 2. Cache géoloc
     try {
-      const geo = JSON.parse(localStorage.getItem('luxesensuel_geo') || '{}');
+      const geo = JSON.parse(localStorage.getItem('luxesensuel_geo_v2') || '{}');
       if (geo.currency && CURRENCIES[geo.currency as Currency]) return geo.currency as Currency;
     } catch { /* ignore */ }
     return 'EUR';

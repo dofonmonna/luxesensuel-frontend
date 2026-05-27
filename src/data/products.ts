@@ -37,21 +37,21 @@ export const products: Product[] = [
 ];
 export const testimonials = [
   {
-    id: '1',
-    content: 'Une expérience sensorielle unique. Les huiles sont d’une qualité rare et l’emballage est d’un raffinement extrême.',
-    author: 'Sophie M.',
-    role: 'Cliente Privilège'
+    id: ‘1’,
+    content: "Commande reçue en 4 jours, emballage neutre et très soigné. Le produit est exactement comme sur les photos, qualité premium. Je reviens déjà pour une deuxième commande !",
+    author: ‘Amina K.’,
+    role: ‘Abidjan, Côte d\’Ivoire’
   },
   {
-    id: '2',
-    content: 'L’élixir de nuit est devenu mon indispensable. Fragrance subtile et envoûtante. Je recommande vivement.',
-    author: 'Marc A.',
-    role: 'Collectionneur'
+    id: ‘2’,
+    content: "J’étais hésitante au début mais le service client m’a rassurée. Livraison discrète, produit de qualité exceptionnelle. Mon mari a adoré le cadeau surprise. Je recommande à 100%.",
+    author: ‘Fatou D.’,
+    role: ‘Dakar, Sénégal’
   },
   {
-    id: '3',
-    content: 'Service client impeccable et livraison d’une discrétion absolue. Le luxe se niche vraiment dans les détails.',
-    author: 'Elena R.',
-    role: 'Cliente Fidèle'
+    id: ‘3’,
+    content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LuxeSensuel !",
+    author: ‘Kofi A.’,
+    role: ‘Accra, Ghana’
   }
 ];

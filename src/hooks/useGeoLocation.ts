@@ -13,7 +13,7 @@ interface GeoData {
   timestamp: number;
 }
 
-const CACHE_KEY = 'luxesensuel_geo';
+const CACHE_KEY = 'luxesensuel_geo_v2'; // v2 : force re-détection (corrige bug navigator.language→pays)
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 // Mapping pays → langue principale
@@ -79,13 +79,12 @@ export function useGeoLocation() {
       const userLangMatch = document.cookie.match(/user_lang=([^;]+)/);
       const userCurrMatch = document.cookie.match(/user_currency=([A-Z]{3})/);
 
-      // Déduction immédiate via navigator.language (synchrone, zéro réseau)
-      const navParts = (navigator.language || 'fr-FR').split('-');
-      let country = navParts[1]?.toUpperCase() || 'FR';
+      // Le pays doit venir de l'IP — navigator.language n'est pas fiable pour le pays
+      // (un utilisateur en Côte d'Ivoire peut avoir un navigateur en 'en-GB')
+      let country = '';
 
-      // Affiner avec la géolocalisation IP (async, plus précis)
+      // Priorité 1 : ipwho.is (HTTPS, gratuit, 10k/mois, pas de clé)
       try {
-        // ipwho.is : HTTPS, gratuit, 10k/mois, pas de clé API
         const res = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(3000) });
         if (res.ok) {
           const data = await res.json();
@@ -93,16 +92,21 @@ export function useGeoLocation() {
             country = data.country_code;
           }
         }
-      } catch {
-        // Fallback : ipapi.co
+      } catch { /* essayer le suivant */ }
+
+      // Priorité 2 : ipapi.co (fallback)
+      if (!country) {
         try {
           const res2 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
           if (res2.ok) {
             const data2 = await res2.json();
             if (data2.country_code) country = data2.country_code;
           }
-        } catch { /* conserver la valeur navigator */ }
+        } catch { /* conserver le fallback */ }
       }
+
+      // Fallback final : extraire uniquement la LANGUE du navigateur (pas le pays)
+      if (!country) country = 'FR';
 
       if (aborted) return;
 

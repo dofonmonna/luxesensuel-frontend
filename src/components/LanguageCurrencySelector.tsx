@@ -91,8 +91,6 @@ export function LanguageCurrencySelector({ variant = 'header', dark = false }: L
     <div ref={ref} className="relative">
       <button onClick={() => setIsOpen(v => !v)} className={btnClasses} aria-label="Langue et devise">
         <span className="text-base leading-none">{LANG_FLAGS[currentLang] || '🌐'}</span>
-        <span className="hidden sm:inline">{currentLang.toUpperCase()}</span>
-        <span className="text-gray-400 hidden sm:inline">·</span>
         <span className="font-bold">{currencyInfo.symbol}</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
