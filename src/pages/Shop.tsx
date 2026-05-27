@@ -37,10 +37,11 @@ export function Shop() {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        const res = await productsApi.list({ 
-          category: categoryFilter || undefined, 
+        const res = await productsApi.list({
+          category: categoryFilter || undefined,
           search: searchQuery || undefined,
-          random: sortBy === 'random'
+          random: sortBy === 'random',
+          limit: 100,
         });
         setProducts(res.products);
         // Pré-remplir le cache en un seul appel batch

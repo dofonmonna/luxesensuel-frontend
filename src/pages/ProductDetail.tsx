@@ -101,7 +101,7 @@ export function ProductDetail() {
   useEffect(() => {
     let mounted = true;
     setLoading(true);
-    Promise.all([productsApi.get(id!), productsApi.list()])
+    Promise.all([productsApi.get(id!), productsApi.list({ random: true, limit: 20 })])
       .then(([p, list]) => {
         if (!mounted) return;
         setProduct(p.product);
