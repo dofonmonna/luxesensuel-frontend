@@ -39,7 +39,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (cookie) return cookie;
     // Cache géo (visite précédente — instantané)
     try {
-      const raw = localStorage.getItem('luxesensuel_geo_v2');
+      const raw = localStorage.getItem('luxesensuel_geo_v3');
       if (raw) {
         const cached = JSON.parse(raw);
         const geoLang = cached?.language as SupportedLang;
@@ -78,11 +78,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     writeCookieLang(newLang);
     // Mettre à jour le cache géo pour éviter le conflit au prochain chargement
     try {
-      const raw = localStorage.getItem('luxesensuel_geo_v2');
+      const raw = localStorage.getItem('luxesensuel_geo_v3');
       if (raw) {
         const cached = JSON.parse(raw);
         cached.language = newLang;
-        localStorage.setItem('luxesensuel_geo_v2', JSON.stringify(cached));
+        localStorage.setItem('luxesensuel_geo_v3', JSON.stringify(cached));
       }
     } catch { /* ignore */ }
     // Notifier tous les hooks useTranslation du changement

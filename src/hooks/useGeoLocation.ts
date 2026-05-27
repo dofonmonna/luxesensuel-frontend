@@ -13,7 +13,7 @@ interface GeoData {
   timestamp: number;
 }
 
-const CACHE_KEY = 'luxesensuel_geo_v2'; // v2 : force re-détection (corrige bug navigator.language→pays)
+const CACHE_KEY = 'luxesensuel_geo_v3'; // v3 : force re-détection (corrige bug devise cookie → cache)
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
 // Mapping pays → langue principale
@@ -115,8 +115,12 @@ export function useGeoLocation() {
 
       const result: GeoData = {
         country,
+        // La langue du cookie est respectée pour l'UI, mais on garde la langue détectée en cache
+        // pour que le changement de pays soit détecté à la prochaine visite sans cookie
         language: (userLangMatch?.[1] as Language) || detectedLang,
-        currency: (userCurrMatch?.[1] as Currency) || detectedCurr,
+        // La devise en cache = toujours celle détectée par IP/pays (jamais le cookie)
+        // useCurrency.ts gère la priorité cookie > cache de son côté
+        currency: detectedCurr,
         timestamp: Date.now(),
       };
 
