@@ -287,7 +287,11 @@ export function Admin() {
       const data = await res.json();
       if (res.ok) {
         setImportResults(data.produits || []);
-        if ((data.produits || []).length === 0) addToast('warning', 'Aucun produit trouvé');
+        if ((data.produits || []).length === 0) {
+          addToast('warning', data.message || 'Aucun produit trouvé — essayez en anglais (ex: lingerie, bra, perfume)');
+        } else {
+          addToast('success', `${data.produits.length} produits trouvés`);
+        }
       } else {
         addToast('error', data.error || 'Erreur de recherche');
       }
