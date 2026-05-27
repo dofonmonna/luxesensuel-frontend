@@ -99,7 +99,7 @@ export function Home() {
         title="Lingerie de Luxe & Accessoires d'Exception"
         description="LuxeSensuel - Découvrez notre collection exclusive de lingerie fine, nuisettes, soins et accessoires de luxe. Livraison internationale discrète. Plus de 25 000 clients satisfaits."
         keywords="lingerie de luxe, lingerie fine, nuisettes, soins corporels, accessoires intimes, livraison discrète, boutique en ligne"
-        url="https://prismatic-cheesecake-92caa2.netlify.app/"
+        url="https://luxedropshoping.com/"
         type="website"
       />
       

@@ -79,18 +79,29 @@ export function useGeoLocation() {
       const userLangMatch = document.cookie.match(/user_lang=([^;]+)/);
       const userCurrMatch = document.cookie.match(/user_currency=([A-Z]{3})/);
 
-      let country = 'FR';
+      // Déduction immédiate via navigator.language (synchrone, zéro réseau)
+      const navParts = (navigator.language || 'fr-FR').split('-');
+      let country = navParts[1]?.toUpperCase() || 'FR';
+
+      // Affiner avec la géolocalisation IP (async, plus précis)
       try {
-        const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
+        // ipwho.is : HTTPS, gratuit, 10k/mois, pas de clé API
+        const res = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(3000) });
         if (res.ok) {
           const data = await res.json();
-          country = data.country_code || data.country || 'FR';
+          if (data.success !== false && data.country_code) {
+            country = data.country_code;
+          }
         }
       } catch {
-        // Fallback: deviner via navigator.language
-        const navLang = (navigator.language || 'fr-FR').toUpperCase();
-        const parts = navLang.split('-');
-        if (parts[1]) country = parts[1];
+        // Fallback : ipapi.co
+        try {
+          const res2 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+          if (res2.ok) {
+            const data2 = await res2.json();
+            if (data2.country_code) country = data2.country_code;
+          }
+        } catch { /* conserver la valeur navigator */ }
       }
 
       if (aborted) return;

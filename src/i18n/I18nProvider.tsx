@@ -33,11 +33,11 @@ function writeCookieLang(lang: SupportedLang) {
 export function I18nProvider({ children }: { children: ReactNode }) {
   const { geo } = useGeoLocation();
 
-  // Priorité : cookie > géo > 'fr'
+  // Priorité : cookie > cache géo > navigator.language > 'fr'
   const [lang, setLangState] = useState<SupportedLang>(() => {
     const cookie = readCookieLang();
     if (cookie) return cookie;
-    // Lire le cache géo directement au init
+    // Cache géo (visite précédente — instantané)
     try {
       const raw = localStorage.getItem('luxesensuel_geo');
       if (raw) {
@@ -46,6 +46,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         if (geoLang && geoLang in LOCALES) return geoLang;
       }
     } catch { /* ignore */ }
+    // Fallback synchrone : langue du navigateur (zéro réseau, zéro délai)
+    const navLang = (navigator.language || 'fr').split('-')[0] as SupportedLang;
+    if (navLang in LOCALES) return navLang;
     return 'fr';
   });
 

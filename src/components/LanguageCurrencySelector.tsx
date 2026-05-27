@@ -1,189 +1,172 @@
 /**
- * Sélecteur de Langue et Devise International
- * S'adapte automatiquement à la localisation du client
+ * Sélecteur de Langue & Devise — Version Premium
+ * - Changement SANS rechargement de page (via events luxe:langchange)
+ * - Affiche le drapeau + symbole devise actuels
+ * - Dropdown élégant avec tabs Langue / Devise
  */
-import { useState, useEffect } from 'react';
-import { Globe, DollarSign, Check, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Globe, Check, ChevronDown } from 'lucide-react';
 import { useTranslation, type Language } from '@/hooks/useTranslation';
 import { useCurrency, type Currency } from '@/hooks/useCurrency';
 
 interface LanguageCurrencySelectorProps {
-  variant?: 'header' | 'footer' | 'modal';
+  variant?: 'header' | 'footer';
+  dark?: boolean; // pour le bandeau rouge du header
 }
 
-export function LanguageCurrencySelector({ variant = 'header' }: LanguageCurrencySelectorProps) {
-  const { 
-    currentLang, 
-    changeLanguage, 
-    languageName, 
-    languageFlag,
-    availableLanguages 
-  } = useTranslation();
-  
-  const { 
-    currency, 
-    changeCurrency, 
-    currencyInfo, 
-    availableCurrencies 
-  } = useCurrency();
+const LANG_FLAGS: Record<Language, string> = {
+  fr: '🇫🇷', en: '🇬🇧', es: '🇪🇸', de: '🇩🇪',
+  it: '🇮🇹', pt: '🇧🇷', ar: '🇸🇦', zh: '🇨🇳',
+  nl: '🇳🇱', ja: '🇯🇵',
+};
+
+const LANG_NAMES: Record<Language, string> = {
+  fr: 'Français', en: 'English', es: 'Español', de: 'Deutsch',
+  it: 'Italiano', pt: 'Português', ar: 'العربية', zh: '中文',
+  nl: 'Nederlands', ja: '日本語',
+};
+
+const SUPPORTED_LANGS = Object.keys(LANG_FLAGS) as Language[];
+
+export function LanguageCurrencySelector({ variant = 'header', dark = false }: LanguageCurrencySelectorProps) {
+  const { currentLang, changeLanguage } = useTranslation();
+  const { currency, changeCurrency, currencyInfo, availableCurrencies } = useCurrency();
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'language' | 'currency'>('language');
+  const ref = useRef<HTMLDivElement>(null);
 
   // Fermer au clic extérieur
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.lang-currency-selector')) {
-        setIsOpen(false);
-      }
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
     };
-    
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (isOpen) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
   }, [isOpen]);
 
   const handleLanguageChange = (lang: Language) => {
     changeLanguage(lang);
     setIsOpen(false);
-    // Recharger la page pour appliquer les traductions
-    window.location.reload();
+    // Pas de rechargement — les composants écoutent l'event 'luxe:langchange'
   };
 
   const handleCurrencyChange = (curr: Currency) => {
     changeCurrency(curr);
     setIsOpen(false);
-    window.location.reload();
   };
 
-  if (variant === 'header') {
+  if (variant === 'footer') {
     return (
-      <div className="lang-currency-selector relative">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+      <div className="flex items-center gap-3 text-sm">
+        <select
+          value={currentLang}
+          onChange={e => handleLanguageChange(e.target.value as Language)}
+          className="bg-transparent text-gray-400 border-none outline-none cursor-pointer hover:text-white transition-colors"
         >
-          <span className="text-lg">{languageFlag}</span>
-          <span className="text-xs font-medium text-gray-700">{currencyInfo.symbol}</span>
-          <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
-
-        {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-            {/* Tabs */}
-            <div className="flex border-b border-gray-100">
-              <button
-                onClick={() => setActiveTab('language')}
-                className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
-                  activeTab === 'language' 
-                    ? 'text-[#CC0000] border-b-2 border-[#CC0000]' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Globe className="w-4 h-4" />
-                Langue
-              </button>
-              <button
-                onClick={() => setActiveTab('currency')}
-                className={`flex-1 py-3 text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
-                  activeTab === 'currency' 
-                    ? 'text-[#CC0000] border-b-2 border-[#CC0000]' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <DollarSign className="w-4 h-4" />
-                Devise
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="max-h-80 overflow-y-auto">
-              {activeTab === 'language' ? (
-                <div className="p-2">
-                  {availableLanguages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => handleLanguageChange(lang.code)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        currentLang === lang.code
-                          ? 'bg-red-50 text-[#CC0000]'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <span className="text-xl">{lang.flag}</span>
-                      <span className="flex-1 text-left">{lang.name}</span>
-                      {currentLang === lang.code && (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-2">
-                  {availableCurrencies.map((curr) => (
-                    <button
-                      key={curr.code}
-                      onClick={() => handleCurrencyChange(curr.code)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                        currency === curr.code
-                          ? 'bg-red-50 text-[#CC0000]'
-                          : 'hover:bg-gray-50 text-gray-700'
-                      }`}
-                    >
-                      <span className="text-xl">{curr.flag}</span>
-                      <span className="flex-1 text-left">
-                        {curr.name}
-                        <span className="text-gray-400 ml-1">({curr.code})</span>
-                      </span>
-                      <span className="font-semibold">{curr.symbol}</span>
-                      {currency === curr.code && (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer info */}
-            <div className="px-4 py-2 bg-gray-50 text-[10px] text-gray-500 text-center border-t border-gray-100">
-              Les prix sont convertis selon le taux du jour
-            </div>
-          </div>
-        )}
+          {SUPPORTED_LANGS.map(l => (
+            <option key={l} value={l} className="bg-gray-900">{LANG_FLAGS[l]} {LANG_NAMES[l]}</option>
+          ))}
+        </select>
+        <span className="text-gray-600">|</span>
+        <select
+          value={currency}
+          onChange={e => handleCurrencyChange(e.target.value as Currency)}
+          className="bg-transparent text-gray-400 border-none outline-none cursor-pointer hover:text-white transition-colors"
+        >
+          {availableCurrencies.map(c => (
+            <option key={c.code} value={c.code} className="bg-gray-900">{c.flag} {c.code} {c.symbol}</option>
+          ))}
+        </select>
       </div>
     );
   }
 
-  // Footer variant - plus compact
+  // ── Header variant (dropdown premium) ─────────────────────────
+  const btnClasses = dark
+    ? 'flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-white/20 text-white/90 hover:text-white transition-all text-xs font-medium'
+    : 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-gray-100 text-gray-700 transition-all text-xs font-medium border border-gray-200 hover:border-gray-300';
+
   return (
-    <div className="flex items-center gap-4">
-      <select
-        value={currentLang}
-        onChange={(e) => handleLanguageChange(e.target.value as Language)}
-        className="bg-transparent text-sm text-gray-600 border-none outline-none cursor-pointer"
-      >
-        {availableLanguages.map((lang) => (
-          <option key={lang.code} value={lang.code}>
-            {lang.flag} {lang.name}
-          </option>
-        ))}
-      </select>
-      <span className="text-gray-300">|</span>
-      <select
-        value={currency}
-        onChange={(e) => handleCurrencyChange(e.target.value as Currency)}
-        className="bg-transparent text-sm text-gray-600 border-none outline-none cursor-pointer"
-      >
-        {availableCurrencies.map((curr) => (
-          <option key={curr.code} value={curr.code}>
-            {curr.code} {curr.symbol}
-          </option>
-        ))}
-      </select>
+    <div ref={ref} className="relative">
+      <button onClick={() => setIsOpen(v => !v)} className={btnClasses} aria-label="Langue et devise">
+        <span className="text-base leading-none">{LANG_FLAGS[currentLang] || '🌐'}</span>
+        <span className="hidden sm:inline">{currentLang.toUpperCase()}</span>
+        <span className="text-gray-400 hidden sm:inline">·</span>
+        <span className="font-bold">{currencyInfo.symbol}</span>
+        <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          {/* Tabs */}
+          <div className="flex border-b border-gray-100 bg-gray-50/50">
+            <button
+              onClick={() => setActiveTab('language')}
+              className={`flex-1 py-3 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+                activeTab === 'language' ? 'text-[#CC0000] border-b-2 border-[#CC0000] bg-white' : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              Langue
+            </button>
+            <button
+              onClick={() => setActiveTab('currency')}
+              className={`flex-1 py-3 text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all ${
+                activeTab === 'currency' ? 'text-[#CC0000] border-b-2 border-[#CC0000] bg-white' : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <span className="text-sm font-black">{currencyInfo.symbol}</span>
+              Devise
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="max-h-64 overflow-y-auto overscroll-contain">
+            {activeTab === 'language' ? (
+              <div className="p-2">
+                {SUPPORTED_LANGS.map(l => (
+                  <button
+                    key={l}
+                    onClick={() => handleLanguageChange(l)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                      currentLang === l ? 'bg-red-50 text-[#CC0000] font-semibold' : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <span className="text-xl">{LANG_FLAGS[l]}</span>
+                    <span className="flex-1 text-left">{LANG_NAMES[l]}</span>
+                    {currentLang === l && <Check className="w-4 h-4 text-[#CC0000]" />}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="p-2">
+                {availableCurrencies.map(c => (
+                  <button
+                    key={c.code}
+                    onClick={() => handleCurrencyChange(c.code)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+                      currency === c.code ? 'bg-red-50 text-[#CC0000] font-semibold' : 'hover:bg-gray-50 text-gray-700'
+                    }`}
+                  >
+                    <span className="text-xl">{c.flag}</span>
+                    <span className="flex-1 text-left">
+                      {c.name}
+                      <span className="text-gray-400 text-xs ml-1">({c.code})</span>
+                    </span>
+                    <span className="font-black text-base">{c.symbol}</span>
+                    {currency === c.code && <Check className="w-4 h-4 text-[#CC0000]" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 text-[10px] text-gray-400 text-center font-medium">
+            🔄 Taux mis à jour en temps réel · Détection automatique par pays
+          </div>
+        </div>
+      )}
     </div>
   );
 }

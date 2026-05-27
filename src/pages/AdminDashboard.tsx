@@ -139,7 +139,7 @@ export function Admin() {
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [importCategory, setImportCategory] = useState('general');
 
-  const token = localStorage.getItem('Luxe_admin_token');
+  const token = sessionStorage.getItem('Luxe_admin_token');
 
   const addToast = useCallback((type: Toast['type'], message: string) => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -168,7 +168,7 @@ export function Admin() {
       ]);
 
       if (statsRes.status === 401) {
-        localStorage.removeItem('Luxe_admin_token');
+        sessionStorage.removeItem('Luxe_admin_token');
         navigate('/admin/login');
         return;
       }

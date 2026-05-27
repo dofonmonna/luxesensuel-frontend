@@ -25,9 +25,10 @@ async function isBackendUp(): Promise<boolean> {
 }
 
 // ─── Token admin (JWT) ────────────────────────────────────────
-export const getAdminToken = () => localStorage.getItem('luxe_admin_token');
-export const setAdminToken = (token: string) => localStorage.setItem('luxe_admin_token', token);
-export const removeAdminToken = () => localStorage.removeItem('luxe_admin_token');
+// sessionStorage : portée onglet uniquement — moins exposé que localStorage
+export const getAdminToken = () => sessionStorage.getItem('Luxe_admin_token');
+export const setAdminToken = (token: string) => sessionStorage.setItem('Luxe_admin_token', token);
+export const removeAdminToken = () => sessionStorage.removeItem('Luxe_admin_token');
 export const isAdminAuthenticated = () => !!getAdminToken();
 
 // ─── Fetch helper ─────────────────────────────────────────────
@@ -206,12 +207,16 @@ export interface CjImportResult {
 export const adminApi = {
   login: async (password: string) => {
     const res = await apiFetch<{ token: string; expires_in: string }>(
-      '/admin/login', { method: 'POST', body: JSON.stringify({ password }) }
+      '/admin/login', { method: 'POST', body: JSON.stringify({ password }), credentials: 'include' } as RequestInit
     );
     setAdminToken(res.token);
     return res;
   },
-  logout: () => removeAdminToken(),
+  logout: async () => {
+    const BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    await fetch(`${BASE}/admin/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+    removeAdminToken();
+  },
 
   dashboard: () =>
     apiFetch<{ stats: any; products: any; recent_orders: Order[] }>('/admin/dashboard', {}, true),

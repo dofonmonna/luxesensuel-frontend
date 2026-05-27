@@ -133,7 +133,7 @@ export function ProductDetail() {
         description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Produit d'exception chez LuxeSensuel. Livraison discrète et paiement sécurisé.`}
         keywords={`${product.name}, ${product.category || 'lingerie'}, luxe, boutique en ligne, LuxeSensuel`}
         image={product.image}
-        url={`https://prismatic-cheesecake-92caa2.netlify.app/product/${product.id}`}
+        url={`https://luxedropshoping.com/product/${product.id}`}
         type="product"
         product={{
           name: product.name,

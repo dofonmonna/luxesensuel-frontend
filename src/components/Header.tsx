@@ -8,6 +8,7 @@ import {
 import { useCart } from '@/hooks/useCart';
 import { useT } from '@/i18n/I18nProvider';
 import { LOCALES, type LocaleKey, type SupportedLang } from '@/i18n/locales';
+import { LanguageCurrencySelector } from '@/components/LanguageCurrencySelector';
 
 const CATEGORIES: Array<{ key: LocaleKey; href: string; emoji: string; badge?: string }> = [
   { key: 'cat.lingerie', href: '/shop?cat=lingerie', emoji: '✨' },
@@ -38,9 +39,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
   const catRef = useRef<HTMLDivElement>(null);
-  const langRef = useRef<HTMLDivElement>(null);
 
   // Total articles panier
   const cartCount = items.reduce((acc, i) => acc + i.quantity, 0);
@@ -62,7 +61,6 @@ export function Header() {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false);
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -90,33 +88,8 @@ export function Header() {
             </span>
           </div>
 
-          {/* Sélecteur langue */}
-          <div ref={langRef} className="relative flex-shrink-0">
-            <button
-              onClick={() => setLangOpen(v => !v)}
-              className="flex items-center gap-1 text-white/90 hover:text-white text-[10px] sm:text-xs font-medium transition-colors"
-            >
-              <span>{LANG_FLAGS[lang] || '🌐'}</span>
-              <span className="hidden sm:inline">{lang.toUpperCase()}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {langOpen && (
-              <div className="absolute right-0 top-full mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-xl z-[60] py-1 max-h-56 overflow-y-auto">
-                {(Object.keys(LANG_FLAGS) as SupportedLang[]).map(code => (
-                  <button
-                    key={code}
-                    onClick={() => { setLang(code); setLangOpen(false); }}
-                    className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-red-50 transition-colors ${
-                      code === lang ? 'bg-red-50 text-[#CC0000] font-semibold' : 'text-gray-700'
-                    }`}
-                  >
-                    <span>{LANG_FLAGS[code]}</span>
-                    <span>{code.toUpperCase()}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Sélecteur langue + devise */}
+          <LanguageCurrencySelector variant="header" dark={true} />
 
         </div>
       </div>

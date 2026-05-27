@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { lazy, Suspense, Component, type ReactNode, type ErrorInfo } from 'react';
 
 import { Toaster } from 'sonner';
 
@@ -11,9 +11,38 @@ import { AnalyticsProvider } from './components/AnalyticsProvider';
 import { StoreLayout } from './pages/StoreLayout';
 import { AdminLayout } from './pages/AdminLayout';
 
-// Pages Storefront - eager (first load)
-import { Home } from './pages/Home';
-import { Shop } from './pages/Shop';
+// Pages Storefront - toutes lazy pour bundle initial minimal
+const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Shop = lazy(() => import('./pages/Shop').then(m => ({ default: m.Shop })));
+
+// Capture les erreurs JS et affiche une page de secours au lieu d'un écran blanc
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('[ErrorBoundary]', error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
+          <p style={{ color: '#CC0000', fontSize: 48, fontWeight: 900 }}>!</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 4, fontSize: 12 }}>Une erreur est survenue</p>
+          <button onClick={() => { this.setState({ hasError: false }); window.location.href = '/'; }}
+            style={{ marginTop: 16, padding: '12px 24px', background: '#CC0000', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
+            Retour à la boutique
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Pages Storefront - lazy loaded
 const ProductDetail = lazy(() => import('./pages/ProductDetail').then(m => ({ default: m.ProductDetail })));
@@ -54,6 +83,8 @@ export function App() {
 
     <Router>
 
+      <ErrorBoundary>
+
       <I18nProvider>
 
         <AnalyticsProvider>
@@ -65,9 +96,9 @@ export function App() {
             {/* STORE LAYOUT */}
           <Route element={<StoreLayout />}>
 
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Suspense fallback={<LoadingFallback />}><Home /></Suspense>} />
 
-            <Route path="/shop" element={<Shop />} />
+            <Route path="/shop" element={<Suspense fallback={<LoadingFallback />}><Shop /></Suspense>} />
 
             <Route path="/product/:id" element={<Suspense fallback={<LoadingFallback />}><ProductDetail /></Suspense>} />
 
@@ -133,11 +164,17 @@ export function App() {
 
                   <p className="text-red-500 text-6xl font-bold mb-4">404</p>
 
-                  <p className="text-white/40 uppercase tracking-widest text-sm">
+                  <p className="text-white/40 uppercase tracking-widest text-sm mb-8">
 
                     Page not found / Page introuvable
 
                   </p>
+
+                  <Link to="/" className="inline-block px-8 py-3 bg-[#CC0000] hover:bg-[#aa0000] text-white rounded-lg text-sm font-semibold transition-colors">
+
+                    ← Retour à la boutique
+
+                  </Link>
 
                 </div>
 
@@ -174,6 +211,8 @@ export function App() {
       </AnalyticsProvider>
 
     </I18nProvider>
+
+      </ErrorBoundary>
 
     </Router>
 

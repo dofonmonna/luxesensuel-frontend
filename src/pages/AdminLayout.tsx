@@ -13,14 +13,20 @@ export function AdminLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('Luxe_admin_token');
-    if (!token) {
-      navigate('/admin/login');
-    }
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    // Vérifier via cookie httpOnly (priorité) ou sessionStorage (fallback)
+    const token = sessionStorage.getItem('Luxe_admin_token');
+    if (token) return; // sessionStorage présent — OK
+    // Pas de token en mémoire : vérifier le cookie via l'API
+    fetch(`${API_URL}/admin/verify`, { credentials: 'include' })
+      .then(r => { if (!r.ok) navigate('/admin/login'); })
+      .catch(() => navigate('/admin/login'));
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('Luxe_admin_token');
+  const handleLogout = async () => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    await fetch(`${API_URL}/admin/logout`, { method: 'POST', credentials: 'include' }).catch(() => {});
+    sessionStorage.removeItem('Luxe_admin_token');
     navigate('/admin/login');
   };
 

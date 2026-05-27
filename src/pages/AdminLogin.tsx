@@ -19,6 +19,7 @@ export function AdminLogin() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
+        credentials: 'include', // httpOnly cookie
       });
 
       const data = await res.json();
@@ -28,7 +29,8 @@ export function AdminLogin() {
         return;
       }
 
-      localStorage.setItem('Luxe_admin_token', data.token);
+      // Token en sessionStorage (portée onglet) + httpOnly cookie (persistant, sécurisé)
+      sessionStorage.setItem('Luxe_admin_token', data.token);
       toast.success("Accès administrateur autorisé");
       navigate('/admin');
     } catch (err) {

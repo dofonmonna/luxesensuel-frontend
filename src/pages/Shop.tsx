@@ -75,7 +75,7 @@ export function Shop() {
         title={categoryFilter ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} - Boutique` : searchQuery ? `Résultats pour "${searchQuery}"` : 'Boutique - Tous nos produits'}
         description={categoryFilter ? `Découvrez notre sélection ${categoryFilter} chez LuxeSensuel. Produits premium, livraison discrète et paiement sécurisé.` : 'Parcourez notre catalogue complet de lingerie fine, soins corporels, parfums et accessoires de luxe. Livraison discrète garantie.'}
         keywords={`${categoryFilter || 'lingerie, soins, parfums, accessoires'}, boutique en ligne, luxe, livraison discrète`}
-        url={`https://prismatic-cheesecake-92caa2.netlify.app/shop${categoryFilter ? '?cat=' + categoryFilter : ''}`}
+        url={`https://luxedropshoping.com/shop${categoryFilter ? '?cat=' + categoryFilter : ''}`}
         breadcrumbs={[
           { name: 'Accueil', url: '/' },
           { name: categoryFilter ? categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1) : 'Boutique', url: '/shop' },

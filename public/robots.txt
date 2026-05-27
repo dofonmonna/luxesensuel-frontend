@@ -14,7 +14,7 @@ Disallow: /settings
 Disallow: /callback
 
 # Sitemap
-Sitemap: https://prismatic-cheesecake-92caa2.netlify.app/sitemap.xml
+Sitemap: https://luxedropshoping.com/sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
