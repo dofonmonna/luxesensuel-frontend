@@ -31,6 +31,7 @@ export function Shop() {
 
   const categoryFilter = searchParams.get('cat');
   const searchQuery = searchParams.get('search');
+  const promoFilter = searchParams.get('promo') === 'true';
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -42,6 +43,7 @@ export function Shop() {
           search: searchQuery || undefined,
           random: sortBy === 'random',
           limit: 100,
+          promo: promoFilter || undefined,
         });
         setProducts(res.products);
         // Pré-remplir le cache en un seul appel batch
@@ -55,7 +57,7 @@ export function Shop() {
       }
     };
     loadProducts();
-  }, [categoryFilter, searchQuery, sortBy, currentLang]);
+  }, [categoryFilter, searchQuery, sortBy, currentLang, promoFilter]);
 
   const sortedProducts = useMemo(() => {
     const result = [...products];

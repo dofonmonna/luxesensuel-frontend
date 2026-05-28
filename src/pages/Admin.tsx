@@ -165,6 +165,8 @@ export function Admin() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showImportModal, setShowImportModal] = useState(false);
   const [recategorizeResult, setRecategorizeResult] = useState<{ updated: number; total: number } | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(30);
+  const [quickActionResult, setQuickActionResult] = useState<string | null>(null);
 
   const token = sessionStorage.getItem('Luxe_admin_token');
 
@@ -209,6 +211,42 @@ export function Admin() {
       if (res.ok) { addToast('success', 'Stocks synchronises'); fetchDashboardData(); }
       else addToast('error', 'Erreur synchronisation');
     } catch { addToast('error', 'Erreur synchronisation'); }
+    finally { setActionLoading(null); }
+  };
+
+  const markNew = async () => {
+    setActionLoading('marknew');
+    try {
+      const res = await fetch(`${API_URL}/admin/mark-new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ limit: 50 }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setQuickActionResult(`Nouveautes : ${data.count} produit(s) marques`);
+        addToast('success', `${data.count} produit(s) marques comme Nouveautes`);
+        fetchDashboardData();
+      } else addToast('error', data.error || 'Erreur');
+    } catch { addToast('error', 'Erreur reseau'); }
+    finally { setActionLoading(null); }
+  };
+
+  const markPromo = async () => {
+    setActionLoading('markpromo');
+    try {
+      const res = await fetch(`${API_URL}/admin/mark-promo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ limit: 20, discount_pct: promoDiscount }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setQuickActionResult(`Promo : ${data.count} produit(s) a -${data.discount_pct}%`);
+        addToast('success', `${data.count} produit(s) en promo -${data.discount_pct}%`);
+        fetchDashboardData();
+      } else addToast('error', data.error || 'Erreur');
+    } catch { addToast('error', 'Erreur reseau'); }
     finally { setActionLoading(null); }
   };
 
@@ -493,6 +531,26 @@ export function Admin() {
                 <Tag size={20} style={{ animation: actionLoading === 'recategorize' ? 'spin 1s linear infinite' : 'none' }} />
                 {actionLoading === 'recategorize' ? 'En cours...' : 'Recategoriser tout'}
               </button>
+              <button onClick={markNew} disabled={actionLoading === 'marknew'} style={{ padding: '16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#c2410c', display: 'flex', alignItems: 'center', gap: '10px', opacity: actionLoading === 'marknew' ? 0.6 : 1 }}>
+                <ArrowUpDown size={20} style={{ animation: actionLoading === 'marknew' ? 'spin 1s linear infinite' : 'none' }} />
+                {actionLoading === 'marknew' ? 'En cours...' : 'Marquer Nouveautes (50)'}
+              </button>
+              <div style={{ padding: '16px', background: '#fdf2f8', border: '1px solid #f9a8d4', borderRadius: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', color: '#be185d', fontSize: '14px' }}>
+                  <Filter size={18} /> Marquer Promo
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <label style={{ fontSize: '12px', color: '#64748b' }}>Remise :</label>
+                  <select value={promoDiscount} onChange={e => setPromoDiscount(parseInt(e.target.value))}
+                    style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px', flex: 1 }}>
+                    {[10, 15, 20, 25, 30, 40, 50].map(v => <option key={v} value={v}>-{v}%</option>)}
+                  </select>
+                  <button onClick={markPromo} disabled={actionLoading === 'markpromo'}
+                    style={{ padding: '6px 12px', background: '#be185d', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '12px', whiteSpace: 'nowrap', opacity: actionLoading === 'markpromo' ? 0.6 : 1 }}>
+                    {actionLoading === 'markpromo' ? '...' : 'Appliquer'}
+                  </button>
+                </div>
+              </div>
               <button onClick={syncStocks} disabled={actionLoading === 'sync'} style={{ padding: '16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#1d4ed8', display: 'flex', alignItems: 'center', gap: '10px', opacity: actionLoading === 'sync' ? 0.6 : 1 }}>
                 <RefreshCw size={20} style={{ animation: actionLoading === 'sync' ? 'spin 1s linear infinite' : 'none' }} />
                 Synchroniser stocks
@@ -503,7 +561,12 @@ export function Admin() {
             </div>
             {recategorizeResult && (
               <div style={{ marginTop: '12px', padding: '12px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '13px', color: '#16a34a', fontWeight: '500' }}>
-                Derniere recategorisation : {recategorizeResult.updated} produit(s) modifie(s) sur {recategorizeResult.total} analyses.
+                Recategorisation : {recategorizeResult.updated} produit(s) modifie(s) sur {recategorizeResult.total} analyses.
+              </div>
+            )}
+            {quickActionResult && (
+              <div style={{ marginTop: '8px', padding: '12px 16px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '13px', color: '#c2410c', fontWeight: '500' }}>
+                {quickActionResult}
               </div>
             )}
           </div>

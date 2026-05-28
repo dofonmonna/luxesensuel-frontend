@@ -73,7 +73,7 @@ export interface Product {
 }
 
 export const productsApi = {
-  list: async (params?: { category?: string; search?: string; random?: boolean; limit?: number; sort?: string; is_new?: boolean }) => {
+  list: async (params?: { category?: string; search?: string; random?: boolean; limit?: number; sort?: string; is_new?: boolean; promo?: boolean }) => {
     if (!(await isBackendUp())) {
       let products = [...MOCK_PRODUCTS];
       if (params?.category) products = products.filter(p => p.category === params.category);

@@ -74,6 +74,7 @@ export function Home() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [promoProducts, setPromoProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ hours: 12, minutes: 45, seconds: 30 });
   const { translateProducts, currentLang } = useTranslation();
@@ -81,9 +82,10 @@ export function Home() {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const [mainRes, newRes] = await Promise.all([
+        const [mainRes, newRes, promoRes] = await Promise.all([
           productsApi.list({ random: true, limit: 20 }),
           productsApi.list({ is_new: true, sort: 'newest', limit: 8 }),
+          productsApi.list({ promo: true, limit: 10 }),
         ]);
         setProducts(mainRes.products);
         // Pour les nouveautés : utiliser les vrais nouveaux produits,
@@ -92,6 +94,11 @@ export function Home() {
           ? newRes.products
           : mainRes.products.slice(0, 4);
         setNewProducts(news);
+        // Pour les promos : vrais produits promo, fallback sur produits aléatoires
+        const promos = promoRes.products.length >= 2
+          ? promoRes.products
+          : mainRes.products.slice(0, 5);
+        setPromoProducts(promos);
         if (currentLang !== 'fr') {
           translateProducts(mainRes.products, currentLang).catch(() => {});
         }
@@ -328,7 +335,7 @@ export function Home() {
                 </div>
               </div>
             </div>
-            <Link to="/shop?cat=promo" className="text-sm font-bold text-[#CC0000] hover:underline flex items-center gap-1">
+            <Link to="/shop?promo=true" className="text-sm font-bold text-[#CC0000] hover:underline flex items-center gap-1">
               Voir toutes les offres <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
@@ -336,16 +343,20 @@ export function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 relative z-10">
             {loading ? (
               [1, 2, 3, 4, 5].map(i => <Skeleton key={i} className="aspect-[3/4] rounded-2xl" />)
-            ) : (products.length === 0 ? (
+            ) : (promoProducts.length === 0 ? (
               <p className="col-span-5 text-center text-gray-400 py-8 text-sm">Aucune offre disponible pour le moment.</p>
-            ) : products.slice(0, 5).map((p, i) => (
-              <TranslatedProductCard
-                key={p.id}
-                product={{ ...p, price: p.price * 0.7, original_price: p.price }}
-                badge={i === 0 ? 'hot' : 'promo'}
-                sold={120 + i * 45}
-              />
-            )))}
+            ) : promoProducts.slice(0, 5).map((p, i) => {
+              const discountPct = (p as any).discount_pct || 30;
+              const promoPrice = parseFloat((p.price * (1 - discountPct / 100)).toFixed(2));
+              return (
+                <TranslatedProductCard
+                  key={p.id}
+                  product={{ ...p, price: promoPrice, original_price: p.price }}
+                  badge={i === 0 ? 'hot' : 'promo'}
+                  sold={120 + i * 45}
+                />
+              );
+            }))}
           </div>
           
           {/* Subtle Background Shape */}
