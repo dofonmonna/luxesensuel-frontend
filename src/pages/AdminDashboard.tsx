@@ -438,6 +438,20 @@ export function Admin() {
     } catch { addToast('error', 'Erreur connexion'); }
   };
 
+  const redispatchAll = async () => {
+    setActionLoading('redispatch');
+    try {
+      const res = await fetch(`${API_URL}/admin/redispatch-all`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) { addToast('success', data.message || 'Re-dispatch terminé'); fetchDashboardData(); }
+      else addToast('error', data.error || 'Erreur re-dispatch');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
   const reorganizeProducts = async () => {
     setActionLoading('reorganize');
     try {
@@ -1097,6 +1111,17 @@ export function Admin() {
                   style={{ padding: '8px 16px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'sync' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                   <RefreshCw size={14} style={{ animation: actionLoading === 'sync' ? 'spin 1s linear infinite' : 'none' }} />
                   {actionLoading === 'sync' ? 'Sync...' : 'Sync stocks'}
+                </button>
+              </div>
+
+              {/* Re-Dispatcher commandes paid */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '2px solid #fca5a5', borderRadius: '10px', minWidth: '200px', background: '#fff5f5' }}>
+                <div style={{ fontWeight: '700', fontSize: '13px', color: '#dc2626' }}>Re-Dispatcher commandes</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Envoie toutes les commandes "paid" au fournisseur CJ/AliExpress</div>
+                <button onClick={redispatchAll} disabled={actionLoading === 'redispatch'}
+                  style={{ padding: '8px 16px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'redispatch' ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'redispatch' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'redispatch' ? 'Dispatch...' : 'Dispatcher maintenant'}
                 </button>
               </div>
 
