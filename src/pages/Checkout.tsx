@@ -554,23 +554,21 @@ export function Checkout() {
                 <ChevronRight className="w-5 h-5 text-emerald-500 group-hover:translate-x-1 transition-transform" />
               </button>
 
-              {/* PayPal */}
-              <button 
-                onClick={payWithPaypal} disabled={isLoading} 
-                className="w-full group p-6 border-2 border-blue-100 bg-blue-50/50 rounded-3xl hover:border-blue-500 hover:bg-white transition-all flex items-center gap-5 relative overflow-hidden"
-              >
-                <div className="w-14 h-14 bg-[#0070ba] rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <CreditCard className="w-7 h-7 text-white" />
-                </div>
-                <div className="text-left flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-black text-gray-900 text-lg">PayPal</p>
-                    <span className="text-[9px] font-black bg-[#0070ba] text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">International</span>
+              {/* PayPal — temporairement désactivé (compte en vérification) */}
+              <div className="w-full relative opacity-50 cursor-not-allowed select-none">
+                <div className="w-full p-6 border-2 border-gray-100 bg-gray-50 rounded-3xl flex items-center gap-5 pointer-events-none">
+                  <div className="w-14 h-14 bg-gray-300 rounded-2xl flex items-center justify-center shrink-0">
+                    <CreditCard className="w-7 h-7 text-white" />
                   </div>
-                  <p className="text-xs text-gray-500 leading-tight">Cartes bancaires internationales (Visa, Mastercard, etc.)</p>
+                  <div className="text-left flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-black text-gray-400 text-lg">PayPal</p>
+                      <span className="text-[9px] font-black bg-gray-300 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Indisponible</span>
+                    </div>
+                    <p className="text-xs text-gray-400 leading-tight">Temporairement indisponible — utilisez Mobile Money ci-dessus</p>
+                  </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-blue-500 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </div>
             </div>
 
             {isLoading && (
