@@ -138,6 +138,9 @@ export function Admin() {
   const [importingId, setImportingId] = useState<string | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
   const [importCategory, setImportCategory] = useState('general');
+  const [newCount, setNewCount] = useState(50);
+  const [promoCount, setPromoCount] = useState(30);
+  const [promoDiscount, setPromoDiscount] = useState(20);
 
   const token = sessionStorage.getItem('Luxe_admin_token');
 
@@ -377,6 +380,62 @@ export function Admin() {
       if (res.ok) { addToast('success', 'Stocks synchronisés ✅'); fetchDashboardData(); }
     } catch { addToast('error', 'Erreur synchronisation'); }
     finally { setActionLoading(null); }
+  };
+
+  const recategorizeAll = async () => {
+    setActionLoading('recategorize');
+    try {
+      const res = await fetch(`${API_URL}/admin/recategorize`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) { addToast('success', data.message || `Recatégorisation terminée`); fetchDashboardData(); }
+      else addToast('error', data.error || 'Erreur recatégorisation');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
+  const markNew = async () => {
+    setActionLoading('mark-new');
+    try {
+      const res = await fetch(`${API_URL}/admin/mark-new`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ count: newCount })
+      });
+      const data = await res.json();
+      if (res.ok) { addToast('success', data.message || `${newCount} produits marqués Nouveautés`); fetchDashboardData(); }
+      else addToast('error', data.error || 'Erreur mark-new');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
+  const markPromo = async () => {
+    setActionLoading('mark-promo');
+    try {
+      const res = await fetch(`${API_URL}/admin/mark-promo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ count: promoCount, discount_pct: promoDiscount })
+      });
+      const data = await res.json();
+      if (res.ok) { addToast('success', data.message || `${promoCount} produits marqués en Promo`); fetchDashboardData(); }
+      else addToast('error', data.error || 'Erreur mark-promo');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
+  const updateOrderStatus = async (id: string, newStatus: string) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/orders/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) { addToast('success', `Statut mis à jour → ${newStatus}`); fetchDashboardData(); }
+      else { const d = await res.json(); addToast('error', d.error || 'Erreur statut commande'); }
+    } catch { addToast('error', 'Erreur connexion'); }
   };
 
   const reorganizeProducts = async () => {
@@ -940,13 +999,25 @@ export function Admin() {
                   </td>
                   <td style={{ padding: '16px 20px', fontWeight: '600' }}>{order.total.toFixed(2)} €</td>
                   <td style={{ padding: '16px 20px' }}>
-                    <span style={{
-                      padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '600',
-                      background: order.status === 'paid' ? '#dcfce7' : order.status === 'pending' ? '#fef9c3' : order.status === 'shipped' ? '#dbeafe' : order.status === 'delivered' ? '#f0fdf4' : '#fee2e2',
-                      color: order.status === 'paid' ? '#16a34a' : order.status === 'pending' ? '#ca8a04' : order.status === 'shipped' ? '#1d4ed8' : order.status === 'delivered' ? '#15803d' : '#dc2626'
-                    }}>
-                      {order.status}
-                    </span>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                      style={{
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', border: '1px solid #e2e8f0', cursor: 'pointer',
+                        background: order.status === 'paid' ? '#dcfce7' : order.status === 'pending' || order.status === 'mobile_pending' ? '#fef9c3' : order.status === 'shipped' ? '#dbeafe' : order.status === 'delivered' ? '#f0fdf4' : order.status === 'processing' ? '#e0e7ff' : '#fee2e2',
+                        color: order.status === 'paid' ? '#16a34a' : order.status === 'pending' || order.status === 'mobile_pending' ? '#ca8a04' : order.status === 'shipped' ? '#1d4ed8' : order.status === 'delivered' ? '#15803d' : order.status === 'processing' ? '#4338ca' : '#dc2626'
+                      }}
+                    >
+                      <option value="pending">pending</option>
+                      <option value="mobile_pending">mobile_pending</option>
+                      <option value="paid">paid</option>
+                      <option value="processing">processing</option>
+                      <option value="shipped">shipped</option>
+                      <option value="delivered">delivered</option>
+                      <option value="cancelled">cancelled</option>
+                      <option value="refunded">refunded</option>
+                      <option value="expired">expired</option>
+                    </select>
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b' }}>
                     {new Date(order.createdAt).toLocaleDateString('fr-FR')}
@@ -959,7 +1030,89 @@ export function Admin() {
       )}
 
       {activeTab === 'overview' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+          {/* Actions Rapides */}
+          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px', color: '#1e293b' }}>Actions Rapides</h3>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+
+              {/* Recatégoriser */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '10px', minWidth: '200px' }}>
+                <div style={{ fontWeight: '600', fontSize: '13px', color: '#374151' }}>Auto-recatégorisation</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Classe tous les produits par IA (titre/description)</div>
+                <button onClick={recategorizeAll} disabled={actionLoading === 'recategorize'}
+                  style={{ padding: '8px 16px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'recategorize' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'recategorize' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'recategorize' ? 'En cours...' : 'Recatégoriser tout'}
+                </button>
+              </div>
+
+              {/* Marquer Nouveautés */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '10px', minWidth: '200px' }}>
+                <div style={{ fontWeight: '600', fontSize: '13px', color: '#374151' }}>Marquer Nouveautés</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <label style={{ fontSize: '11px', color: '#94a3b8' }}>Nombre :</label>
+                  <input type="number" value={newCount} onChange={(e) => setNewCount(parseInt(e.target.value) || 50)} min={1} max={200}
+                    style={{ width: '60px', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '13px' }} />
+                </div>
+                <button onClick={markNew} disabled={actionLoading === 'mark-new'}
+                  style={{ padding: '8px 16px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'mark-new' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'mark-new' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'mark-new' ? 'En cours...' : `Marquer ${newCount} Nouveautés`}
+                </button>
+              </div>
+
+              {/* Marquer Promo */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '10px', minWidth: '200px' }}>
+                <div style={{ fontWeight: '600', fontSize: '13px', color: '#374151' }}>Marquer Promotions</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <label style={{ fontSize: '11px', color: '#94a3b8' }}>Produits :</label>
+                  <input type="number" value={promoCount} onChange={(e) => setPromoCount(parseInt(e.target.value) || 30)} min={1} max={200}
+                    style={{ width: '55px', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '13px' }} />
+                  <label style={{ fontSize: '11px', color: '#94a3b8' }}>Remise :</label>
+                  <select value={promoDiscount} onChange={(e) => setPromoDiscount(parseInt(e.target.value))}
+                    style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '4px', fontSize: '13px' }}>
+                    <option value={10}>-10%</option>
+                    <option value={15}>-15%</option>
+                    <option value={20}>-20%</option>
+                    <option value={25}>-25%</option>
+                    <option value={30}>-30%</option>
+                    <option value={40}>-40%</option>
+                    <option value={50}>-50%</option>
+                  </select>
+                </div>
+                <button onClick={markPromo} disabled={actionLoading === 'mark-promo'}
+                  style={{ padding: '8px 16px', background: '#f59e0b', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'mark-promo' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'mark-promo' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'mark-promo' ? 'En cours...' : `Marquer ${promoCount} Promos (-${promoDiscount}%)`}
+                </button>
+              </div>
+
+              {/* Sync Stocks */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '10px', minWidth: '160px' }}>
+                <div style={{ fontWeight: '600', fontSize: '13px', color: '#374151' }}>Sync Stocks</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Mettre à jour les stocks fournisseurs</div>
+                <button onClick={syncStocks} disabled={actionLoading === 'sync'}
+                  style={{ padding: '8px 16px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'sync' ? 'not-allowed' : 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'sync' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'sync' ? 'Sync...' : 'Sync stocks'}
+                </button>
+              </div>
+
+              {/* Export CSV */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '1px solid #e2e8f0', borderRadius: '10px', minWidth: '160px' }}>
+                <div style={{ fontWeight: '600', fontSize: '13px', color: '#374151' }}>Export Catalogue</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Télécharger tous les produits en CSV</div>
+                <button onClick={exportCSV}
+                  style={{ padding: '8px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', color: '#374151' }}>
+                  <Download size={14} /> Export CSV
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Dernières commandes</h3>
             {orders.slice(0, 5).map(order => (
@@ -995,6 +1148,7 @@ export function Admin() {
               </div>
             )}
           </div>
+        </div>
         </div>
       )}
 
