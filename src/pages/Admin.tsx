@@ -462,66 +462,10 @@ export function Admin() {
           TAB: VUE D'ENSEMBLE
       ══════════════════════════════════════ */}
       {activeTab === 'overview' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/* Graphe CA 7 jours */}
-          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', gridColumn: '1 / -1' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BarChart2 size={18} color="#ff4747" /> CA des 7 derniers jours
-              </h3>
-              <span style={{ fontSize: '12px', color: '#94a3b8' }}>en EUR</span>
-            </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', height: '110px' }}>
-              {revenueChartData.map((d, i) => (
-                <RevenueBar key={i} value={d.value} max={maxRevenue} label={d.label} date={d.date} />
-              ))}
-            </div>
-          </div>
-
-          {/* Dernieres commandes */}
+          {/* ── Actions rapides EN PREMIER ── */}
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>Dernieres commandes</h3>
-              <button onClick={() => setActiveTab('orders')} style={{ fontSize: '12px', color: '#ff4747', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500' }}>Voir tout</button>
-            </div>
-            {orders.slice(0, 6).map(order => (
-              <div key={order._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <div>
-                  <div style={{ fontWeight: '600', fontSize: '13px', color: '#1e293b' }}>#{order.orderNumber}</div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{order.customerName}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: '700', color: '#ff4747', fontSize: '13px' }}>{order.total.toFixed(2)} EUR</div>
-                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', ...((STATUS_COLORS[order.status] || STATUS_COLORS.pending)) }}>
-                    {STATUS_COLORS[order.status]?.label || order.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Repartition par categorie */}
-          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>Produits par categorie</h3>
-              <button onClick={() => setActiveTab('products')} style={{ fontSize: '12px', color: '#ff4747', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500' }}>Gerer</button>
-            </div>
-            {categoryBreakdown.map(([cat, count]) => (
-              <div key={cat} style={{ marginBottom: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '500', color: '#1e293b' }}>{cat}</span>
-                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>{count}</span>
-                </div>
-                <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px' }}>
-                  <div style={{ height: '100%', width: `${(count / products.length) * 100}%`, background: 'linear-gradient(to right, #ff4747, #ff8080)', borderRadius: '3px' }} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Actions rapides */}
-          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', gridColumn: '1 / -1' }}>
             <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', marginBottom: '16px' }}>Actions rapides</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <button onClick={() => setActiveTab('import')} style={{ padding: '16px', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '10px', cursor: 'pointer', textAlign: 'left', fontWeight: '600', color: '#ff4747', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -569,6 +513,67 @@ export function Admin() {
                 {quickActionResult}
               </div>
             )}
+          </div>
+
+          {/* ── Graphe CA + Stats ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+
+            {/* Graphe CA 7 jours */}
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', gridColumn: '1 / -1' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BarChart2 size={18} color="#ff4747" /> CA des 7 derniers jours
+                </h3>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>en EUR</span>
+              </div>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', height: '110px' }}>
+                {revenueChartData.map((d, i) => (
+                  <RevenueBar key={i} value={d.value} max={maxRevenue} label={d.label} date={d.date} />
+                ))}
+              </div>
+            </div>
+
+            {/* Dernieres commandes */}
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>Dernieres commandes</h3>
+                <button onClick={() => setActiveTab('orders')} style={{ fontSize: '12px', color: '#ff4747', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500' }}>Voir tout</button>
+              </div>
+              {orders.slice(0, 6).map(order => (
+                <div key={order._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '13px', color: '#1e293b' }}>#{order.orderNumber}</div>
+                    <div style={{ fontSize: '11px', color: '#64748b' }}>{order.customerName}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: '700', color: '#ff4747', fontSize: '13px' }}>{order.total.toFixed(2)} EUR</div>
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', ...((STATUS_COLORS[order.status] || STATUS_COLORS.pending)) }}>
+                      {STATUS_COLORS[order.status]?.label || order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Repartition par categorie */}
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b' }}>Produits par categorie</h3>
+                <button onClick={() => setActiveTab('products')} style={{ fontSize: '12px', color: '#ff4747', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500' }}>Gerer</button>
+              </div>
+              {categoryBreakdown.map(([cat, count]) => (
+                <div key={cat} style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '500', color: '#1e293b' }}>{cat}</span>
+                    <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>{count}</span>
+                  </div>
+                  <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px' }}>
+                    <div style={{ height: '100%', width: `${products.length > 0 ? (count / products.length) * 100 : 0}%`, background: 'linear-gradient(to right, #ff4747, #ff8080)', borderRadius: '3px' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
           </div>
 
         </div>
