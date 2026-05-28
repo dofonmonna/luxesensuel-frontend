@@ -536,20 +536,20 @@ export function Checkout() {
             </div>
 
             <div className="space-y-4">
-              {/* DunyaPay */}
-              <button 
-                onClick={payWithDunyaPay} disabled={isLoading} 
+              {/* PayDunya — paiement universel */}
+              <button
+                onClick={payWithDunyaPay} disabled={isLoading}
                 className="w-full group p-6 border-2 border-emerald-100 bg-emerald-50/50 rounded-3xl hover:border-emerald-500 hover:bg-white transition-all flex items-center gap-5 relative overflow-hidden"
               >
                 <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Smartphone className="w-7 h-7 text-white" />
+                  <CreditCard className="w-7 h-7 text-white" />
                 </div>
                 <div className="text-left flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-black text-gray-900 text-lg">DunyaPay</p>
-                    <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Mobile Money</span>
+                    <p className="font-black text-gray-900 text-lg">Payer maintenant</p>
+                    <span className="text-[9px] font-black bg-emerald-500 text-white px-2 py-0.5 rounded-full uppercase tracking-tighter">Monde entier</span>
                   </div>
-                  <p className="text-xs text-gray-500 leading-tight">Orange, MTN, Wave, Moov + Carte bancaire</p>
+                  <p className="text-xs text-gray-500 leading-tight">Visa · Mastercard · Orange Money · Wave · MTN · Moov — Accepté partout dans le monde</p>
                 </div>
                 <ChevronRight className="w-5 h-5 text-emerald-500 group-hover:translate-x-1 transition-transform" />
               </button>
