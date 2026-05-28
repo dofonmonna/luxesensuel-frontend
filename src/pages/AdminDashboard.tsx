@@ -33,13 +33,25 @@ interface Order {
   createdAt: string;
 }
 
+interface MonthlyBreakdown {
+  month: string;
+  revenue: number;
+  profit: number;
+  orders: number;
+}
+
 interface Stats {
   todayRevenue: number;
+  todayProfit: number;
   monthRevenue: number;
+  monthProfit: number;
+  totalProfit: number;
+  avgMarginPct: number;
   totalOrders: number;
   pendingOrders: number;
   totalProducts: number;
   lowStock: number;
+  monthlyBreakdown: MonthlyBreakdown[];
 }
 
 interface Toast {
@@ -553,11 +565,12 @@ export function Admin() {
     <div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-        <StatCard title="CA Aujourd'hui" value={`${stats?.todayRevenue?.toFixed(2) || '0.00'} €`} trend="+12%" trendValue={12} icon={DollarSign} color="#ff4747" />
-        <StatCard title="CA Mensuel" value={`${stats?.monthRevenue?.toFixed(2) || '0.00'} €`} trend="+8%" trendValue={8} icon={TrendingUp} color="#3b82f6" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+        <StatCard title="CA Aujourd'hui" value={`${stats?.todayRevenue?.toFixed(2) || '0.00'} €`} icon={DollarSign} color="#3b82f6" subtitle={`CA mensuel: ${stats?.monthRevenue?.toFixed(2) || '0.00'} €`} />
+        <StatCard title="Bénéfice du mois" value={`${stats?.monthProfit?.toFixed(2) || '0.00'} €`} icon={TrendingUp} color="#22c55e" subtitle={`Marge moy.: ${stats?.avgMarginPct || 0}%`} />
+        <StatCard title="Bénéfices totaux" value={`${stats?.totalProfit?.toFixed(2) || '0.00'} €`} icon={TrendingUp} color="#10b981" subtitle="Toutes commandes confirmées" />
         <StatCard title="Commandes en attente" value={stats?.pendingOrders || 0} icon={ShoppingBag} color="#f59e0b" />
-        <StatCard title="Produits en stock" value={stats?.totalProducts || 0} alert={stats?.lowStock || 0} icon={Package} color="#22c55e" />
+        <StatCard title="Produits en stock" value={stats?.totalProducts || 0} alert={stats?.lowStock || 0} icon={Package} color="#6366f1" />
       </div>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '2px solid #e2e8f0' }}>
@@ -1136,6 +1149,69 @@ export function Admin() {
               </div>
             </div>
           </div>
+
+          {/* Tableau évolution mensuelle bénéfices */}
+          {stats?.monthlyBreakdown && stats.monthlyBreakdown.length > 0 && (
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px', color: '#1e293b' }}>Évolution des bénéfices (6 derniers mois)</h3>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc' }}>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Mois</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'right', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Commandes</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'right', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Chiffre d'affaires</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'right', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Bénéfice net</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'right', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Marge</th>
+                      <th style={{ padding: '10px 16px', textAlign: 'left', fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Visualisation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const maxProfit = Math.max(...stats.monthlyBreakdown.map(r => r.profit), 1);
+                      return stats.monthlyBreakdown.map((row, i) => {
+                        const margin = row.revenue > 0 ? Math.round((row.profit / row.revenue) * 100) : 0;
+                        const barPct = Math.round((row.profit / maxProfit) * 100);
+                        return (
+                          <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '12px 16px', fontWeight: '600', fontSize: '13px' }}>{row.month}</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', fontSize: '13px', color: '#64748b' }}>{row.orders}</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', fontSize: '13px', fontWeight: '500' }}>{row.revenue.toFixed(2)} €</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right', fontSize: '14px', fontWeight: '700', color: '#16a34a' }}>{row.profit.toFixed(2)} €</td>
+                            <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                              <span style={{ padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', background: margin >= 40 ? '#dcfce7' : margin >= 20 ? '#fef9c3' : '#fee2e2', color: margin >= 40 ? '#16a34a' : margin >= 20 ? '#ca8a04' : '#dc2626' }}>
+                                {margin}%
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 16px', width: '140px' }}>
+                              <div style={{ background: '#f1f5f9', borderRadius: '4px', height: '8px', overflow: 'hidden' }}>
+                                <div style={{ width: `${barPct}%`, background: 'linear-gradient(90deg, #22c55e, #16a34a)', height: '100%', borderRadius: '4px', transition: 'width 0.3s' }} />
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ background: '#f0fdf4', borderTop: '2px solid #bbf7d0' }}>
+                      <td style={{ padding: '12px 16px', fontWeight: '700', fontSize: '13px' }}>TOTAL</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '700', fontSize: '13px' }}>
+                        {stats.monthlyBreakdown.reduce((s, r) => s + r.orders, 0)}
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '700', fontSize: '13px' }}>
+                        {stats.monthlyBreakdown.reduce((s, r) => s + r.revenue, 0).toFixed(2)} €
+                      </td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: '800', fontSize: '14px', color: '#16a34a' }}>
+                        {stats.monthlyBreakdown.reduce((s, r) => s + r.profit, 0).toFixed(2)} €
+                      </td>
+                      <td colSpan={2} />
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
