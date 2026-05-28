@@ -7,7 +7,7 @@ import { Heart, ShoppingCart, Star, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation, getCachedTranslation } from '@/hooks/useTranslation';
 import { useCurrency } from '@/hooks/useCurrency';
 
 interface TranslatedProductCardProps {
@@ -56,42 +56,36 @@ export function TranslatedProductCard({
 }: TranslatedProductCardProps) {
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const { currentLang, translateProduct, isTranslating } = useTranslation();
+  const { currentLang } = useTranslation();
   const { formatPrice } = useCurrency();
-  
+
   const [wished, setWished] = useState(false);
   const [imgError, setImgError] = useState(false);
-  const [translatedData, setTranslatedData] = useState({
-    name: product.name,
-    description: product.description,
-    category: product.category,
-  });
 
-  // Traduire le produit si nécessaire
-  useEffect(() => {
-    const loadTranslation = async () => {
-      if (currentLang !== 'fr') {
-        try {
-          const translated = await translateProduct(product);
-          setTranslatedData({
-            name: translated.name,
-            description: translated.description,
-            category: translated.category,
-          });
-        } catch (error) {
-          console.log('Translation failed, using original');
-        }
-      } else {
-        setTranslatedData({
-          name: product.name,
-          description: product.description,
-          category: product.category,
-        });
-      }
+  // Lire depuis le cache local — aucun appel API individuel
+  // Le parent (Shop/Home) fait le batch et émet 'luxe:translationsDone' quand c'est prêt
+  const getTranslated = () => {
+    if (currentLang === 'fr') return { name: product.name, description: product.description, category: product.category };
+    const cached = getCachedTranslation(product.id, currentLang);
+    return {
+      name: cached?.name || product.name,
+      description: cached?.description || product.description,
+      category: cached?.category || product.category,
     };
+  };
 
-    loadTranslation();
-  }, [currentLang, product, translateProduct]);
+  const [translatedData, setTranslatedData] = useState(getTranslated);
+
+  // Se met à jour quand la langue change ou quand le batch parent a fini
+  useEffect(() => {
+    setTranslatedData(getTranslated());
+  }, [currentLang, product.id]);
+
+  useEffect(() => {
+    const handler = () => setTranslatedData(getTranslated());
+    window.addEventListener('luxe:translationsDone', handler);
+    return () => window.removeEventListener('luxe:translationsDone', handler);
+  }, [currentLang, product.id]);
 
   const discountPct = product.original_price
     ? Math.round(((product.original_price - product.price) / product.original_price) * 100)
@@ -193,13 +187,6 @@ export function TranslatedProductCard({
             style={{ background: rank === 1 ? '#FFD700' : rank === 2 ? '#C0C0C0' : '#CD7F32' }}
           >
             #{rank}
-          </div>
-        )}
-
-        {/* Loading indicator for translation */}
-        {isTranslating && (
-          <div className="absolute bottom-2 left-2 bg-black/50 text-white text-[9px] px-2 py-1 rounded-full animate-pulse">
-            🌐 Translating...
           </div>
         )}
 

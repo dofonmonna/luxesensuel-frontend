@@ -80,6 +80,12 @@ function persistCache() {
 
 const SUPPORTED_LANGS: Language[] = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'zh', 'nl', 'ja'];
 
+/** Lecture synchrone du cache — sans appel API. Utilisé par les cartes produits. */
+export function getCachedTranslation(productId: string, lang: Language): TranslatedProduct | null {
+  if (lang === 'fr') return null;
+  return translationCache.get(productId)?.get(lang) ?? null;
+}
+
 function detectLangFromCookie(): Language | null {
   const m = document.cookie.match(/user_lang=([a-z]{2})/);
   if (m && SUPPORTED_LANGS.includes(m[1] as Language)) return m[1] as Language;
@@ -225,7 +231,11 @@ export function useTranslation() {
           persistCache();
         }
       } catch { /* fallback individuel */ }
-      finally { setIsTranslating(false); }
+      finally {
+        setIsTranslating(false);
+        // Notifier toutes les cartes produits que le cache est à jour
+        window.dispatchEvent(new CustomEvent('luxe:translationsDone', { detail: { lang: targetLang } }));
+      }
     }
 
     // Reconstituer le tableau final
