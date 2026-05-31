@@ -15,7 +15,7 @@ async function isBackendUp(): Promise<boolean> {
   const now = Date.now();
   if (backendAvailable !== null && now - lastCheck < 30_000) return backendAvailable;
   try {
-    const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(2000) });
+    const res = await fetch(`${BASE_URL}/health`, { signal: AbortSignal.timeout(8000) });
     backendAvailable = res.ok;
   } catch {
     backendAvailable = false;
