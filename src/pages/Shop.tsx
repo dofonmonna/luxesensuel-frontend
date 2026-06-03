@@ -27,6 +27,8 @@ export function Shop() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('random');
+  const [displayCount, setDisplayCount] = useState(20);
+  const [searchInput, setSearchInput] = useState('');
   const { translateProducts, currentLang } = useTranslation();
 
   const categoryFilter = searchParams.get('cat');
@@ -34,6 +36,7 @@ export function Shop() {
   const promoFilter = searchParams.get('promo') === 'true';
 
   useEffect(() => {
+    setDisplayCount(20);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const loadProducts = async () => {
       setLoading(true);
@@ -74,6 +77,16 @@ export function Shop() {
 
   const clearFilters = () => {
     setSearchParams({});
+    setSearchInput('');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchInput.trim()) return;
+    const next = new URLSearchParams(searchParams);
+    next.set('search', searchInput.trim());
+    next.delete('cat');
+    setSearchParams(next);
   };
 
   return (
@@ -110,15 +123,29 @@ export function Shop() {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Barre de recherche dans la page */}
+              <form onSubmit={handleSearch} className="flex items-center bg-gray-50 border border-gray-200 rounded-lg overflow-hidden h-10 focus-within:border-[#CC0000] transition-colors">
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder="Rechercher un produit..."
+                  className="bg-transparent pl-3 pr-2 text-sm outline-none w-48 md:w-64"
+                />
+                <button type="submit" className="h-10 px-3 bg-[#CC0000] text-white hover:bg-[#aa0000] transition-colors flex items-center">
+                  <Search className="w-4 h-4" />
+                </button>
+              </form>
+
               <div className="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-100">
-                <button 
+                <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-[#CC0000]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                   <Grid className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => setViewMode('list')}
                   className={`p-2 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-[#CC0000]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
@@ -192,8 +219,9 @@ export function Shop() {
               </div>
             ) : products.length > 0 ? (
               <>
+                <p className="text-sm text-gray-400 mb-4">{sortedProducts.length} produit{sortedProducts.length > 1 ? 's' : ''} trouvé{sortedProducts.length > 1 ? 's' : ''}</p>
                 <div className={`grid ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5' : 'grid-cols-1'} gap-6`}>
-                  {sortedProducts.map(p => (
+                  {sortedProducts.slice(0, displayCount).map(p => (
                     <TranslatedProductCard
                       key={p.id}
                       product={p}
@@ -201,17 +229,13 @@ export function Shop() {
                     />
                   ))}
                 </div>
-                
-                {/* Simplified Pagination for infinite feel */}
-                {products.length >= 20 && (
-                  <div className="mt-16 flex justify-center">
-                    <button 
-                      onClick={() => {
-                        // In a real app, this would load more or go to next page
-                        // For this "intelligent" feel, we'll just keep it simple
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      className="btn-outline-sensual px-12 py-4 rounded-full text-base border-2 border-[#CC0000] text-[#CC0000] hover:bg-[#CC0000] hover:text-white transition-all font-bold"
+
+                {displayCount < sortedProducts.length && (
+                  <div className="mt-16 flex flex-col items-center gap-2">
+                    <p className="text-sm text-gray-400">{displayCount} / {sortedProducts.length} produits affichés</p>
+                    <button
+                      onClick={() => setDisplayCount(c => c + 20)}
+                      className="px-12 py-4 rounded-full text-base border-2 border-[#CC0000] text-[#CC0000] hover:bg-[#CC0000] hover:text-white transition-all font-bold"
                     >
                       Afficher plus de produits
                     </button>
