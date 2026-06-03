@@ -38,12 +38,16 @@ export function Shop() {
     const loadProducts = async () => {
       setLoading(true);
       try {
+        // 'new' et 'promo' sont des filtres spéciaux, pas des catégories DB
+        const isNewFilter = categoryFilter === 'new';
+        const isPromoFilter = categoryFilter === 'promo' || promoFilter;
         const res = await productsApi.list({
-          category: categoryFilter || undefined,
+          category: (!isNewFilter && !isPromoFilter) ? categoryFilter || undefined : undefined,
           search: searchQuery || undefined,
           random: sortBy === 'random',
           limit: 100,
-          promo: promoFilter || undefined,
+          is_new: isNewFilter || undefined,
+          promo: isPromoFilter || undefined,
         });
         setProducts(res.products);
         // Pré-remplir le cache en un seul appel batch
