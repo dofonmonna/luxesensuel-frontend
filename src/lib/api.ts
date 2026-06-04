@@ -47,7 +47,7 @@ async function apiFetch<T>(
     if (token) headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers, cache: 'no-store' });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Erreur réseau' }));

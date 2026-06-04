@@ -83,21 +83,23 @@ export function Home() {
     const loadProducts = async () => {
       try {
         const [mainRes, newRes, promoRes] = await Promise.all([
-          productsApi.list({ random: true, limit: 20 }),
+          productsApi.list({ random: true, limit: 60 }),
           productsApi.list({ is_new: true, sort: 'newest', limit: 8 }),
           productsApi.list({ promo: true, limit: 10 }),
         ]);
-        setProducts(mainRes.products);
-        // Pour les nouveautés : utiliser les vrais nouveaux produits,
-        // ou fallback sur les derniers si pas assez
+
+        // Re-mélanger côté client pour garantir un affichage différent à chaque visite
+        const shuffled = [...mainRes.products].sort(() => Math.random() - 0.5);
+        setProducts(shuffled);
+
         const news = newRes.products.length >= 2
           ? newRes.products
-          : mainRes.products.slice(0, 4);
+          : shuffled.slice(0, 4);
         setNewProducts(news);
-        // Pour les promos : vrais produits promo, fallback sur produits aléatoires
+
         const promos = promoRes.products.length >= 2
           ? promoRes.products
-          : mainRes.products.slice(0, 5);
+          : shuffled.slice(4, 9);
         setPromoProducts(promos);
         if (currentLang !== 'fr') {
           translateProducts(mainRes.products, currentLang).catch(() => {});
