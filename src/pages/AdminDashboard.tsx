@@ -228,14 +228,16 @@ export function Admin() {
   };
 
   const searchSupplierProducts = async () => {
-    if (!importKeyword.trim()) return;
+    if (!importKeyword.trim() || importLoading) return;
+    const currentToken = sessionStorage.getItem('Luxe_admin_token');
+    if (!currentToken) { addToast('error', 'Session expirée — reconnectez-vous'); return; }
     setImportLoading(true);
     setImportResults([]);
     setSelectedProducts(new Set());
-    
+
     // Vérifier si l'entrée contient des IDs (numériques ou URLs)
     const ids = extractProductIds(importKeyword);
-    
+
     if (ids.length > 0) {
       // Mode multi-IDs : récupérer chaque produit individuellement
       const MAX_IDS = 20;
@@ -246,14 +248,19 @@ export function Admin() {
       addToast('info', `Recherche de ${idsToFetch.length} produit(s)...`);
       const results: SearchResult[] = [];
       const notFound: string[] = [];
-      
+
       for (const id of idsToFetch) {
         try {
           const res = await fetch(`${API_URL}/admin/import/${importSource}/preview`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
             body: JSON.stringify({ productId: id })
           });
+          if (res.status === 401) {
+            addToast('error', 'Session expirée — reconnectez-vous');
+            setImportLoading(false);
+            return;
+          }
           if (res.ok) {
             const data = await res.json();
             if (data.produit) {
@@ -296,9 +303,10 @@ export function Admin() {
     try {
       const res = await fetch(`${API_URL}/admin/import/${importSource}/search`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${currentToken}` },
         body: JSON.stringify({ keyword: importKeyword, page: 1 })
       });
+      if (res.status === 401) { addToast('error', 'Session expirée — reconnectez-vous'); setImportLoading(false); return; }
       const data = await res.json();
       if (res.ok) {
         setImportResults(data.produits || []);
