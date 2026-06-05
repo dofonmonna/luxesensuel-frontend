@@ -1105,6 +1105,25 @@ export function Admin() {
                             🛠 Traitement manuel
                           </button>
                         )}
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Rembourser ${order.orderNumber} (${order.total.toFixed(2)} €) via PayDunya ?\n\nL'argent sera renvoyé sur le compte Mobile Money du client.`)) return;
+                            const currentToken = sessionStorage.getItem('Luxe_admin_token');
+                            try {
+                              const res = await fetch(`${API_URL}/paydunya/refund`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${currentToken}` },
+                                body: JSON.stringify({ order_id: order._id }),
+                              });
+                              const d = await res.json();
+                              if (res.ok) { addToast('success', d.message || 'Remboursement effectué'); fetchDashboardData(); }
+                              else addToast('error', d.error || d.detail || 'Erreur remboursement');
+                            } catch { addToast('error', 'Erreur connexion'); }
+                          }}
+                          style={{ padding: '3px 8px', background: '#0891b2', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
+                        >
+                          💸 Rembourser
+                        </button>
                       </div>
                     )}
                   </td>
