@@ -5,7 +5,7 @@ import {
   ShieldCheck, RotateCcw, ChevronRight, Heart,
   Share2, MessageCircle, Info, Flame, Award
 } from 'lucide-react';
-import { productsApi, type Product } from '@/lib/api';
+import { productsApi, type Product, type ProductVariant } from '@/lib/api';
 import { useCart } from '@/hooks/useCart';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -97,6 +97,7 @@ export function ProductDetail() {
   const [activeTab, setActiveTab] = useState<'desc' | 'specs' | 'avis'>('desc');
   const [translatedDesc, setTranslatedDesc] = useState<string>('');
   const [translatedName, setTranslatedName] = useState<string>('');
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -106,6 +107,10 @@ export function ProductDetail() {
         if (!mounted) return;
         setProduct(p.product);
         setMainImg(p.product.image);
+        // Sélectionner la première variante par défaut
+        if (p.product.variants && p.product.variants.length > 0) {
+          setSelectedVariant(p.product.variants[0]);
+        }
         // Filtrer les recommandations par catégorie si possible
         const filtered = list.products.filter((i: Product) => i.id !== id);
         setReco(filtered.slice(0, 10));
@@ -115,7 +120,10 @@ export function ProductDetail() {
     return () => { mounted = false };
   }, [id]);
 
-  const price = product ? parseFloat(product.price as any) : 0;
+  // Prix de la variante sélectionnée, sinon prix de base
+  const price = selectedVariant?.price
+    ? selectedVariant.price
+    : product ? parseFloat(product.price as any) : 0;
   const oldPrice = +(price * 1.35).toFixed(2);
   const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
   const descImages = product ? extractImages(product.description || '') : [];
@@ -147,9 +155,24 @@ export function ProductDetail() {
 
   const handleAdd = () => {
     if (!product) return;
-    addItem({ id: product.id, name: product.name, price, image: product.image, quantity });
+    // Vérifier qu'une variante est choisie si le produit en a
+    const variants = product.variants;
+    if (variants && variants.length > 0 && !selectedVariant) {
+      toast.error('Veuillez sélectionner une variante');
+      return;
+    }
+    addItem({
+      id: product.id,
+      name: product.name,
+      price,
+      image: product.image,
+      quantity,
+      selectedSkuAttr: selectedVariant?.sku_attr ?? null,
+      selectedSkuLabel: selectedVariant?.label ?? null,
+    });
+    const variantInfo = selectedVariant?.label ? ` (${selectedVariant.label})` : '';
     toast.success(t('product.add_to_cart'), {
-      description: `${quantity}x ${product.name}`,
+      description: `${quantity}x ${product.name}${variantInfo}`,
     });
   };
 
@@ -305,6 +328,51 @@ export function ProductDetail() {
                 <Award className="w-3.5 h-3.5" /> -{discount}% {formatPrice(oldPrice - price)}
               </p>
             </div>
+
+            {/* Sélecteur de variante (couleur / taille) */}
+            {product.variants && product.variants.length > 0 && (
+              <div className="mb-6">
+                <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-3">
+                  Variante{selectedVariant ? ` : ${selectedVariant.label}` : ''}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {product.variants.map((v) => {
+                    const isSelected = selectedVariant?.sku_attr === v.sku_attr;
+                    // Détecter si le label ressemble à une couleur connue pour afficher un swatch
+                    const colorMap: Record<string, string> = {
+                      black: '#1a1a1a', white: '#f5f5f5', red: '#ef4444', blue: '#3b82f6',
+                      green: '#22c55e', yellow: '#eab308', pink: '#ec4899', purple: '#a855f7',
+                      orange: '#f97316', grey: '#6b7280', gray: '#6b7280', brown: '#92400e',
+                      coffee: '#6b3a2a', beige: '#d4b896', navy: '#1e3a5f', gold: '#d97706',
+                      silver: '#94a3b8', rose: '#f43f5e', nude: '#d4a574', cream: '#f5f0e8',
+                    };
+                    const labelLower = v.label.toLowerCase().split(' / ')[0];
+                    const swatchColor = colorMap[labelLower];
+                    return (
+                      <button
+                        key={v.sku_attr}
+                        onClick={() => setSelectedVariant(v)}
+                        title={v.label + (v.price ? ` — ${v.price.toFixed(2)} €` : '')}
+                        className={cn(
+                          'flex items-center gap-2 px-3 py-1.5 rounded-full border-2 text-xs font-bold transition-all',
+                          isSelected
+                            ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-md scale-105'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                        )}
+                      >
+                        {swatchColor && (
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-gray-300 shrink-0"
+                            style={{ backgroundColor: swatchColor }}
+                          />
+                        )}
+                        {v.label || v.sku_attr}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Stock status */}
             <div className="mb-8">

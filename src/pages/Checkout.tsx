@@ -195,7 +195,11 @@ export function Checkout() {
     setIsLoading(true);
     try {
       const orderData = {
-        items: items.map(item => ({ product_id: item.id, quantity: item.quantity })),
+        items: items.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          ...(item.selectedSkuAttr ? { selected_sku_attr: item.selectedSkuAttr } : {}),
+        })),
         customer: { 
           email: formData.email, 
           first_name: formData.prenom, 
@@ -457,23 +461,26 @@ export function Checkout() {
               
               <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                 {items.map(item => (
-                  <div key={item.id} className="flex gap-4 items-center group">
+                  <div key={item.cartKey ?? item.id} className="flex gap-4 items-center group">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 shrink-0 shadow-sm relative group-hover:scale-105 transition-transform">
                       <img src={item.image} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight mb-2">{item.name}</p>
+                      <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight mb-1">{item.name}</p>
+                      {item.selectedSkuLabel && (
+                        <p className="text-xs text-rose-600 font-semibold mb-1">{item.selectedSkuLabel}</p>
+                      )}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center bg-gray-50 rounded-lg border border-gray-100 h-8">
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity - 1)}
                             className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
                           <span className="text-xs font-black text-gray-900 w-6 text-center">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity + 1)}
                             className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
                           >
                             <Plus className="w-3 h-3" />
@@ -483,7 +490,7 @@ export function Checkout() {
                       </div>
                     </div>
                     <button 
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.cartKey ?? item.id)}
                       className="p-2 text-gray-300 hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />

@@ -58,6 +58,13 @@ async function apiFetch<T>(
 }
 
 // ─── PRODUITS ─────────────────────────────────────────────────
+export interface ProductVariant {
+  sku_id: string | null;
+  sku_attr: string;
+  price: number;
+  label: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -70,6 +77,8 @@ export interface Product {
   is_new: boolean;
   is_active: boolean;
   created_at: string;
+  ae_sku_attr?: string | null;
+  variants?: ProductVariant[] | null;
 }
 
 export const productsApi = {

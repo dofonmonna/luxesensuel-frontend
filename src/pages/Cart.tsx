@@ -75,7 +75,7 @@ export function Cart() {
               {/* Items */}
               <div className="space-y-8">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4 md:gap-6 group relative">
+                  <div key={item.cartKey ?? item.id} className="flex gap-4 md:gap-6 group relative">
                     {/* Checkbox */}
                     <div className="hidden sm:flex items-center shrink-0 pt-2">
                       <div className="w-5 h-5 bg-[#CC0000] rounded-full flex items-center justify-center">
@@ -94,6 +94,9 @@ export function Cart() {
                         <h3 className="text-sm md:text-base font-bold text-gray-900 mb-1 line-clamp-2 leading-tight hover:text-[#CC0000] transition-colors cursor-pointer" onClick={() => navigate(`/product/${item.id}`)}>
                           {item.name}
                         </h3>
+                        {item.selectedSkuLabel && (
+                          <p className="text-xs text-rose-600 font-semibold mb-1">{item.selectedSkuLabel}</p>
+                        )}
                         <p className="text-lg font-black text-[#CC0000]">{formatPrice(item.price)}</p>
                       </div>
                       
@@ -101,14 +104,14 @@ export function Cart() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center border-2 border-gray-50 rounded-xl overflow-hidden bg-gray-50 shadow-sm w-fit">
                           <button 
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                            onClick={() => updateQuantity(item.cartKey ?? item.id, Math.max(1, item.quantity - 1))}
                             className="p-2.5 hover:bg-white transition-colors text-gray-400 hover:text-[#CC0000]"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
                           <span className="w-10 text-center text-xs font-black text-gray-900">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity + 1)}
                             className="p-2.5 hover:bg-white transition-colors text-gray-400 hover:text-[#CC0000]"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -117,7 +120,7 @@ export function Cart() {
                         
                         <button
                           onClick={() => {
-                            removeItem(item.id);
+                            removeItem(item.cartKey ?? item.id);
                             toast.success(t('cart.remove'));
                           }}
                           className="p-2 text-gray-300 hover:text-red-500 transition-colors"
