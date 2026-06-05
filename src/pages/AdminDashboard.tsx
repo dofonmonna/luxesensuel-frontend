@@ -1059,6 +1059,24 @@ export function Admin() {
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b' }}>
                     {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                    {order.status === 'paid' && (
+                      <button
+                        onClick={async () => {
+                          const currentToken = sessionStorage.getItem('Luxe_admin_token');
+                          try {
+                            const res = await fetch(`${API_URL}/admin/redispatch/${order._id}`, {
+                              method: 'POST', headers: { Authorization: `Bearer ${currentToken}` }
+                            });
+                            const d = await res.json();
+                            if (res.ok) addToast('success', `Dispatché: ${d.order_number}`);
+                            else addToast('error', d.error || 'Erreur dispatch');
+                          } catch { addToast('error', 'Erreur connexion'); }
+                        }}
+                        style={{ display: 'block', marginTop: 6, padding: '3px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
+                      >
+                        ⚡ Envoyer fournisseur
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
