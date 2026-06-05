@@ -1107,7 +1107,7 @@ export function Admin() {
                         )}
                         <button
                           onClick={async () => {
-                            if (!confirm(`Rembourser ${order.orderNumber} (${order.total.toFixed(2)} €) via PayDunya ?\n\nL'argent sera renvoyé sur le compte Mobile Money du client.`)) return;
+                            if (!confirm(`Initier le remboursement de ${order.orderNumber} (${order.total.toFixed(2)} €) ?\n\nLa commande sera marquée "remboursée" et vous recevrez les instructions pour effectuer le virement sur PayDunya.`)) return;
                             const currentToken = sessionStorage.getItem('Luxe_admin_token');
                             try {
                               const res = await fetch(`${API_URL}/paydunya/refund`, {
@@ -1116,8 +1116,27 @@ export function Admin() {
                                 body: JSON.stringify({ order_id: order._id }),
                               });
                               const d = await res.json();
-                              if (res.ok) { addToast('success', d.message || 'Remboursement effectué'); fetchDashboardData(); }
-                              else addToast('error', d.error || d.detail || 'Erreur remboursement');
+                              if (res.ok) {
+                                fetchDashboardData();
+                                alert(
+                                  `✅ Commande ${d.order_number} marquée "remboursée"\n\n` +
+                                  `━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+                                  `CLIENT : ${d.customer_name}\n` +
+                                  `TÉLÉPHONE : ${d.customer_phone}\n` +
+                                  `EMAIL : ${d.customer_email}\n` +
+                                  `MONTANT : ${d.amount_xof?.toLocaleString()} XOF (${d.amount_eur} €)\n` +
+                                  `TOKEN : ${d.invoice_token}\n` +
+                                  `━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                                  `ÉTAPES MANUELLES :\n` +
+                                  `1. Aller sur app.paydunya.com\n` +
+                                  `2. Transactions → chercher le token\n` +
+                                  `3. Cliquer Rembourser\n\n` +
+                                  `OU envoyer ${d.amount_xof?.toLocaleString()} XOF\n` +
+                                  `directement sur ${d.customer_phone} (Mobile Money)`
+                                );
+                              } else {
+                                addToast('error', d.error || 'Erreur remboursement');
+                              }
                             } catch { addToast('error', 'Erreur connexion'); }
                           }}
                           style={{ padding: '3px 8px', background: '#0891b2', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
