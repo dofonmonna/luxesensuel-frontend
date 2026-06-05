@@ -31,6 +31,10 @@ interface Order {
   total: number;
   status: string;
   createdAt: string;
+  supplier?: string | null;
+  supplierOrderId?: string | null;
+  supplierStatus?: string | null;
+  dispatchError?: string | null;
 }
 
 interface MonthlyBreakdown {
@@ -1059,23 +1063,49 @@ export function Admin() {
                   </td>
                   <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748b' }}>
                     {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                    {order.dispatchError && (
+                      <div style={{ marginTop: 4, padding: '3px 6px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 4, fontSize: 10, color: '#dc2626', maxWidth: 160, wordBreak: 'break-word' }}>
+                        ⚠️ {order.dispatchError.length > 60 ? order.dispatchError.slice(0, 60) + '...' : order.dispatchError}
+                      </div>
+                    )}
                     {order.status === 'paid' && (
-                      <button
-                        onClick={async () => {
-                          const currentToken = sessionStorage.getItem('Luxe_admin_token');
-                          try {
-                            const res = await fetch(`${API_URL}/admin/redispatch/${order._id}`, {
-                              method: 'POST', headers: { Authorization: `Bearer ${currentToken}` }
-                            });
-                            const d = await res.json();
-                            if (res.ok) addToast('success', `Dispatché: ${d.order_number}`);
-                            else addToast('error', d.error || 'Erreur dispatch');
-                          } catch { addToast('error', 'Erreur connexion'); }
-                        }}
-                        style={{ display: 'block', marginTop: 6, padding: '3px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
-                      >
-                        ⚡ Envoyer fournisseur
-                      </button>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                        <button
+                          onClick={async () => {
+                            const currentToken = sessionStorage.getItem('Luxe_admin_token');
+                            try {
+                              const res = await fetch(`${API_URL}/admin/redispatch/${order._id}`, {
+                                method: 'POST', headers: { Authorization: `Bearer ${currentToken}` }
+                              });
+                              const d = await res.json();
+                              if (res.ok) { addToast('success', `Dispatché: ${d.order_number}`); fetchDashboardData(); }
+                              else addToast('error', d.error || 'Erreur dispatch');
+                            } catch { addToast('error', 'Erreur connexion'); }
+                          }}
+                          style={{ padding: '3px 8px', background: '#dc2626', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
+                        >
+                          ⚡ Envoyer fournisseur
+                        </button>
+                        {order.dispatchError && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Marquer la commande ${order.orderNumber} comme traitée manuellement ?\n\nCela l'envoie en "processing" sans passer par un fournisseur automatique.`)) return;
+                              const currentToken = sessionStorage.getItem('Luxe_admin_token');
+                              try {
+                                const res = await fetch(`${API_URL}/admin/orders/${order._id}/manual-dispatch`, {
+                                  method: 'POST', headers: { Authorization: `Bearer ${currentToken}` }
+                                });
+                                const d = await res.json();
+                                if (res.ok) { addToast('success', 'Traitement manuel activé'); fetchDashboardData(); }
+                                else addToast('error', d.error || 'Erreur');
+                              } catch { addToast('error', 'Erreur connexion'); }
+                            }}
+                            style={{ padding: '3px 8px', background: '#7c3aed', color: 'white', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 11, fontWeight: 700 }}
+                          >
+                            🛠 Traitement manuel
+                          </button>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>
