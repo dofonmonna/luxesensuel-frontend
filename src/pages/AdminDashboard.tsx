@@ -128,7 +128,9 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
 
 export function Admin() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import' | 'categories'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics'>('overview');
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -588,6 +590,7 @@ export function Admin() {
           { id: 'categories', label: 'Catégories' },
           { id: 'orders', label: `Commandes (${orders.length})` },
           { id: 'import', label: '📦 Importer produits' },
+          { id: 'analytics', label: '📊 Visiteurs' },
         ].map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} style={{
             padding: '12px 24px', border: 'none', background: 'transparent',
@@ -1301,6 +1304,136 @@ export function Admin() {
           </div>
         )}
       </Modal>
+
+      {/* ── ONGLET VISITEURS ────────────────────────────────── */}
+      {activeTab === 'analytics' && (
+        <div style={{ padding: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Visiteurs du site</h2>
+            <button
+              onClick={async () => {
+                setAnalyticsLoading(true);
+                try {
+                  const res = await fetch(`${API_URL}/analytics/summary`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  if (res.ok) setAnalyticsData(await res.json());
+                  else addToast('error', 'Erreur chargement analytics');
+                } catch { addToast('error', 'Erreur connexion'); }
+                finally { setAnalyticsLoading(false); }
+              }}
+              style={{ padding: '8px 20px', background: '#6366f1', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
+            >
+              {analyticsLoading ? 'Chargement...' : '🔄 Actualiser'}
+            </button>
+          </div>
+
+          {!analyticsData ? (
+            <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>📊</div>
+              <p>Cliquez sur "Actualiser" pour charger les statistiques</p>
+            </div>
+          ) : (
+            <>
+              {/* Compteurs */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+                {[
+                  { label: "Aujourd'hui", value: analyticsData.today, icon: '👁️', color: '#3b82f6' },
+                  { label: '7 derniers jours', value: analyticsData.week, icon: '📅', color: '#8b5cf6' },
+                  { label: '30 derniers jours', value: analyticsData.month, icon: '📆', color: '#10b981' },
+                ].map(s => (
+                  <div key={s.label} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #f1f5f9', textAlign: 'center' }}>
+                    <div style={{ fontSize: 28, marginBottom: 4 }}>{s.icon}</div>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: s.color }}>{s.value.toLocaleString()}</div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+                {/* Pages populaires */}
+                <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #f1f5f9' }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, margin: '0 0 16px 0' }}>🔥 Pages les plus visitées</h3>
+                  {analyticsData.topPages.length === 0 ? (
+                    <p style={{ color: '#94a3b8', fontSize: 13 }}>Aucune donnée</p>
+                  ) : analyticsData.topPages.map((p: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < analyticsData.topPages.length - 1 ? '1px solid #f8fafc' : 'none' }}>
+                      <span style={{ fontSize: 13, color: '#374151', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {p.page === '/' ? '🏠 Accueil' : p.page.replace('/shop', '🛍️ Boutique').replace('/product', '📦 Produit')}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', marginLeft: 8 }}>{p.visits}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Appareils */}
+                <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #f1f5f9' }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 16px 0' }}>📱 Appareils</h3>
+                  {analyticsData.devices.map((d: any, i: number) => {
+                    const total = analyticsData.devices.reduce((s: number, x: any) => s + parseInt(x.count), 0);
+                    const pct = total > 0 ? Math.round(parseInt(d.count) / total * 100) : 0;
+                    return (
+                      <div key={i} style={{ marginBottom: 12 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+                          <span>{d.device === 'mobile' ? '📱 Mobile' : '💻 Desktop'}</span>
+                          <span style={{ fontWeight: 700 }}>{pct}% ({d.count})</span>
+                        </div>
+                        <div style={{ background: '#f1f5f9', borderRadius: 99, height: 8 }}>
+                          <div style={{ background: d.device === 'mobile' ? '#3b82f6' : '#8b5cf6', width: `${pct}%`, height: 8, borderRadius: 99 }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Heures aujourd'hui */}
+                  <h3 style={{ fontSize: 14, fontWeight: 700, margin: '20px 0 12px 0' }}>⏰ Activité aujourd'hui</h3>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 50 }}>
+                    {Array.from({ length: 24 }, (_, h) => {
+                      const found = analyticsData.hourly.find((x: any) => parseInt(x.hour) === h);
+                      const count = found ? parseInt(found.count) : 0;
+                      const max = Math.max(...analyticsData.hourly.map((x: any) => parseInt(x.count)), 1);
+                      return (
+                        <div key={h} title={`${h}h : ${count} visites`} style={{ flex: 1, background: count > 0 ? '#6366f1' : '#f1f5f9', borderRadius: 2, height: `${Math.max((count / max) * 100, count > 0 ? 15 : 4)}%` }} />
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
+                    <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>23h</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dernières visites */}
+              <div style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #f1f5f9' }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 16px 0' }}>🕐 Dernières visites</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc' }}>
+                      {['Page', 'Appareil', 'Source', 'Heure'].map(h => (
+                        <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: '#64748b' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {analyticsData.recent.map((v: any, i: number) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f8fafc' }}>
+                        <td style={{ padding: '8px 12px', fontSize: 13 }}>{v.page}</td>
+                        <td style={{ padding: '8px 12px', fontSize: 13 }}>{v.device === 'mobile' ? '📱' : '💻'} {v.device}</td>
+                        <td style={{ padding: '8px 12px', fontSize: 12, color: '#94a3b8', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {v.referrer ? new URL(v.referrer).hostname : 'Direct'}
+                        </td>
+                        <td style={{ padding: '8px 12px', fontSize: 12, color: '#94a3b8' }}>
+                          {new Date(v.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <style>{`
         @keyframes spin {

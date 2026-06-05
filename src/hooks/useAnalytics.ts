@@ -6,6 +6,18 @@
 import { useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const getDevice = () => /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+
+function trackToBackend(page: string) {
+  fetch(`${API_URL}/analytics/track`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ page, referrer: document.referrer || '', device: getDevice() }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 // Types
 interface Product {
   id: string;
@@ -144,6 +156,7 @@ export function useAnalytics() {
     // TikTok
     window.ttq?.('track', 'Browse');
 
+    trackToBackend(page);
     console.log('📊 Page view:', page);
   }, []);
 
