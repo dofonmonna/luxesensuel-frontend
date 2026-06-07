@@ -209,8 +209,8 @@ export function ProductDetail() {
       
       <SEO
         title={product.name}
-        description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Produit d'exception chez LuxeSensuel. Livraison discrète et paiement sécurisé.`}
-        keywords={`${product.name}, ${product.category || 'lingerie'}, luxe, boutique en ligne, LuxeSensuel`}
+        description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Disponible sur LuxeDropShopping. Livraison mondiale discrète et paiement sécurisé.`}
+        keywords={`${product.name}, ${product.category || 'boutique en ligne'}, livraison internationale, LuxeDropShopping`}
         image={product.image}
         url={`https://luxedropshoping.com/product/${product.id}`}
         type="product"

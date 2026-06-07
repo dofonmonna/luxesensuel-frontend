@@ -1,5 +1,11 @@
 {
+  "functions": {
+    "api/product/[id].js": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "rewrites": [
+    { "source": "/product/:id", "destination": "/api/product/[id]" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

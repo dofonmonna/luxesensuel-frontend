@@ -4,15 +4,15 @@
  */
 
 export const SITE_CONFIG = {
-  name: 'LuxeSensuel',
-  tagline: 'Boutique de Lingerie & Accessoires d\'Exception',
-  url: 'https://prismatic-cheesecake-92caa2.netlify.app',
-  defaultImage: 'https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1200',
+  name: 'LuxeDropShopping',
+  tagline: 'Boutique Généraliste en Ligne — Mode, Beauté, Tech & Plus',
+  url: 'https://luxedropshoping.com',
+  defaultImage: 'https://luxedropshoping.com/logo.png',
   locale: 'fr_FR',
-  twitterHandle: '@luxesensuel',
+  twitterHandle: '@luxedropshopping',
   themeColor: '#CC0000',
-  description: 'LuxeSensuel - Découvrez notre collection exclusive de lingerie fine, nuisettes et accessoires de luxe. Livraison internationale discrète.',
-  keywords: 'lingerie de luxe, sexy underwear, international shipping, boutique lingerie, LuxeSensuel, lingerie fine, nuisettes, accessoires',
+  description: 'LuxeDropShopping — Boutique généraliste en ligne : mode, beauté, électronique, bijoux, sport et plus. Livraison mondiale discrète et rapide.',
+  keywords: 'boutique en ligne, mode, beauté, électronique, bijoux, sport, livraison internationale, dropshipping, LuxeDropShopping, acheter en ligne',
 };
 
 export interface SEOProps {
