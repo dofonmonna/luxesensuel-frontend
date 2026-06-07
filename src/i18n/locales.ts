@@ -27,6 +27,10 @@ export const LOCALES = {
     'cat.bienetre': 'Bien-être',
     'cat.new': 'Nouveautés',
     'cat.promo': 'Promotions',
+    'cat.electronique': 'Électronique',
+    'cat.sport': 'Sport',
+    'cat.maison': 'Maison',
+    'cat.mode': 'Mode',
 
     // Produits
     'product.add_to_cart': 'Ajouter au panier',
@@ -153,6 +157,10 @@ export const LOCALES = {
     'cat.bienetre': 'Wellness',
     'cat.new': 'New arrivals',
     'cat.promo': 'Sale',
+    'cat.electronique': 'Electronics',
+    'cat.sport': 'Sport',
+    'cat.maison': 'Home',
+    'cat.mode': 'Fashion',
 
     'product.add_to_cart': 'Add to cart',
     'product.add_wishlist': 'Added to favorites',
@@ -270,6 +278,10 @@ export const LOCALES = {
     'cat.bienetre': 'Bienestar',
     'cat.new': 'Novedades',
     'cat.promo': 'Ofertas',
+    'cat.electronique': 'Electrónica',
+    'cat.sport': 'Deporte',
+    'cat.maison': 'Hogar',
+    'cat.mode': 'Moda',
 
     'product.add_to_cart': 'Añadir al carrito',
     'product.add_wishlist': 'Añadido a favoritos',
@@ -387,6 +399,10 @@ export const LOCALES = {
     'cat.bienetre': 'Wellness',
     'cat.new': 'Neuheiten',
     'cat.promo': 'Angebote',
+    'cat.electronique': 'Elektronik',
+    'cat.sport': 'Sport',
+    'cat.maison': 'Wohnen',
+    'cat.mode': 'Mode',
 
     'product.add_to_cart': 'In den Warenkorb',
     'product.add_wishlist': 'Zu Favoriten hinzugefügt',
@@ -504,6 +520,10 @@ export const LOCALES = {
     'cat.bienetre': 'Benessere',
     'cat.new': 'Novità',
     'cat.promo': 'Offerte',
+    'cat.electronique': 'Elettronica',
+    'cat.sport': 'Sport',
+    'cat.maison': 'Casa',
+    'cat.mode': 'Moda',
 
     'product.add_to_cart': 'Aggiungi al carrello',
     'product.add_wishlist': 'Aggiunto ai preferiti',
@@ -621,6 +641,10 @@ export const LOCALES = {
     'cat.bienetre': 'Bem-estar',
     'cat.new': 'Novidades',
     'cat.promo': 'Promoções',
+    'cat.electronique': 'Eletrônica',
+    'cat.sport': 'Esporte',
+    'cat.maison': 'Casa',
+    'cat.mode': 'Moda',
 
     'product.add_to_cart': 'Adicionar ao carrinho',
     'product.add_wishlist': 'Adicionado aos favoritos',
@@ -738,6 +762,10 @@ export const LOCALES = {
     'cat.bienetre': 'العافية',
     'cat.new': 'وصل حديثاً',
     'cat.promo': 'تخفيضات',
+    'cat.electronique': 'إلكترونيات',
+    'cat.sport': 'رياضة',
+    'cat.maison': 'المنزل',
+    'cat.mode': 'أزياء',
 
     'product.add_to_cart': 'أضف إلى السلة',
     'product.add_wishlist': 'أضيف إلى المفضلات',

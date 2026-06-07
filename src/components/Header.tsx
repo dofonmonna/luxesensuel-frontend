@@ -17,6 +17,10 @@ const CATEGORIES: Array<{ key: LocaleKey; href: string; emoji: string; badge?: s
   { key: 'cat.cosmetiques', href: '/shop?cat=cosmetiques', emoji: '💄' },
   { key: 'cat.bijoux', href: '/shop?cat=bijoux', emoji: '💎' },
   { key: 'cat.bienetre', href: '/shop?cat=bienetre', emoji: '🌿' },
+  { key: 'cat.electronique', href: '/shop?cat=électronique', emoji: '📱' },
+  { key: 'cat.sport', href: '/shop?cat=sport', emoji: '🏃' },
+  { key: 'cat.maison', href: '/shop?cat=maison', emoji: '🏠' },
+  { key: 'cat.mode', href: '/shop?cat=mode', emoji: '👗' },
   { key: 'cat.new', href: '/shop?cat=new', emoji: '🆕', badge: 'NEW' },
   { key: 'cat.promo', href: '/shop?cat=promo', emoji: '🔥', badge: 'HOT' },
 ];
@@ -262,7 +266,7 @@ export function Header() {
 
           <div className="ml-auto flex-shrink-0 flex items-center gap-3 text-[10px] text-gray-400 font-medium">
             <span className="flex items-center gap-1"><Shield className="w-3 h-3 text-green-500" />Paiement sécurisé</span>
-            <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-blue-500" />Livraison discrète</span>
+            <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-blue-500" />Livraison internationale</span>
             <span className="flex items-center gap-1"><RotateCcw className="w-3 h-3 text-orange-500" />Retours 30j</span>
           </div>
         </div>
