@@ -81,7 +81,7 @@ export function Settings() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-12 px-4">
-      <SEO title="Paramètres" description="Modifiez vos informations personnelles LuxeSensuel." noindex={true} />
+      <SEO title="Paramètres" description="Modifiez vos informations personnelles LuxeDropShopping." noindex={true} />
       <div className="max-w-2xl mx-auto">
         <button 
           onClick={() => navigate('/profile')} 

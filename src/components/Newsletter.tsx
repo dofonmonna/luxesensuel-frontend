@@ -29,7 +29,7 @@ export function Newsletter() {
           </div>
           
           <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 font-[Montserrat] leading-tight">
-            Prêt pour une expérience <span className="text-[#CC0000]">LuxeSensuel</span> ?
+            Prêt pour une expérience <span className="text-[#CC0000]">LuxeDropShopping</span> ?
           </h2>
           
           <p className="text-gray-500 mb-10 text-lg leading-relaxed">

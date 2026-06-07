@@ -35,7 +35,7 @@ export function ConfirmReception() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center p-6 relative overflow-hidden">
-      <SEO title="Confirmation de Réception" description="Confirmez la réception de votre commande LuxeSensuel." noindex={true} />
+      <SEO title="Confirmation de Réception" description="Confirmez la réception de votre commande LuxeDropShopping." noindex={true} />
       
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />

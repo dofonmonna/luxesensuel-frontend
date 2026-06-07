@@ -1,5 +1,5 @@
 /**
- * Configuration SEO centralisée pour LuxeSensuel
+ * Configuration SEO centralisée pour LuxeDropShopping
  * Contient les métadonnées par défaut et les helpers pour le SEO
  */
 

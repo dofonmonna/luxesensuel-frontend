@@ -11,7 +11,7 @@ export interface Product {
 export const categories = [
   { id: '1', name: 'Parfums', image: 'https://images.unsplash.com/photo-1544467328-345179a4573b?auto=format&fit=crop&q=80' },
   { id: '2', name: 'Huiles', image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80' },
-  { id: '3', name: 'Ensembles', image: 'https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80' },
+  { id: '3', name: 'Ensembles', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80' },
   { id: '4', name: 'Accessoires', image: 'https://images.unsplash.com/photo-1590156221122-c2947475700b?auto=format&fit=crop&q=80' }
 ];
 
@@ -50,7 +50,7 @@ export const testimonials = [
   },
   {
     id: ‘3’,
-    content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LuxeSensuel !",
+    content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LuxeDropShopping !",
     author: ‘Kofi A.’,
     role: ‘Accra, Ghana’
   }

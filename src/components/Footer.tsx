@@ -18,7 +18,7 @@ const footerLinks: { shop: FooterLink[]; service: FooterLink[]; legal: FooterLin
     { key: 'footer.returns', href: '/retours' },
     { key: 'footer.shipping_discreet', href: '/cgv' },
     { key: 'footer.payment_secure', href: '/cgv' },
-    { key: 'footer.contact', href: 'mailto:luxesensuel11@gmail.com' },
+    { key: 'footer.contact', href: '/contact' },
   ],
   legal: [
     { key: 'footer.legal', href: '/mentions-legales' },
@@ -136,16 +136,43 @@ export const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-xs text-gray-400">
-            © {new Date().getFullYear()} LuxeSensuel. {t('footer.copyright')}.
-          </p>
-          <div className="flex items-center gap-6 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
-            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/paypal.svg" alt="PayPal" className="h-4" style={{filter:'brightness(0)'}} />
-            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/visa.svg" alt="Visa" className="h-3" style={{filter:'brightness(0)'}} />
-            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/mastercard.svg" alt="Mastercard" className="h-5" style={{filter:'brightness(0)'}} />
+        {/* Payment Methods */}
+        <div className="pt-8 pb-6 border-t border-gray-100">
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold text-center mb-4">Paiements acceptés</p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-50 text-orange-600 border border-orange-200">
+              <span className="w-2 h-2 rounded-full bg-orange-500 inline-block" />
+              Orange Money
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200">
+              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+              Wave
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-yellow-50 text-yellow-700 border border-yellow-200">
+              <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" />
+              MTN Mobile Money
+            </span>
+            <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-black bg-[#1a1f71] text-white italic tracking-wider">
+              VISA
+            </span>
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-900 text-white">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#eb001b] inline-block -mr-1.5" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#f79e1b] inline-block opacity-90" />
+              <span className="ml-1">Mastercard</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-[#CC0000] border border-red-200">
+              <span className="w-2 h-2 rounded-full bg-[#CC0000] inline-block" />
+              PayDunya
+            </span>
           </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} LuxeDropShopping. {t('footer.copyright')}.
+          </p>
+          <p className="text-[10px] text-gray-300">Livraison mondiale · Colis discret · Paiement sécurisé SSL</p>
         </div>
       </div>
     </footer>

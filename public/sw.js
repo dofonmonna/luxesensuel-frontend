@@ -1,5 +1,5 @@
 /**
- * Service Worker — LuxeSensuel PWA
+ * Service Worker — LuxeDropShopping PWA
  * Cache-first pour les assets statiques, network-first pour les API
  */
 const CACHE_NAME = 'luxesensuel-v2';

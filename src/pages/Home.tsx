@@ -25,7 +25,7 @@ const HERO_SLIDES = [
     title: "Des Milliers de Produits Livrés Chez Vous",
     subtitle: "✦ Boutique Internationale",
     description: "Mode, beauté, électronique, maison, sport — tout ce dont vous avez besoin, livré partout dans le monde.",
-    image: "https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1600",
+    image: "",
     cta: "Explorer la boutique",
     badge: "Livraison internationale garantie",
   },
@@ -148,7 +148,7 @@ export function Home() {
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat]">
       <SEO
         title="Boutique en Ligne — Produits Premium & Tendance"
-        description="LuxeSensuel — Des milliers de produits sélectionnés : mode, beauté, maison, électronique, sport et plus. Livraison mondiale discrète. Paiement sécurisé. Plus de 25 000 clients satisfaits."
+        description="LuxeDropShopping — Des milliers de produits sélectionnés : mode, beauté, maison, électronique, sport et plus. Livraison mondiale discrète. Paiement sécurisé. Plus de 25 000 clients satisfaits."
         keywords="boutique en ligne, produits premium, mode femme, beauté, accessoires, livraison internationale, paiement mobile money, wave, orange money"
         url="https://luxedropshoping.com/"
         type="website"
@@ -164,11 +164,15 @@ export function Home() {
               <CarouselContent>
                 {HERO_SLIDES.map((slide, i) => (
                   <CarouselItem key={i} className="relative w-full h-[400px] md:h-[500px]">
-                    <img 
-                      src={slide.image} 
-                      alt={slide.title} 
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
+                    {slide.image ? (
+                      <img
+                        src={slide.image}
+                        alt={slide.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-[#1a0a0a] to-[#2d0000]" />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center px-8 md:px-16">
                       <span className="inline-block bg-[#CC0000]/90 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full w-fit mb-4">
                         {slide.badge}

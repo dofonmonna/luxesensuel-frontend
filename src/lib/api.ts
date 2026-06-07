@@ -1,5 +1,5 @@
 /**
- * Client API LuxeSensuel
+ * Client API LuxeDropShopping
  * Toutes les requêtes backend passent par ce module.
  * Fallback automatique sur les mock data si le backend est hors ligne.
  */

@@ -20,7 +20,7 @@ export function Login() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success('LuxeSensuel ✦');
+      toast.success('LuxeDropShopping ✦');
       navigate('/profile');
     } catch (error) {
       toast.error(t('common.error'));

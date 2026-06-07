@@ -67,6 +67,7 @@ const CGV = lazy(() => import('./pages/Legal/CGV').then(m => ({ default: m.CGV }
 const MentionsLegales = lazy(() => import('./pages/Legal/MentionsLegales').then(m => ({ default: m.MentionsLegales })));
 const Confidentialite = lazy(() => import('./pages/Legal/Confidentialite').then(m => ({ default: m.Confidentialite })));
 const Retours = lazy(() => import('./pages/Legal/Retours').then(m => ({ default: m.Retours })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
 
 import { CookieBanner } from './components/CookieBanner';
 import { I18nProvider } from './i18n/I18nProvider';
@@ -129,6 +130,8 @@ export function App() {
             <Route path="/confidentialite" element={<Suspense fallback={<LoadingFallback />}><Confidentialite /></Suspense>} />
 
             <Route path="/retours" element={<Suspense fallback={<LoadingFallback />}><Retours /></Suspense>} />
+
+            <Route path="/contact" element={<Suspense fallback={<LoadingFallback />}><Contact /></Suspense>} />
 
           </Route>
 

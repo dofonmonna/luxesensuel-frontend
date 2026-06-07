@@ -1,7 +1,7 @@
 {
-  "name": "LuxeSensuel — Boutique de Lingerie & Accessoires",
-  "short_name": "LuxeSensuel",
-  "description": "Boutique en ligne de lingerie fine, accessoires et produits de bien-être. Livraison discrète internationale.",
+  "name": "LuxeDropShopping — Boutique Généraliste en Ligne",
+  "short_name": "LuxeDrop",
+  "description": "Boutique généraliste en ligne : mode, beauté, électronique, bijoux et plus. Livraison mondiale discrète.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F5F5F5",

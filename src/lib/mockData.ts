@@ -35,7 +35,7 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 110,
     stock: 15,
     category: 'Ensembles',
-    image: 'https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1200',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&q=80&w=1200',
     is_new: false,
     is_active: true,
     created_at: new Date().toISOString(),
@@ -103,7 +103,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '9',
     name: 'Coffret Premiere Nuit',
-    description: 'Selection cadeau avec huile, bougie et accessoire doux. Une entree premium dans l\'univers LuxeSensuel.',
+    description: 'Selection cadeau avec huile, bougie et accessoire doux. Une entree premium dans l\'univers LuxeDropShopping.',
     price: 129,
     stock: 12,
     category: 'Coffrets',

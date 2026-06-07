@@ -4,7 +4,7 @@ import { SEO } from '@/components/SEO';
 export function CGV() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-16 px-4">
-      <SEO title="Conditions Générales de Vente" description="Consultez les Conditions Générales de Vente de LuxeSensuel. Informations sur les commandes, livraisons, retours et paiements." />
+      <SEO title="Conditions Générales de Vente" description="Consultez les Conditions Générales de Vente de LuxeDropShopping. Informations sur les commandes, livraisons, retours et paiements." />
       <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-14 shadow-sm border border-gray-100">
         <nav className="text-xs text-gray-400 mb-8 flex gap-2">
           <Link to="/" className="hover:text-[#CC0000]">Accueil</Link>
@@ -18,12 +18,12 @@ export function CGV() {
         <div className="prose prose-sm max-w-none text-gray-600 space-y-8">
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">1. Objet</h2>
-            <p>Les présentes CGV régissent les ventes de produits effectuées sur le site LuxeSensuel. Toute commande implique l'acceptation sans réserve de ces conditions.</p>
+            <p>Les présentes CGV régissent les ventes de produits effectuées sur le site LuxeDropShopping. Toute commande implique l'acceptation sans réserve de ces conditions.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">2. Produits</h2>
-            <p>Les produits proposés sont ceux décrits sur le site au moment de la consultation. Les photographies sont les plus fidèles possibles mais ne constituent pas un engagement contractuel. LuxeSensuel se réserve le droit de modifier l'assortiment à tout moment.</p>
+            <p>Les produits proposés sont ceux décrits sur le site au moment de la consultation. Les photographies sont les plus fidèles possibles mais ne constituent pas un engagement contractuel. LuxeDropShopping se réserve le droit de modifier l'assortiment à tout moment.</p>
           </section>
 
           <section>
@@ -33,7 +33,7 @@ export function CGV() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">4. Commande</h2>
-            <p>La commande est validée après confirmation du paiement. Un email de confirmation est envoyé à l'adresse indiquée. LuxeSensuel se réserve le droit d'annuler toute commande en cas de problème de paiement ou de suspicion de fraude.</p>
+            <p>La commande est validée après confirmation du paiement. Un email de confirmation est envoyé à l'adresse indiquée. LuxeDropShopping se réserve le droit d'annuler toute commande en cas de problème de paiement ou de suspicion de fraude.</p>
           </section>
 
           <section>
@@ -43,7 +43,7 @@ export function CGV() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">6. Livraison</h2>
-            <p>Les livraisons sont effectuées dans un emballage discret, sans mention du contenu ni du nom de la boutique. Les délais indicatifs sont de 5 à 15 jours ouvrés selon la destination. LuxeSensuel ne peut être tenu responsable des retards imputables au transporteur ou aux services de douane.</p>
+            <p>Les livraisons sont effectuées dans un emballage discret, sans mention du contenu ni du nom de la boutique. Les délais indicatifs sont de 5 à 15 jours ouvrés selon la destination. LuxeDropShopping ne peut être tenu responsable des retards imputables au transporteur ou aux services de douane.</p>
           </section>
 
           <section>
@@ -58,7 +58,7 @@ export function CGV() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">9. Responsabilité</h2>
-            <p>LuxeSensuel ne saurait être tenu responsable de l'utilisation inappropriée des produits. Les produits sont destinés à un usage adulte et conforme à leur destination.</p>
+            <p>LuxeDropShopping ne saurait être tenu responsable de l'utilisation inappropriée des produits. Les produits sont destinés à un usage adulte et conforme à leur destination.</p>
           </section>
 
           <section>
