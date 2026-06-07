@@ -127,7 +127,11 @@ export function ProductDetail() {
   const oldPrice = +(price * 1.35).toFixed(2);
   const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
   const descImages = product ? extractImages(product.description || '') : [];
-  const allThumbs = product ? [product.image, ...descImages].slice(0, 6) : [];
+  const productImgs = (product?.images ?? []).filter((img: string) => img?.startsWith('http') && !img.match(/\.(mp4|webm)/i));
+  const videoUrl: string | null = (product?.images ?? []).find((img: string) => !!img?.match(/\.(mp4|webm)/i)) ?? null;
+  const allThumbs = product
+    ? [...new Set([product.image, ...(productImgs.length > 1 ? productImgs : descImages)])].slice(0, 8)
+    : [];
   const rating = product?.rating ?? (product ? getRating(product.id) : 4.5);
   const sold = product ? getSold(product.id) : 0;
   const reviews = product ? getReviews(product.id) : 0;
@@ -169,6 +173,7 @@ export function ProductDetail() {
       quantity,
       selectedSkuAttr: selectedVariant?.sku_attr ?? null,
       selectedSkuLabel: selectedVariant?.label ?? null,
+      shippingFee: product.shipping_fee ?? 15,
     });
     const variantInfo = selectedVariant?.label ? ` (${selectedVariant.label})` : '';
     toast.success(t('product.add_to_cart'), {
@@ -268,10 +273,10 @@ export function ProductDetail() {
             </div>
             
             {/* Thumbnails */}
-            {allThumbs.length > 1 && (
+            {(allThumbs.length > 1 || videoUrl) && (
               <div className="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                 {allThumbs.map((img, i) => (
-                  <button 
+                  <button
                     key={i}
                     onClick={() => setMainImg(img)}
                     className={cn(
@@ -282,6 +287,35 @@ export function ProductDetail() {
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
+                {videoUrl && (
+                  <button
+                    onClick={() => setMainImg('__video__')}
+                    className={cn(
+                      "relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all flex items-center justify-center bg-gray-900",
+                      mainImg === '__video__' ? "border-[#CC0000] scale-105" : "border-gray-50 opacity-70 hover:opacity-100"
+                    )}
+                  >
+                    <svg className="w-7 h-7 text-white fill-white" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Vidéo produit */}
+            {mainImg === '__video__' && videoUrl && (
+              <div className="mt-4 rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
+                <video
+                  key={videoUrl}
+                  src={videoUrl}
+                  controls
+                  playsInline
+                  autoPlay
+                  muted
+                  loop
+                  poster={product?.image}
+                  className="w-full"
+                  preload="metadata"
+                />
               </div>
             )}
           </div>
@@ -338,7 +372,6 @@ export function ProductDetail() {
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => {
                     const isSelected = selectedVariant?.sku_attr === v.sku_attr;
-                    // Détecter si le label ressemble à une couleur connue pour afficher un swatch
                     const colorMap: Record<string, string> = {
                       black: '#1a1a1a', white: '#f5f5f5', red: '#ef4444', blue: '#3b82f6',
                       green: '#22c55e', yellow: '#eab308', pink: '#ec4899', purple: '#a855f7',
@@ -346,23 +379,30 @@ export function ProductDetail() {
                       coffee: '#6b3a2a', beige: '#d4b896', navy: '#1e3a5f', gold: '#d97706',
                       silver: '#94a3b8', rose: '#f43f5e', nude: '#d4a574', cream: '#f5f0e8',
                     };
-                    const labelLower = v.label.toLowerCase().split(' / ')[0];
+                    const labelLower = v.label?.toLowerCase().split(/[\s/]/)[0] ?? '';
                     const swatchColor = colorMap[labelLower];
+                    const SIZE_LABELS = new Set(['xs','s','m','l','xl','2xl','xxl','3xl','xxxl','4xl','5xl','6xl','one size','taille unique']);
+                    const isSize = SIZE_LABELS.has(labelLower) || /^(fr\s*)?\d{2}(\/\d{2})?$/.test(labelLower);
                     return (
                       <button
                         key={v.sku_attr}
                         onClick={() => setSelectedVariant(v)}
                         title={v.label + (v.price ? ` — ${v.price.toFixed(2)} €` : '')}
                         className={cn(
-                          'flex items-center gap-2 px-3 py-1.5 rounded-full border-2 text-xs font-bold transition-all',
+                          'border-2 font-bold transition-all text-xs',
+                          isSize
+                            ? 'w-12 h-12 rounded-xl flex items-center justify-center uppercase'
+                            : swatchColor
+                              ? 'flex items-center gap-2 px-3 py-1.5 rounded-full'
+                              : 'flex items-center gap-2 px-3 py-1.5 rounded-full',
                           isSelected
                             ? 'border-rose-500 bg-rose-50 text-rose-700 shadow-md scale-105'
-                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-400 hover:shadow-sm'
                         )}
                       >
-                        {swatchColor && (
+                        {swatchColor && !isSize && (
                           <span
-                            className="w-3.5 h-3.5 rounded-full border border-gray-300 shrink-0"
+                            className="w-4 h-4 rounded-full border border-gray-200 shrink-0 shadow-sm"
                             style={{ backgroundColor: swatchColor }}
                           />
                         )}
@@ -440,6 +480,17 @@ export function ProductDetail() {
                 <Zap className="w-5 h-5 fill-current" />
                 {t('product.buy_now')}
               </button>
+            </div>
+
+            {/* Frais de livraison */}
+            <div className="flex items-center justify-between px-4 py-3 bg-blue-50 rounded-2xl">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-blue-500" />
+                <span className="text-sm font-semibold text-gray-700">Frais de livraison</span>
+              </div>
+              <span className="text-sm font-black text-blue-600">
+                {product.shipping_fee != null ? `$${Number(product.shipping_fee).toFixed(2)}` : '$15.00'}
+              </span>
             </div>
 
             {/* Security & Guarantees */}

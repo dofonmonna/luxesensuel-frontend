@@ -8,6 +8,7 @@ import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 import { COUNTRIES } from '@/utils/countries';
+import { checkoutApi, CheckoutQuote } from '../lib/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -150,13 +151,14 @@ function CountryPicker({ value, onChange, disabled }: { value: string; onChange:
 
 export function Checkout() {
   const navigate = useNavigate();
-  const { items, total, removeItem, updateQuantity } = useCart();
+  const { items, total, shippingTotal, removeItem, updateQuantity } = useCart();
   const { formatPrice } = useCurrency();
   const { t } = useT();
   const { geo } = useGeoLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [quote, setQuote] = useState<CheckoutQuote | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
   const [formData, setFormData] = useState({
     prenom: '',
     nom: '',
@@ -182,7 +184,30 @@ export function Checkout() {
     }
   }, [geo]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Devis serveur : recalcule quand le pays ou le panier change
+  useEffect(() => {
+    if (items.length === 0) { setQuote(null); return; }
+    const countryCode = COUNTRIES.find(c => c.name === formData.pays)?.code;
+    if (!countryCode) return;
+    setQuoteLoading(true);
+    const timer = setTimeout(async () => {
+      try {
+        const q = await checkoutApi.quote(
+          countryCode,
+          items.map(it => ({ productId: it.id, quantity: it.quantity }))
+        );
+        setQuote(q);
+      } catch {
+        setQuote(null);
+      } finally {
+        setQuoteLoading(false);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [formData.pays, items]);
+
+  // Validation seulement — la commande est créée au moment du paiement
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
       toast.error(t('cart.empty'));
@@ -192,94 +217,65 @@ export function Checkout() {
       toast.error(t('common.error'));
       return;
     }
+    setShowPaymentModal(true);
+  };
+
+  // PayPal désactivé (restriction Côte d'Ivoire)
+  const payWithPaypal = async () => {
+    toast.info('PayPal est temporairement indisponible.');
+  };
+
+  // Crée la commande ET initie PayDunya en une seule étape atomique
+  const payWithDunyaPay = async () => {
     setIsLoading(true);
     try {
-      const orderData = {
-        items: items.map(item => ({
-          product_id: item.id,
-          quantity: item.quantity,
-          ...(item.selectedSkuAttr ? { selected_sku_attr: item.selectedSkuAttr } : {}),
-        })),
-        customer: { 
-          email: formData.email, 
-          first_name: formData.prenom, 
-          last_name: formData.nom, 
-          phone: `${formData.indicatif} ${formData.telephone}` 
-        },
-        shipping: { 
-          address: formData.adresse, 
-          city: formData.ville, 
-          postal: formData.codePostal, 
-          country: formData.pays 
-        }
-      };
+      // 1. Créer la commande en base (seulement au moment du paiement)
       const orderRes = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({
+          items: items.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            ...(item.selectedSkuAttr ? { selected_sku_attr: item.selectedSkuAttr } : {}),
+          })),
+          customer: {
+            email: formData.email,
+            first_name: formData.prenom,
+            last_name: formData.nom,
+            phone: `${formData.indicatif} ${formData.telephone}`,
+          },
+          shipping: {
+            address: formData.adresse,
+            city: formData.ville,
+            postal: formData.codePostal,
+            country: formData.pays,
+          },
+        }),
       });
       if (!orderRes.ok) {
-        const error = await orderRes.json();
-        throw new Error(error.error || 'Erreur création commande');
+        const err = await orderRes.json();
+        throw new Error(err.error || 'Erreur création commande');
       }
       const orderResult = await orderRes.json();
-      const order_id = orderResult.order?.id || orderResult.order?._id || orderResult.id;
+      const order_id = orderResult.order?.id || orderResult.id;
       if (!order_id) throw new Error('ID commande manquant');
-      
       localStorage.setItem('pending_order_id', order_id);
-      setOrderId(order_id);
-      setShowPaymentModal(true);
-    } catch (error: any) {
-      toast.error(`${t('common.error')}: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const payWithPaypal = async () => {
-    if (!orderId) return;
-    setIsLoading(true);
-    try {
-      const paypalRes = await fetch(`${API_URL}/pay/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId })
-      });
-      if (!paypalRes.ok) {
-        const error = await paypalRes.json();
-        throw new Error(error.error || 'Erreur PayPal');
-      }
-      const { approval_url, paypal_order_id } = await paypalRes.json();
-      if (approval_url) {
-        window.location.href = approval_url;
-      } else if (paypal_order_id) {
-        window.location.href = `https://www.paypal.com/checkoutnow?token=${paypal_order_id}`;
-      } else {
-        throw new Error('URL PayPal manquante');
-      }
-    } catch (error: any) {
-      toast.error(`Erreur PayPal: ${error.message}`);
-      setIsLoading(false);
-    }
-  };
-
-  const payWithDunyaPay = async () => {
-    if (!orderId) return;
-    setIsLoading(true);
-    try {
+      // 2. Initier le paiement PayDunya
       const dunyaRes = await fetch(`${API_URL}/paydunya/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          order_id: orderId, 
+        body: JSON.stringify({
+          order_id,
           origin: window.location.origin,
-          customer: { 
-            email: formData.email, 
-            phone: `${formData.indicatif}${formData.telephone}`, 
-            first_name: formData.prenom, 
-            last_name: formData.nom 
-          } 
-        })
+          customer: {
+            email: formData.email,
+            phone: `${formData.indicatif}${formData.telephone}`,
+            first_name: formData.prenom,
+            last_name: formData.nom,
+          },
+        }),
       });
       if (!dunyaRes.ok) {
         const error = await dunyaRes.json();
@@ -293,13 +289,22 @@ export function Checkout() {
       }
     } catch (error: any) {
       const rawMsg = error.message || '';
-      const friendlyMsg = rawMsg.includes('activation') || rawMsg.includes('email confirmation') || rawMsg.includes('1001')
-        ? 'Le paiement Mobile Money est temporairement indisponible. Veuillez utiliser PayPal ou réessayer plus tard.'
-        : `Erreur paiement: ${rawMsg}`;
+      const friendlyMsg = rawMsg.includes('temporairement suspendu') || rawMsg.includes('plafond') || rawMsg.includes('4002')
+        ? 'Le paiement est temporairement suspendu pour maintenance. Veuillez réessayer dans quelques heures ou nous contacter.'
+        : rawMsg.includes('activation') || rawMsg.includes('email confirmation') || rawMsg.includes('1001')
+        ? 'Le paiement Mobile Money est temporairement indisponible. Veuillez réessayer plus tard.'
+        : `Erreur: ${rawMsg}`;
       toast.error(friendlyMsg);
       setIsLoading(false);
     }
   };
+
+  const quoteSubtotal = quote
+    ? quote.lines.filter(l => !l.error).reduce((s, l) => s + (l.itemPrice ?? 0), 0)
+    : null;
+  const quoteShipping = quote
+    ? quote.lines.filter(l => !l.error).reduce((s, l) => s + (l.shipping ?? 0), 0)
+    : null;
 
   if (items.length === 0) {
     return (
@@ -460,57 +465,84 @@ export function Checkout() {
               <h2 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-8 pb-4 border-b border-gray-50">{t('checkout.title')}</h2>
               
               <div className="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
-                {items.map(item => (
-                  <div key={item.cartKey ?? item.id} className="flex gap-4 items-center group">
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 shrink-0 shadow-sm relative group-hover:scale-105 transition-transform">
-                      <img src={item.image} alt="" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight mb-1">{item.name}</p>
-                      {item.selectedSkuLabel && (
-                        <p className="text-xs text-rose-600 font-semibold mb-1">{item.selectedSkuLabel}</p>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center bg-gray-50 rounded-lg border border-gray-100 h-8">
-                          <button 
-                            onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity - 1)}
-                            className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="text-xs font-black text-gray-900 w-6 text-center">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity + 1)}
-                            className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <p className="text-sm font-black text-[#CC0000]">{formatPrice(item.price * item.quantity)}</p>
+                {items.map((item, idx) => {
+                  const qLine = quote?.lines[idx];
+                  const unavailable = qLine?.error === 'produit_unavailable';
+                  return (
+                    <div key={item.cartKey ?? item.id} className={`flex gap-4 items-center group ${unavailable ? 'opacity-50' : ''}`}>
+                      <div className="w-20 h-20 rounded-2xl overflow-hidden border border-gray-100 shrink-0 shadow-sm relative group-hover:scale-105 transition-transform">
+                        <img src={item.image} alt="" className="w-full h-full object-cover" />
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 line-clamp-1 leading-tight mb-1">{item.name}</p>
+                        {item.selectedSkuLabel && (
+                          <p className="text-xs text-rose-600 font-semibold mb-1">{item.selectedSkuLabel}</p>
+                        )}
+                        {!quoteLoading && qLine?.etaDays && !unavailable && (
+                          <p className="text-[10px] text-blue-500 font-semibold mb-1">{qLine.shippingMethod} · {qLine.etaDays} j</p>
+                        )}
+                        {!quoteLoading && unavailable && (
+                          <p className="text-[10px] text-orange-500 font-semibold mb-1">Indisponible temporairement</p>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center bg-gray-50 rounded-lg border border-gray-100 h-8">
+                            <button
+                              onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity - 1)}
+                              className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
+                            >
+                              <Minus className="w-3 h-3" />
+                            </button>
+                            <span className="text-xs font-black text-gray-900 w-6 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.cartKey ?? item.id, item.quantity + 1)}
+                              className="p-1 px-2 text-gray-400 hover:text-[#CC0000] transition-colors"
+                            >
+                              <Plus className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <p className="text-sm font-black text-[#CC0000]">
+                            {quoteLoading
+                              ? '…'
+                              : !unavailable && qLine?.itemPrice != null
+                                ? formatPrice(qLine.itemPrice)
+                                : formatPrice(item.price * item.quantity)}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.cartKey ?? item.id)}
+                        className="p-2 text-gray-300 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => removeItem(item.cartKey ?? item.id)}
-                      className="p-2 text-gray-300 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="space-y-4 pt-6 border-t border-gray-50">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-400 font-medium">{t('cart.subtotal')}</span>
-                  <span className="text-gray-900 font-bold">{formatPrice(total())}</span>
+                  <span className="text-gray-900 font-bold">
+                    {quoteLoading ? '…' : formatPrice(quoteSubtotal ?? total())}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-400 font-medium">{t('cart.shipping')}</span>
-                  <span className="text-emerald-600 font-black">{t('cart.free_shipping')}</span>
+                  <span className="text-gray-900 font-black">
+                    {quoteLoading ? '…' : formatPrice(quoteShipping ?? shippingTotal())}
+                  </span>
                 </div>
+                {quote?.unavailableCount != null && quote.unavailableCount > 0 && (
+                  <p className="text-[10px] text-orange-500 font-semibold">
+                    {quote.unavailableCount} article{quote.unavailableCount > 1 ? 's' : ''} temporairement indisponible{quote.unavailableCount > 1 ? 's' : ''} — non inclus dans le total
+                  </p>
+                )}
                 <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
                   <span className="text-base font-black text-gray-900 uppercase tracking-widest text-[10px]">{t('cart.total')}</span>
-                  <span className="text-3xl font-black text-[#CC0000]">{formatPrice(total())}</span>
+                  <span className="text-3xl font-black text-[#CC0000]">
+                    {quoteLoading ? '…' : formatPrice(quote?.grandTotal ?? (total() + shippingTotal()))}
+                  </span>
                 </div>
               </div>
 

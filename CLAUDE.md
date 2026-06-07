@@ -95,3 +95,16 @@ Lingerie · Cosmétiques · Parfums · Bijoux · Produits adultes
 Devenir LA plateforme e-commerce dropshipping incontournable dans le monde entier,
 avec une identité 100% propriétaire. Construire pour durer et scaler — pas de dépendance
 à Shopify ou autre SaaS.
+
+## Context Navigation (Graphify)
+
+### 3-Layer Query Rule
+1. Query graphify-out/graph.json pour comprendre la structure
+2. Query le vault Obsidian pour les décisions et contexte
+3. Lire le code brut seulement pour éditer
+
+### Vault Obsidian
+Chemin : C:\Users\HP\Documents\vault
+
+### Rebuild du graphe
+graphify . --obsidian --obsidian-dir C:\Users\HP\Documents\vault\graphify\luxedropshopping --backend gemini

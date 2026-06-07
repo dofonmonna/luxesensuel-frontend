@@ -22,28 +22,28 @@ import {
 
 const HERO_SLIDES = [
   {
-    title: "Lingerie Fine & Séduction",
-    subtitle: "✦ Nouvelle Collection",
-    description: "Dentelle, satin, soie — des pièces d'exception pour sublimer chaque instant.",
+    title: "Des Milliers de Produits Livrés Chez Vous",
+    subtitle: "✦ Boutique Internationale",
+    description: "Mode, beauté, électronique, maison, sport — tout ce dont vous avez besoin, livré partout dans le monde.",
     image: "https://images.unsplash.com/photo-1512446813985-4a0eb139016c?auto=format&fit=crop&q=80&w=1600",
-    cta: "Explorer la collection",
-    badge: "Livraison discrète garantie",
+    cta: "Explorer la boutique",
+    badge: "Livraison internationale garantie",
   },
   {
-    title: "Bien-être & Rituels Sensoriels",
-    subtitle: "✦ Soins Premium",
-    description: "Huiles de massage, bougies parfumées et soins corps d'exception.",
+    title: "Les Meilleures Offres du Moment",
+    subtitle: "✦ Flash Deals",
+    description: "Profitez de prix imbattables sur des milliers de produits sélectionnés. Stocks limités.",
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=1600",
-    cta: "Voir les soins",
-    badge: "Qualité haut de gamme",
+    cta: "Voir les offres",
+    badge: "Jusqu'à -50% sur les tendances",
   },
   {
-    title: "L'Art d'Offrir",
-    subtitle: "✦ Coffrets Cadeaux",
-    description: "Des sélections élégantes, emballées avec soin pour surprendre votre partenaire.",
+    title: "Shopping Premium, Livraison Mondiale",
+    subtitle: "✦ +50 Pays Desservis",
+    description: "Commandez depuis n'importe où. Paiement sécurisé par Mobile Money, Carte ou Wave.",
     image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1600",
-    cta: "Découvrir les coffrets",
-    badge: "Packaging luxe inclus",
+    cta: "Commencer mes achats",
+    badge: "Paiement sécurisé · Colis discret",
   },
 ];
 
@@ -51,14 +51,32 @@ const TESTIMONIALS = [
   {
     name: "Amina K.", city: "Abidjan", rating: 5,
     text: "Colis reçu en 4 jours, emballage totalement neutre. Qualité vraiment premium, je recommande sans hésiter !",
+    avatar: "A",
   },
   {
     name: "Fatou D.", city: "Dakar", rating: 5,
     text: "Livraison discrète comme promis. Mon partenaire a adoré le cadeau. Déjà ma 3e commande sur ce site !",
+    avatar: "F",
   },
   {
     name: "Marie & Julien", city: "Paris", rating: 5,
-    text: "Produits de qualité professionnelle, packaging luxueux. On reviendra c'est certain !",
+    text: "Produits de qualité professionnelle, packaging luxueux. Livraison en 5 jours, on reviendra c'est certain !",
+    avatar: "M",
+  },
+  {
+    name: "Kofi A.", city: "Accra", rating: 5,
+    text: "Paiement Mobile Money très simple, livraison rapide. Le produit est exactement comme décrit. Top !",
+    avatar: "K",
+  },
+  {
+    name: "Nadia R.", city: "Casablanca", rating: 5,
+    text: "Encore mieux en vrai que sur les photos. La texture est douce, le packaging soigné. Je suis conquise !",
+    avatar: "N",
+  },
+  {
+    name: "Oumar S.", city: "Bamako", rating: 5,
+    text: "Discret, professionnel, produits de haute qualité. J'ai commandé pour ma femme et elle est aux anges !",
+    avatar: "O",
   },
 ];
 
@@ -129,9 +147,9 @@ export function Home() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat]">
       <SEO
-        title="Lingerie de Luxe & Accessoires d'Exception"
-        description="LuxeSensuel - Découvrez notre collection exclusive de lingerie fine, nuisettes, soins et accessoires de luxe. Livraison internationale discrète. Plus de 25 000 clients satisfaits."
-        keywords="lingerie de luxe, lingerie fine, nuisettes, soins corporels, accessoires intimes, livraison discrète, boutique en ligne"
+        title="Boutique en Ligne — Produits Premium & Tendance"
+        description="LuxeSensuel — Des milliers de produits sélectionnés : mode, beauté, maison, électronique, sport et plus. Livraison mondiale discrète. Paiement sécurisé. Plus de 25 000 clients satisfaits."
+        keywords="boutique en ligne, produits premium, mode femme, beauté, accessoires, livraison internationale, paiement mobile money, wave, orange money"
         url="https://luxedropshoping.com/"
         type="website"
       />
@@ -209,8 +227,8 @@ export function Home() {
               </div>
               <div className="relative z-10">
                 <h4 className="text-xs font-bold text-white/70 tracking-widest uppercase mb-2">Livraison</h4>
-                <p className="text-xl font-black leading-tight mb-2">Offerte dès 50€ d'achat</p>
-                <p className="text-xs text-white/80">Partout en Europe</p>
+                <p className="text-xl font-black leading-tight mb-2">Vers plus de 50 pays</p>
+                <p className="text-xs text-white/80">Partout dans le monde</p>
               </div>
               <Link to="/shop" className="relative z-10 w-full py-3 bg-white text-[#CC0000] text-xs font-bold rounded-lg hover:bg-red-50 transition-colors text-center">
                 Voir les conditions
@@ -258,6 +276,28 @@ export function Home() {
               <p className="text-xs font-bold text-gray-900">Pack Discret</p>
               <p className="text-[10px] text-gray-400">Emballage neutre & soigné</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── MOYENS DE PAIEMENT ──────────────────────────────── */}
+      <section className="max-w-[1440px] mx-auto px-4 mb-8">
+        <div className="bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-[10px] font-black uppercase tracking-widest text-gray-300 shrink-0">Paiements acceptés</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-blue-800 font-black text-base italic tracking-tight select-none">VISA</span>
+            <span className="flex items-center select-none">
+              <span className="w-6 h-6 rounded-full bg-red-500 inline-block" />
+              <span className="w-6 h-6 rounded-full bg-orange-400 inline-block -ml-3 opacity-90" />
+            </span>
+            <span className="bg-[#0067FF] text-white text-[11px] font-black px-2.5 py-0.5 rounded-md select-none tracking-tight">wave</span>
+            <span className="bg-orange-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md select-none">Orange Money</span>
+            <span className="bg-yellow-400 text-black text-[10px] font-black px-2.5 py-0.5 rounded-md select-none">MTN Money</span>
+            <span className="bg-blue-700 text-white text-[10px] font-black px-2.5 py-0.5 rounded-md select-none">Moov Money</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-gray-400 font-bold shrink-0">
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            Crypté SSL · 3D Secure
           </div>
         </div>
       </section>
@@ -416,7 +456,7 @@ export function Home() {
       <section className="max-w-[1440px] mx-auto px-4 mb-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-black text-gray-900 mb-4 font-[Montserrat]">Sélectionné <span className="text-[#CC0000]">Pour Vous</span></h2>
-          <p className="text-gray-500 max-w-xl mx-auto">Notre collection exclusive de produits premium pour sublimer votre intimité et vos moments de détente.</p>
+          <p className="text-gray-500 max-w-xl mx-auto">Mode, beauté, maison, sport, électronique — des milliers de produits soigneusement sélectionnés, livrés partout dans le monde.</p>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -445,30 +485,67 @@ export function Home() {
         <div className="text-center mb-10">
           <p className="text-[#CC0000] text-xs font-bold uppercase tracking-widest mb-2">Ils nous font confiance</p>
           <h2 className="text-3xl font-black text-gray-900">Ce que disent <span className="text-[#CC0000]">nos clients</span></h2>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            {[1,2,3,4,5].map(s => <Star key={s} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+            <span className="ml-2 font-black text-gray-900">4.9</span>
+            <span className="text-gray-400 text-sm">· 25 000+ avis vérifiés</span>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 hover:shadow-md transition-shadow">
-              <div className="flex gap-0.5">
-                {[1,2,3,4,5].map(s => (
-                  <Star key={s} className={`w-4 h-4 ${s <= t.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
-                ))}
+            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col gap-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex gap-0.5">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} className={`w-4 h-4 ${s <= t.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                  ))}
+                </div>
+                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
+                  <ShieldCheck className="w-3 h-3" /> Vérifié
+                </div>
               </div>
-              <div className="relative">
+              <div className="relative flex-1">
                 <Quote className="absolute -top-1 -left-1 w-6 h-6 text-red-100" />
                 <p className="text-sm text-gray-600 leading-relaxed pl-4 italic">"{t.text}"</p>
               </div>
-              <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#CC0000]/20 to-[#CC0000]/5 flex items-center justify-center text-sm font-black text-[#CC0000]">
-                  {t.name.charAt(0)}
+              <div className="flex items-center gap-3 pt-3 border-t border-gray-50">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#CC0000]/20 to-[#CC0000]/5 flex items-center justify-center text-sm font-black text-[#CC0000] shrink-0">
+                  {t.avatar}
                 </div>
                 <div>
                   <p className="text-sm font-bold text-gray-900">{t.name}</p>
-                  <p className="text-[11px] text-gray-400">{t.city} · Achat vérifié</p>
+                  <p className="text-[11px] text-gray-400">{t.city}</p>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Garantie satisfait ou remboursé */}
+        <div className="mt-10 bg-gradient-to-r from-gray-900 to-gray-800 rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-white shadow-xl">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-8 h-8 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-xl font-black">Satisfait ou Remboursé</p>
+              <p className="text-white/70 text-sm mt-1">30 jours pour changer d'avis. Aucune question posée.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-8 text-center">
+            <div>
+              <p className="text-2xl font-black text-emerald-400">30j</p>
+              <p className="text-[11px] text-white/60 uppercase tracking-wide">Retours gratuits</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-yellow-300">24h</p>
+              <p className="text-[11px] text-white/60 uppercase tracking-wide">Réponse support</p>
+            </div>
+            <div>
+              <p className="text-2xl font-black text-blue-300">100%</p>
+              <p className="text-[11px] text-white/60 uppercase tracking-wide">Discret</p>
+            </div>
+          </div>
         </div>
       </section>
 

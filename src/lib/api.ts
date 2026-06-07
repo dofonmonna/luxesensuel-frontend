@@ -79,6 +79,7 @@ export interface Product {
   created_at: string;
   ae_sku_attr?: string | null;
   variants?: ProductVariant[] | null;
+  shipping_fee?: number | null;
 }
 
 export const productsApi = {
@@ -251,4 +252,34 @@ export const adminApi = {
     ),
   importCJ: (data: { cj_product_id: string; is_adult?: boolean; category?: string }) =>
     apiFetch<CjImportResult>('/admin/import/cj', { method: 'POST', body: JSON.stringify(data) }, true),
+};
+
+// ─── CHECKOUT QUOTE ───────────────────────────────────────────
+export interface CheckoutQuoteLine {
+  productId: string;
+  quantity: number;
+  shippingMethod?: string;
+  etaDays?: string;
+  shippingFallback?: boolean;
+  itemPrice?: number;
+  shipping?: number;
+  shippingLabel?: string;
+  total?: number;
+  error?: string;
+}
+
+export interface CheckoutQuote {
+  currency: string;
+  destinationCountry: string;
+  lines: CheckoutQuoteLine[];
+  grandTotal: number;
+  unavailableCount?: number;
+}
+
+export const checkoutApi = {
+  quote: (destinationCountry: string, items: { productId: string; quantity: number }[]) =>
+    apiFetch<CheckoutQuote>('/checkout/quote', {
+      method: 'POST',
+      body: JSON.stringify({ destinationCountry, items }),
+    }),
 };

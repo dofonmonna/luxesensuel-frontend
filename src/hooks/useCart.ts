@@ -10,6 +10,7 @@ export interface CartItem {
   quantity: number;
   selectedSkuAttr?: string | null;   // ex: "14:1254#Coffee"
   selectedSkuLabel?: string | null;  // ex: "Coffee"
+  shippingFee?: number | null;       // frais de livraison du produit
 }
 
 interface CartStore {
@@ -19,6 +20,7 @@ interface CartStore {
   updateQuantity: (cartKey: string, quantity: number) => void;
   clearCart: () => void;
   total: () => number;
+  shippingTotal: () => number;
 }
 
 export const useCart = create<CartStore>()(
@@ -52,6 +54,8 @@ export const useCart = create<CartStore>()(
         }),
       clearCart: () => set({ items: [] }),
       total: () => get().items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+      // Somme des frais de livraison (une fois par ligne de panier, pas par quantité)
+      shippingTotal: () => get().items.reduce((acc, item) => acc + (item.shippingFee ?? 15), 0),
     }),
     { name: 'luxesensuel-cart' }
   )
