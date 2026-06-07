@@ -335,10 +335,11 @@ export function Admin() {
     const productId = product.productId || product.pid || '';
     if (!productId) return;
     setImportingId(productId);
+    const isAdult = importCategory === 'plaisir-adulte' || importCategory === 'couples';
     try {
       const body = importSource === 'cj'
-        ? { cj_product_id: productId, category: importCategory }
-        : { ae_product_id: productId, category: importCategory };
+        ? { cj_product_id: productId, category: importCategory, isAdult }
+        : { ae_product_id: productId, category: importCategory, isAdult };
 
       const res = await fetch(`${API_URL}/admin/import/${importSource}`, {
         method: 'POST',
@@ -375,10 +376,10 @@ export function Admin() {
       const res = await fetch(`${API_URL}/admin/import/batch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ 
-          platform: importSource, 
+        body: JSON.stringify({
+          platform: importSource,
           productIds: Array.from(selectedProducts),
-          options: { category: importCategory }
+          options: { category: importCategory, isAdult: importCategory === 'plaisir-adulte' || importCategory === 'couples' }
         })
       });
       const data = await res.json();
