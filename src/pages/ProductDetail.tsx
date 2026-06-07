@@ -332,7 +332,7 @@ export function ProductDetail() {
             </h1>
 
             {/* Rating & Social Proof */}
-            <div className="flex flex-wrap items-center gap-6 mb-8 pb-8 border-b border-gray-50">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6 mb-6 pb-6 md:mb-8 md:pb-8 border-b border-gray-50">
               <div className="flex items-center gap-1.5">
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map(s => (
@@ -355,7 +355,7 @@ export function ProductDetail() {
                 <Zap className="w-16 h-16 text-[#CC0000]" />
               </div>
               <div className="flex items-baseline gap-4 mb-1">
-                <span className="text-4xl font-black text-[#CC0000]">{formatPrice(price)}</span>
+                <span className="text-3xl md:text-4xl font-black text-[#CC0000]">{formatPrice(price)}</span>
                 <span className="text-lg text-gray-400 line-through font-medium">{formatPrice(oldPrice)}</span>
               </div>
               <p className="text-xs text-emerald-600 font-bold flex items-center gap-1">
@@ -664,7 +664,7 @@ export function ProductDetail() {
         </button>
         <button 
           onClick={() => { handleAdd(); navigate('/checkout'); }}
-          className="flex-2 h-14 rounded-xl bg-[#CC0000] text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-transform px-8"
+          className="flex-[2] h-14 rounded-xl bg-[#CC0000] text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-transform px-8"
         >
           Acheter maintenant
         </button>

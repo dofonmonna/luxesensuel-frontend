@@ -173,14 +173,14 @@ export function Home() {
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-[#1a0a0a] to-[#2d0000]" />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center px-8 md:px-16">
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent flex flex-col justify-center px-5 md:px-16">
                       <span className="inline-block bg-[#CC0000]/90 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full w-fit mb-4">
                         {slide.badge}
                       </span>
                       <p className="text-[#f9c8c8] font-bold text-sm md:text-base mb-2 uppercase tracking-widest">
                         {slide.subtitle}
                       </p>
-                      <h2 className="text-white text-3xl md:text-5xl font-black mb-4 leading-tight max-w-xl">
+                      <h2 className="text-white text-2xl sm:text-3xl md:text-5xl font-black mb-4 leading-tight max-w-xl">
                         {slide.title}
                       </h2>
                       <p className="text-gray-200 text-sm md:text-base mb-8 max-w-md opacity-90">
@@ -244,7 +244,7 @@ export function Home() {
 
       {/* ── SECTION 2 : Avantages ───────────────────────────── */}
       <section className="max-w-[1440px] mx-auto px-4 mb-8">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           <div className="flex items-center gap-4 border-r border-gray-50 last:border-0 pr-4">
             <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
               <Truck className="w-5 h-5 text-[#CC0000]" />
@@ -254,7 +254,7 @@ export function Home() {
               <p className="text-[10px] text-gray-400">Livraison ultra-rapide</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 border-r border-gray-50 last:border-0 pr-4">
+          <div className="flex items-center gap-4 md:border-r border-gray-50 pr-4">
             <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 text-emerald-600" />
             </div>
@@ -286,7 +286,7 @@ export function Home() {
 
       {/* ── MOYENS DE PAIEMENT ──────────────────────────────── */}
       <section className="max-w-[1440px] mx-auto px-4 mb-8">
-        <div className="bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl px-6 py-4 shadow-sm border border-gray-100 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-300 shrink-0">Paiements acceptés</p>
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-blue-800 font-black text-base italic tracking-tight select-none">VISA</span>
