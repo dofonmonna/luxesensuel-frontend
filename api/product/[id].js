@@ -18,10 +18,11 @@ const SITE_NAME = 'LUXEDropshoping';
 
 // ─── Lit dist/index.html (inclus via vercel.json includeFiles) ────
 function readTemplate() {
-  // Vercel bundle le fichier dans le répertoire de la fonction
+  // La fonction est dans api/product/[id].js → remonter 2 niveaux pour dist/
   const candidates = [
-    path.join(__dirname, 'index.html'),           // bundlé par includeFiles
-    path.join(process.cwd(), 'dist', 'index.html'), // local / fallback
+    path.join(__dirname, '../../dist/index.html'), // depuis api/product/ → dist/
+    path.join(process.cwd(), 'dist/index.html'),   // process.cwd() = racine projet
+    path.join(__dirname, 'index.html'),             // bundlé par includeFiles (Vercel)
   ];
   for (const p of candidates) {
     try { return fs.readFileSync(p, 'utf-8'); } catch (_) {}
@@ -43,6 +44,7 @@ async function fetchProduct(id) {
         Authorization: `Bearer ${supaKey}`,
         Accept: 'application/json',
       },
+      signal: AbortSignal.timeout(5000),
     });
     if (!resp.ok) return null;
     const rows = await resp.json();
@@ -96,88 +98,97 @@ function injectMeta(html, { title, desc, image, url, keywords, price, category }
     .replace('</head>', metaBlock + '\n  </head>');
 }
 
+// ─── Sert la SPA (index.html brut) ────────────────────────────────
+function serveSPA(res, template) {
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(200).send(template);
+}
+
 // ─── Handler principal ────────────────────────────────────────────
 module.exports = async function handler(req, res) {
-  const id = req.query.id;
+  const id = (req.query.id || '').toString().trim();
 
-  if (!id || !/^[0-9a-f-]{36}$/i.test(id)) {
-    return res.status(400).send('ID invalide');
-  }
+  // Lire le template au tout début — disponible même dans le catch
+  let template = null;
+  try { template = readTemplate(); } catch (_) {}
 
-  const productUrl = `${SITE_URL}/product/${id}`;
+  try {
+    // ID trop court pour être un UUID → laisser la SPA gérer
+    if (!id || id.length < 8) {
+      return template
+        ? serveSPA(res, template)
+        : res.status(200).send('<html><body><script>location.href="/";</script></body></html>');
+    }
 
-  // Lire le template HTML
-  const template = readTemplate();
+    const productUrl = `${SITE_URL}/product/${id}`;
+    const product    = await fetchProduct(id);
 
-  // Fetcher le produit
-  const product = await fetchProduct(id);
+    // Pas de template : fallback minimal avec meta + redirect JS
+    if (!template) {
+      const title = product ? `${product.name} | ${SITE_NAME}` : `Produit | ${SITE_NAME}`;
+      const desc  = product
+        ? (product.description || '').replace(/<[^>]*>/g, '').trim().slice(0, 155) || title
+        : `Découvrez ce produit sur ${SITE_NAME} — boutique généraliste, livraison mondiale discrète.`;
+      const image = product?.image || `${SITE_URL}/logo.png`;
+      const esc   = s => String(s || '').replace(/"/g, '&quot;');
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).send(
+        `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">` +
+        `<title>${esc(title)}</title>` +
+        `<meta name="description" content="${esc(desc)}" />` +
+        `<meta property="og:title" content="${esc(title)}" />` +
+        `<meta property="og:description" content="${esc(desc)}" />` +
+        `<meta property="og:image" content="${esc(image)}" />` +
+        `<meta property="og:url" content="${esc(productUrl)}" />` +
+        `<meta property="og:site_name" content="${SITE_NAME}" />` +
+        `<meta name="twitter:card" content="summary_large_image" />` +
+        `<meta name="twitter:title" content="${esc(title)}" />` +
+        `<meta name="twitter:image" content="${esc(image)}" />` +
+        `<link rel="canonical" href="${esc(productUrl)}" />` +
+        `<meta http-equiv="refresh" content="0;url=${esc(productUrl)}">` +
+        `</head><body><script>window.location.href='${productUrl}';</script></body></html>`
+      );
+    }
 
-  if (!template) {
-    // Fallback minimal : page de redirection avec bonnes meta
-    const title   = product ? `${product.name} | ${SITE_NAME}` : `Produit | ${SITE_NAME}`;
-    const desc    = product
-      ? (product.description || '').replace(/<[^>]*>/g, '').trim().slice(0, 155) || title
-      : `Découvrez ce produit sur ${SITE_NAME} — boutique généraliste, livraison mondiale discrète.`;
-    const image   = product?.image || `${SITE_URL}/logo.png`;
+    // Injection des meta dans le template SPA
+    let html = template;
+    if (product) {
+      const rawDesc  = (product.description || '').replace(/<[^>]*>/g, '').trim();
+      const desc     = rawDesc.slice(0, 155) || `${product.name} — ${SITE_NAME}, livraison mondiale discrète.`;
+      const title    = `${product.name} | ${SITE_NAME}`;
+      const image    = product.image || `${SITE_URL}/logo.png`;
+      const keywords = [product.name, product.category, 'boutique en ligne', 'livraison internationale', SITE_NAME]
+        .filter(Boolean).join(', ');
+      html = injectMeta(html, { title, desc, image, url: productUrl, keywords, price: product.price, category: product.category });
+    } else {
+      // Produit introuvable → meta génériques + canonical correct
+      html = injectMeta(html, {
+        title:    `Produit | ${SITE_NAME}`,
+        desc:     `Boutique généraliste en ligne — mode, beauté, électronique, sport et plus. Livraison mondiale discrète.`,
+        image:    `${SITE_URL}/logo.png`,
+        url:      productUrl,
+        keywords: `boutique en ligne, ${SITE_NAME}, livraison internationale`,
+      });
+    }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.send(`<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>${title}</title>
-<meta name="description" content="${desc}" />
-<meta property="og:title" content="${title}" />
-<meta property="og:description" content="${desc}" />
-<meta property="og:image" content="${image}" />
-<meta property="og:url" content="${productUrl}" />
-<meta property="og:site_name" content="${SITE_NAME}" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="${title}" />
-<meta name="twitter:image" content="${image}" />
-<link rel="canonical" href="${productUrl}" />
-<meta http-equiv="refresh" content="0;url=${productUrl}">
-</head>
-<body><script>window.location.href='${productUrl}';</script></body>
-</html>`);
+    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+    return res.status(200).send(html);
+
+  } catch (err) {
+    // ─── SAFETY NET : jamais de 500 ──────────────────────────────
+    // En cas d'erreur quelconque, on sert la SPA brute → React gère.
+    console.error('[SSR product] crash:', err.message, err.stack);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-store');
+    if (template) return res.status(200).send(template);
+    // Dernier recours
+    return res.status(200).send(
+      `<!DOCTYPE html><html><head><meta charset="UTF-8">` +
+      `<meta http-equiv="refresh" content="0;url=/product/${encodeURIComponent(id)}">` +
+      `</head><body><script>window.location.href='/product/${encodeURIComponent(id)}';</script></body></html>`
+    );
   }
-
-  let html = template;
-
-  if (product) {
-    const rawDesc = (product.description || '').replace(/<[^>]*>/g, '').trim();
-    const desc     = rawDesc.slice(0, 155) || `${product.name} — ${SITE_NAME}, livraison mondiale discrète.`;
-    const title    = `${product.name} | ${SITE_NAME}`;
-    const image    = product.image || `${SITE_URL}/logo.png`;
-    const keywords = [
-      product.name,
-      product.category,
-      'boutique en ligne',
-      'livraison internationale',
-      SITE_NAME,
-    ].filter(Boolean).join(', ');
-
-    html = injectMeta(html, {
-      title,
-      desc,
-      image,
-      url: productUrl,
-      keywords,
-      price: product.price,
-      category: product.category,
-    });
-  } else {
-    // Produit non trouvé → meta génériques mais canonical correct
-    html = injectMeta(html, {
-      title: `Produit | ${SITE_NAME}`,
-      desc: `Boutique généraliste en ligne — mode, beauté, électronique, sport et plus. Livraison mondiale discrète.`,
-      image: `${SITE_URL}/logo.png`,
-      url: productUrl,
-      keywords: `boutique en ligne, ${SITE_NAME}, livraison internationale`,
-    });
-  }
-
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
-  res.send(html);
 };
