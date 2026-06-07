@@ -479,6 +479,27 @@ export function Admin() {
     finally { setActionLoading(null); }
   };
 
+  const syncTracking = async () => {
+    setActionLoading('syncTracking');
+    try {
+      const res = await fetch(`${API_URL}/admin/sync-tracking`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        addToast('success', data.message || 'Tracking synchronisé');
+        if (data.details?.length) {
+          data.details.forEach((d: { order_number: string; from: string; to: string; tracking: string }) =>
+            addToast('info', `${d.order_number}: ${d.from} → ${d.to}${d.tracking ? ' · ' + d.tracking : ''}`)
+          );
+        }
+        fetchDashboardData();
+      } else addToast('error', data.error || 'Erreur sync tracking');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
   const reorganizeProducts = async () => {
     setActionLoading('reorganize');
     try {
@@ -1233,6 +1254,17 @@ export function Admin() {
                   style={{ padding: '8px 16px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'redispatch' ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                   <RefreshCw size={14} style={{ animation: actionLoading === 'redispatch' ? 'spin 1s linear infinite' : 'none' }} />
                   {actionLoading === 'redispatch' ? 'Dispatch...' : 'Dispatcher maintenant'}
+                </button>
+              </div>
+
+              {/* Sync Tracking */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '16px', border: '2px solid #bfdbfe', borderRadius: '10px', minWidth: '200px', background: '#eff6ff' }}>
+                <div style={{ fontWeight: '700', fontSize: '13px', color: '#1d4ed8' }}>Sync Tracking CJ</div>
+                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Met à jour les commandes "processing" → "shipped" / "delivered"</div>
+                <button onClick={syncTracking} disabled={actionLoading === 'syncTracking'}
+                  style={{ padding: '8px 16px', background: '#1d4ed8', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading === 'syncTracking' ? 'not-allowed' : 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                  <RefreshCw size={14} style={{ animation: actionLoading === 'syncTracking' ? 'spin 1s linear infinite' : 'none' }} />
+                  {actionLoading === 'syncTracking' ? 'Syncing...' : 'Sync tracking'}
                 </button>
               </div>
 
