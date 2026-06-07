@@ -93,7 +93,7 @@ export function Shop() {
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat]">
       <SEO
         title={categoryFilter ? `${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)} - Boutique` : searchQuery ? `Résultats pour "${searchQuery}"` : 'Boutique - Tous nos produits'}
-        description={categoryFilter ? `Découvrez notre sélection ${categoryFilter} sur LuxeDropShopping. Produits premium, livraison mondiale discrète et paiement sécurisé.` : 'Parcourez notre catalogue complet : mode, beauté, électronique, bijoux, sport et plus. Livraison mondiale discrète garantie.'}
+        description={categoryFilter ? `Découvrez notre sélection ${categoryFilter} sur LUXEDropshoping. Produits premium, livraison mondiale discrète et paiement sécurisé.` : 'Parcourez notre catalogue complet : mode, beauté, électronique, bijoux, sport et plus. Livraison mondiale discrète garantie.'}
         keywords={`${categoryFilter || 'mode, beauté, électronique, bijoux, sport'}, boutique en ligne, livraison internationale, paiement sécurisé`}
         url={`https://luxedropshoping.com/shop${categoryFilter ? '?cat=' + categoryFilter : ''}`}
         breadcrumbs={[

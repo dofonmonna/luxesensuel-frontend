@@ -67,7 +67,7 @@ export function Signup() {
         role: "client",
         createdAt: new Date().toISOString(),
       });
-      toast.success('LuxeDropShopping ✦');
+      toast.success('LUXEDropshoping ✦');
       setTimeout(() => navigate("/profile"), 500);
     } catch (err: any) {
       if (err.code === "auth/email-already-in-use") toast.error(t('common.error') + ' (email)');
@@ -80,7 +80,7 @@ export function Signup() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
-      <SEO title="Créer un compte" description="Inscrivez-vous sur LuxeDropShopping pour profiter d'offres exclusives et suivre vos commandes." noindex={true} />
+      <SEO title="Créer un compte" description="Inscrivez-vous sur LUXEDropshoping pour profiter d'offres exclusives et suivre vos commandes." noindex={true} />
       
       {/* Decorative backgrounds */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-red-50 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 opacity-60" />

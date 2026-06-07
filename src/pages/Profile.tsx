@@ -69,7 +69,7 @@ export function Profile() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] pb-20 pt-10 px-4 md:px-8">
-      <SEO title="Mon Profil" description="Gérez votre profil et suivez vos commandes LuxeDropShopping." noindex={true} />
+      <SEO title="Mon Profil" description="Gérez votre profil et suivez vos commandes LUXEDropshoping." noindex={true} />
       <div className="mx-auto max-w-6xl">
         
         {/* En-tête du profil */}

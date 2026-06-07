@@ -148,7 +148,7 @@ export function Home() {
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat]">
       <SEO
         title="Boutique en Ligne — Produits Premium & Tendance"
-        description="LuxeDropShopping — Des milliers de produits sélectionnés : mode, beauté, maison, électronique, sport et plus. Livraison mondiale discrète. Paiement sécurisé. Plus de 25 000 clients satisfaits."
+        description="LUXEDropshoping — Des milliers de produits sélectionnés : mode, beauté, maison, électronique, sport et plus. Livraison mondiale discrète. Paiement sécurisé. Plus de 25 000 clients satisfaits."
         keywords="boutique en ligne, produits premium, mode femme, beauté, accessoires, livraison internationale, paiement mobile money, wave, orange money"
         url="https://luxedropshoping.com/"
         type="website"

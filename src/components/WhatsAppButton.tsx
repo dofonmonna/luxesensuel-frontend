@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 
 const WHATSAPP_NUMBER = '2250505409595';
-const DEFAULT_MESSAGE = 'Bonjour LuxeDropShopping ! J\'ai une question sur vos produits.';
+const DEFAULT_MESSAGE = 'Bonjour LUXEDropshoping ! J\'ai une question sur vos produits.';
 
 export function WhatsAppButton() {
   const [tooltip, setTooltip] = useState(false);

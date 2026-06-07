@@ -35,7 +35,7 @@ export function Confirmation() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] flex items-center justify-center px-4 py-20 relative overflow-hidden">
-      <SEO title="Commande Confirmée" description="Votre commande LuxeDropShopping a été confirmée avec succès." noindex={true} />
+      <SEO title="Commande Confirmée" description="Votre commande LUXEDropshoping a été confirmée avec succès." noindex={true} />
 
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-red-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50" />

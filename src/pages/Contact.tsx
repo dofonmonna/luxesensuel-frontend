@@ -3,14 +3,14 @@ import { SEO } from '@/components/SEO';
 import { MessageCircle, Mail, Clock, MapPin, ChevronRight } from 'lucide-react';
 
 const WHATSAPP_NUMBER = '2250505409595';
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Bonjour LuxeDropShopping ! J\'ai une question.')}`;
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Bonjour LUXEDropshoping ! J\'ai une question.')}`;
 
 export function Contact() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-16 px-4">
       <SEO
         title="Nous Contacter"
-        description="Contactez LuxeDropShopping par WhatsApp ou email. Notre équipe répond en moins de 5 minutes."
+        description="Contactez LUXEDropshoping par WhatsApp ou email. Notre équipe répond en moins de 5 minutes."
       />
 
       <div className="max-w-3xl mx-auto">

@@ -232,7 +232,7 @@ export const testimonials: Testimonial[] = [
     name: 'Kofi A.',
     avatar: '/avatar/avatar-4.jpg',
     rating: 5,
-    text: "Site sécurisé, paiement Mobile Money sans aucun souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LuxeDropShopping !",
+    text: "Site sécurisé, paiement Mobile Money sans aucun souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LUXEDropshoping !",
     date: '2025-03-15',
   },
   {

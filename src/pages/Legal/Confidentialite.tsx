@@ -4,7 +4,7 @@ import { SEO } from '@/components/SEO';
 export function Confidentialite() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-16 px-4">
-      <SEO title="Politique de Confidentialité" description="Découvrez comment LuxeDropShopping protège vos données personnelles. Politique conforme au RGPD." />
+      <SEO title="Politique de Confidentialité" description="Découvrez comment LUXEDropshoping protège vos données personnelles. Politique conforme au RGPD." />
       <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-14 shadow-sm border border-gray-100">
         <nav className="text-xs text-gray-400 mb-8 flex gap-2">
           <Link to="/" className="hover:text-[#CC0000]">Accueil</Link>

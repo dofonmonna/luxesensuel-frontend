@@ -5,7 +5,7 @@ import { RotateCcw, Package, Mail, Clock, ShieldCheck, CheckCircle } from 'lucid
 export function Retours() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-16 px-4">
-      <SEO title="Politique de Retours & Remboursements" description="Politique de retour LuxeDropShopping : 30 jours pour retourner vos articles. Processus simple et rapide." />
+      <SEO title="Politique de Retours & Remboursements" description="Politique de retour LUXEDropshoping : 30 jours pour retourner vos articles. Processus simple et rapide." />
       <div className="max-w-3xl mx-auto">
         <nav className="text-xs text-gray-400 mb-8 flex gap-2">
           <Link to="/" className="hover:text-[#CC0000]">Accueil</Link>
@@ -71,7 +71,7 @@ export function Retours() {
             </div>
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-              <p>En cas de <strong>produit défectueux ou erreur de livraison</strong>, les frais de retour sont pris en charge par LuxeDropShopping.</p>
+              <p>En cas de <strong>produit défectueux ou erreur de livraison</strong>, les frais de retour sont pris en charge par LUXEDropshoping.</p>
             </div>
           </div>
         </div>

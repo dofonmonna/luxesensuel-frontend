@@ -170,7 +170,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-gray-400">
-            © {new Date().getFullYear()} LuxeDropShopping. {t('footer.copyright')}.
+            © {new Date().getFullYear()} LUXEDropshoping. {t('footer.copyright')}.
           </p>
           <p className="text-[10px] text-gray-300">Livraison mondiale · Colis discret · Paiement sécurisé SSL</p>
         </div>

@@ -103,7 +103,7 @@ export const MOCK_PRODUCTS: Product[] = [
   {
     id: '9',
     name: 'Coffret Premiere Nuit',
-    description: 'Selection cadeau avec huile, bougie et accessoire doux. Une entree premium dans l\'univers LuxeDropShopping.',
+    description: 'Selection cadeau avec huile, bougie et accessoire doux. Une entree premium dans l\'univers LUXEDropshoping.',
     price: 129,
     stock: 12,
     category: 'Coffrets',

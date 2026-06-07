@@ -14,7 +14,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const SITE_URL  = 'https://luxedropshoping.com';
-const SITE_NAME = 'LuxeDropShopping';
+const SITE_NAME = 'LUXEDropshoping';
 
 // ─── Lit dist/index.html (inclus via vercel.json includeFiles) ────
 function readTemplate() {

@@ -50,7 +50,7 @@ export const testimonials = [
   },
   {
     id: ‘3’,
-    content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LuxeDropShopping !",
+    content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LUXEDropshoping !",
     author: ‘Kofi A.’,
     role: ‘Accra, Ghana’
   }

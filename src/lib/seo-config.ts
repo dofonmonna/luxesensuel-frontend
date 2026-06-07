@@ -1,18 +1,18 @@
 /**
- * Configuration SEO centralisée pour LuxeDropShopping
+ * Configuration SEO centralisée pour LUXEDropshoping
  * Contient les métadonnées par défaut et les helpers pour le SEO
  */
 
 export const SITE_CONFIG = {
-  name: 'LuxeDropShopping',
+  name: 'LUXEDropshoping',
   tagline: 'Boutique Généraliste en Ligne — Mode, Beauté, Tech & Plus',
   url: 'https://luxedropshoping.com',
   defaultImage: 'https://luxedropshoping.com/logo.png',
   locale: 'fr_FR',
-  twitterHandle: '@luxedropshopping',
+  twitterHandle: '@luxedropshopping',  // 1 seul P — cohérent avec le domaine
   themeColor: '#CC0000',
-  description: 'LuxeDropShopping — Boutique généraliste en ligne : mode, beauté, électronique, bijoux, sport et plus. Livraison mondiale discrète et rapide.',
-  keywords: 'boutique en ligne, mode, beauté, électronique, bijoux, sport, livraison internationale, dropshipping, LuxeDropShopping, acheter en ligne',
+  description: 'LUXEDropshoping — Boutique généraliste en ligne : mode, beauté, électronique, bijoux, sport et plus. Livraison mondiale discrète et rapide.',
+  keywords: 'boutique en ligne, mode, beauté, électronique, bijoux, sport, livraison internationale, dropshipping, LUXEDropshoping, acheter en ligne',
 };
 
 export interface SEOProps {

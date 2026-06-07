@@ -41,7 +41,7 @@ const REVIEW_POOL = [
   { name: 'Moussa T.', city: 'Lomé', rating: 4, date: '2025-03-22', verified: true,
     text: "Bon produit, livraison correcte. J'aurais aimé un suivi de colis plus précis mais globalement satisfait. La qualité est au rendez-vous, je recommande." },
   { name: 'Nadia R.', city: 'Casablanca', rating: 5, date: '2025-03-15', verified: true,
-    text: "Surprise agréable ! Le produit est encore mieux en vrai que sur les photos. La texture est douce et le parfum subtil. Je suis conquise, merci LuxeDropShopping." },
+    text: "Surprise agréable ! Le produit est encore mieux en vrai que sur les photos. La texture est douce et le parfum subtil. Je suis conquise, merci LUXEDropshoping." },
   { name: 'Théo & Sandra', city: 'Marseille', rating: 5, date: '2025-03-08', verified: true,
     text: "On a commandé plusieurs articles ensemble. Livraison ultra rapide, emballage sobre et élégant. Les produits sont de qualité professionnelle. On adore !" },
   { name: 'Awa N.', city: 'Conakry', rating: 5, date: '2025-02-28', verified: true,
@@ -57,7 +57,7 @@ const REVIEW_POOL = [
   { name: 'Ibrahim D.', city: 'Abidjan', rating: 4, date: '2025-01-14', verified: true,
     text: "Bonne qualité, bon rapport qualité-prix. Emballage discret comme annoncé. J'aurais aimé plus de choix de variantes mais le produit en lui-même est excellent." },
   { name: 'Vanessa L.', city: 'Paris', rating: 5, date: '2025-01-05', verified: true,
-    text: "LuxeDropShopping c'est vraiment le top ! Qualité irréprochable, livraison rapide et surtout très discrète. Mon partenaire et moi sommes ravis. On reviendra !" },
+    text: "LUXEDropshoping c'est vraiment le top ! Qualité irréprochable, livraison rapide et surtout très discrète. Mon partenaire et moi sommes ravis. On reviendra !" },
   { name: 'Koffi M.', city: 'Douala', rating: 5, date: '2024-12-28', verified: true,
     text: "Excellent ! J'ai commandé comme cadeau de Noël et la livraison est arrivée à temps malgré les fêtes. Produit premium, emballage soigné. Merci !" },
 ];
@@ -209,8 +209,8 @@ export function ProductDetail() {
       
       <SEO
         title={product.name}
-        description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Disponible sur LuxeDropShopping. Livraison mondiale discrète et paiement sécurisé.`}
-        keywords={`${product.name}, ${product.category || 'boutique en ligne'}, livraison internationale, LuxeDropShopping`}
+        description={product.description?.replace(/<[^>]*>/g, '').trim().slice(0, 160) || `${product.name} - Disponible sur LUXEDropshoping. Livraison mondiale discrète et paiement sécurisé.`}
+        keywords={`${product.name}, ${product.category || 'boutique en ligne'}, livraison internationale, LUXEDropshoping`}
         image={product.image}
         url={`https://luxedropshoping.com/product/${product.id}`}
         type="product"
@@ -443,7 +443,7 @@ export function ProductDetail() {
                 <div className="flex-1 flex gap-3">
                   <button 
                     onClick={() => {
-                      const text = `Regarde ce produit magnifique : ${product.name} sur LuxeDropShopping !`;
+                      const text = `Regarde ce produit magnifique : ${product.name} sur LUXEDropshoping !`;
                       navigator.clipboard.writeText(`${window.location.href}`);
                       toast.info('Lien copié ! Partagez-le avec vos amis.');
                     }}

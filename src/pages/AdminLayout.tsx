@@ -63,7 +63,7 @@ export function AdminLayout() {
             justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '20px'
           }}>L</div>
           <div>
-            <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>LuxeDropShopping</h1>
+            <h1 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>LUXEDropshoping</h1>
             <p style={{ fontSize: '12px', color: '#64748b' }}>Administration</p>
           </div>
         </div>

@@ -1,4 +1,4 @@
-# robots.txt - LuxeDropShopping
+# robots.txt - LUXEDropshoping
 User-agent: *
 Allow: /
 Disallow: /admin

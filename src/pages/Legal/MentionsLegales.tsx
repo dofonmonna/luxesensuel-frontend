@@ -4,7 +4,7 @@ import { SEO } from '@/components/SEO';
 export function MentionsLegales() {
   return (
     <div className="min-h-screen bg-[#F5F5F5] font-[Montserrat] py-16 px-4">
-      <SEO title="Mentions Légales" description="Mentions légales du site LuxeDropShopping. Informations sur l'éditeur, l'hébergeur et les droits de propriété intellectuelle." />
+      <SEO title="Mentions Légales" description="Mentions légales du site LUXEDropshoping. Informations sur l'éditeur, l'hébergeur et les droits de propriété intellectuelle." />
       <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 md:p-14 shadow-sm border border-gray-100">
         <nav className="text-xs text-gray-400 mb-8 flex gap-2">
           <Link to="/" className="hover:text-[#CC0000]">Accueil</Link>
@@ -18,7 +18,7 @@ export function MentionsLegales() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">Éditeur du site</h2>
             <p>
-              <strong>LuxeDropShopping</strong><br />
+              <strong>LUXEDropshoping</strong><br />
               Boutique généraliste en ligne — mode, beauté, électronique, bijoux et plus<br />
               Email : luxesensuel11@gmail.com<br />
               Directeur de la publication : Coulibaly D Ali<br />
@@ -38,7 +38,7 @@ export function MentionsLegales() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">Propriété intellectuelle</h2>
-            <p>L'ensemble du contenu de ce site (textes, images, logos, graphismes, icônes, vidéos) est la propriété exclusive de LuxeDropShopping ou de ses partenaires. Toute reproduction, représentation, modification ou exploitation non autorisée est interdite.</p>
+            <p>L'ensemble du contenu de ce site (textes, images, logos, graphismes, icônes, vidéos) est la propriété exclusive de LUXEDropshoping ou de ses partenaires. Toute reproduction, représentation, modification ou exploitation non autorisée est interdite.</p>
           </section>
 
           <section>
@@ -53,7 +53,7 @@ export function MentionsLegales() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">Liens hypertextes</h2>
-            <p>Le site peut contenir des liens vers d'autres sites internet. LuxeDropShopping n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.</p>
+            <p>Le site peut contenir des liens vers d'autres sites internet. LUXEDropshoping n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.</p>
           </section>
         </div>
       </div>
