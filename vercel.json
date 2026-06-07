@@ -1,11 +1,12 @@
 {
   "functions": {
     "api/product/[id].js": {
-      "includeFiles": "dist/index.html"
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
     }
   },
   "rewrites": [
-    { "source": "/product/:id", "destination": "/api/product/[id]" },
+    { "source": "/product/:id", "destination": "/api/product/[id]?id=:id" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

@@ -1,32 +1,44 @@
 /**
  * Vercel Serverless Function — SSR meta tags pour /product/:id
+ * Runtime: nodejs20.x (explicitement, pas Edge)
  *
- * Intercepte les requêtes vers /product/:id, lit le produit en Supabase,
- * injecte les meta OpenGraph/Twitter/canonical dans dist/index.html,
- * puis sert le HTML modifié. Le SPA React démarre normalement ensuite.
- *
- * Crawlers (Google, Facebook, Twitter) voient les bonnes balises.
- * Utilisateurs réels voient la même SPA qu'avant.
+ * RÈGLE ABSOLUE : cette fonction ne renvoie JAMAIS 500.
+ * Toute erreur → sert l'index.html statique ou une page de fallback.
  */
 'use strict';
-
-const fs   = require('fs');
-const path = require('path');
 
 const SITE_URL  = 'https://luxedropshoping.com';
 const SITE_NAME = 'LUXEDropshoping';
 
-// ─── Lit dist/index.html (inclus via vercel.json includeFiles) ────
-function readTemplate() {
-  // La fonction est dans api/product/[id].js → remonter 2 niveaux pour dist/
-  const candidates = [
-    path.join(__dirname, '../../dist/index.html'), // depuis api/product/ → dist/
-    path.join(process.cwd(), 'dist/index.html'),   // process.cwd() = racine projet
-    path.join(__dirname, 'index.html'),             // bundlé par includeFiles (Vercel)
-  ];
-  for (const p of candidates) {
-    try { return fs.readFileSync(p, 'utf-8'); } catch (_) {}
-  }
+// ─── Récupère dist/index.html : filesystem puis HTTP fallback ─────
+async function readTemplate() {
+  // Essai 1 : filesystem (require fs dans le corps évite crash module-level)
+  try {
+    const fs   = require('fs');
+    const path = require('path');
+    const candidates = [
+      path.join(__dirname, '../../dist/index.html'),
+      path.join(process.cwd(), 'dist/index.html'),
+      path.join(__dirname, 'index.html'),
+    ];
+    for (const p of candidates) {
+      try { return fs.readFileSync(p, 'utf-8'); } catch (_) {}
+    }
+  } catch (_) {}
+
+  // Essai 2 : fetch HTTP depuis le CDN Vercel (route statique /, pas une fonction)
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    const resp = await fetch(`${SITE_URL}/`, { signal: ctrl.signal });
+    clearTimeout(t);
+    if (resp.ok) {
+      const html = await resp.text();
+      // Vérifier que c'est bien un HTML SPA (contient le div root)
+      if (html.includes('<div id="root"') || html.includes('<div id="app"')) return html;
+    }
+  } catch (_) {}
+
   return null;
 }
 
@@ -111,7 +123,7 @@ module.exports = async function handler(req, res) {
 
   // Lire le template au tout début — disponible même dans le catch
   let template = null;
-  try { template = readTemplate(); } catch (_) {}
+  try { template = await readTemplate(); } catch (_) {}
 
   try {
     // ID trop court pour être un UUID → laisser la SPA gérer
