@@ -47,6 +47,7 @@ export const LOCALES = {
     'product.reviews': 'Avis',
     'product.new': 'Nouveau',
     'product.promo': 'Promo',
+    'product.shipping_calculated': 'Calculé à la livraison',
 
     // Panier
     'cart.title': 'Mon panier',
@@ -176,6 +177,7 @@ export const LOCALES = {
     'product.reviews': 'Reviews',
     'product.new': 'New',
     'product.promo': 'Sale',
+    'product.shipping_calculated': 'Calculated at checkout',
 
     'cart.title': 'My cart',
     'cart.empty': 'Your cart is empty',
@@ -297,6 +299,7 @@ export const LOCALES = {
     'product.reviews': 'Opiniones',
     'product.new': 'Nuevo',
     'product.promo': 'Oferta',
+    'product.shipping_calculated': 'Calculado al finalizar compra',
 
     'cart.title': 'Mi carrito',
     'cart.empty': 'Tu carrito está vacío',
@@ -418,6 +421,7 @@ export const LOCALES = {
     'product.reviews': 'Bewertungen',
     'product.new': 'Neu',
     'product.promo': 'Sale',
+    'product.shipping_calculated': 'Wird beim Checkout berechnet',
 
     'cart.title': 'Mein Warenkorb',
     'cart.empty': 'Ihr Warenkorb ist leer',
@@ -539,6 +543,7 @@ export const LOCALES = {
     'product.reviews': 'Recensioni',
     'product.new': 'Nuovo',
     'product.promo': 'Saldi',
+    'product.shipping_calculated': 'Calcolato al checkout',
 
     'cart.title': 'Il mio carrello',
     'cart.empty': 'Il tuo carrello è vuoto',
@@ -660,6 +665,7 @@ export const LOCALES = {
     'product.reviews': 'Avaliações',
     'product.new': 'Novo',
     'product.promo': 'Promoção',
+    'product.shipping_calculated': 'Calculado no checkout',
 
     'cart.title': 'Meu carrinho',
     'cart.empty': 'Seu carrinho está vazio',
@@ -781,6 +787,7 @@ export const LOCALES = {
     'product.reviews': 'التقييمات',
     'product.new': 'جديد',
     'product.promo': 'تخفيض',
+    'product.shipping_calculated': 'يُحسب عند الدفع',
 
     'cart.title': 'سلتي',
     'cart.empty': 'سلتك فارغة',

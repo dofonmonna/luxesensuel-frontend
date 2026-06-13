@@ -173,7 +173,7 @@ export function ProductDetail() {
       quantity,
       selectedSkuAttr: selectedVariant?.sku_attr ?? null,
       selectedSkuLabel: selectedVariant?.label ?? null,
-      shippingFee: product.shipping_fee ?? 15,
+      shippingFee: product.shipping_fee ?? null,
     });
     const variantInfo = selectedVariant?.label ? ` (${selectedVariant.label})` : '';
     toast.success(t('product.add_to_cart'), {
@@ -489,7 +489,7 @@ export function ProductDetail() {
                 <span className="text-sm font-semibold text-gray-700">Frais de livraison</span>
               </div>
               <span className="text-sm font-black text-blue-600">
-                {product.shipping_fee != null ? `$${Number(product.shipping_fee).toFixed(2)}` : '$15.00'}
+                {product.shipping_fee != null ? formatPrice(Number(product.shipping_fee)) : t('product.shipping_calculated')}
               </span>
             </div>
 
