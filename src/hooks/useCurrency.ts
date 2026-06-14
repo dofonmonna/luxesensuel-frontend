@@ -31,13 +31,13 @@ export const CURRENCIES: Record<Currency, CurrencyInfo> = {
   MAD: { code: 'MAD', symbol: 'DH', name: 'Moroccan Dirham', flag: '🇲🇦', paydunyaSupported: true },
 };
 
-// Taux de fallback (utilisés si l'API de change est hors ligne)
+// Taux de fallback base USD (1 USD = X devise). XOF/XAF = taux opérationnel pricing-config.
 const FALLBACK_RATES: Record<Currency, number> = {
-  EUR: 1, USD: 1.08, GBP: 0.85, CAD: 1.47, AUD: 1.65,
-  CHF: 0.94, XOF: 655.96, XAF: 655.96, GHS: 13.5, NGN: 1650, MAD: 10.8,
+  USD: 1, EUR: 0.88, GBP: 0.79, CAD: 1.36, AUD: 1.55,
+  CHF: 0.87, XOF: 666.66, XAF: 666.66, GHS: 12.5, NGN: 1530, MAD: 10.0,
 };
 
-const RATES_CACHE_KEY = 'luxe_fx_rates';
+const RATES_CACHE_KEY = 'luxe_fx_rates_usd';
 const RATES_CACHE_TTL = 60 * 60 * 1000; // 1 heure
 
 function loadCachedRates(): Record<Currency, number> {
@@ -60,14 +60,15 @@ function saveCachedRates(rates: Record<Currency, number>) {
 
 async function fetchLiveRates(): Promise<Record<Currency, number>> {
   try {
-    const res = await fetch('https://api.exchangerate-api.com/v4/latest/EUR', {
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD', {
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error('API indisponible');
     const data = await res.json();
     const newRates = { ...FALLBACK_RATES };
     (Object.keys(CURRENCIES) as Currency[]).forEach(c => {
-      if (data.rates[c]) newRates[c] = data.rates[c];
+      // XOF et XAF restent à 666.66 (taux opérationnel avec buffer — source : pricing-config)
+      if (data.rates[c] && c !== 'XOF' && c !== 'XAF') newRates[c] = data.rates[c];
     });
     saveCachedRates(newRates);
     return newRates;
@@ -142,15 +143,14 @@ export function useCurrency() {
     window.dispatchEvent(new CustomEvent('luxe:currencychange', { detail: { currency: newCurrency } }));
   }, []);
 
-  // Convertir un montant (base EUR)
-  const convert = useCallback((amountEUR: number): number => {
-    if (currency === 'EUR') return amountEUR;
-    return Math.round(amountEUR * rates[currency] * 100) / 100;
+  // Convertir un montant USD en devise client (rates[USD]=1 → pass-through pour les clients USD)
+  const convert = useCallback((amountUSD: number): number => {
+    return Math.round(amountUSD * rates[currency] * 100) / 100;
   }, [currency, rates]);
 
-  // Formater un montant avec le bon séparateur et le bon symbole
-  const formatPrice = useCallback((amountEUR: number): string => {
-    const amount = convert(amountEUR);
+  // Formater un montant USD en devise client
+  const formatPrice = useCallback((amountUSD: number): string => {
+    const amount = convert(amountUSD);
     const info = CURRENCIES[currency];
     if (currency === 'XOF' || currency === 'XAF') {
       return `${Math.round(amount).toLocaleString('fr-FR')} ${info.symbol}`;
