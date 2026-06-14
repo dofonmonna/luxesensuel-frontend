@@ -541,7 +541,11 @@ export function Checkout() {
                 <div className="pt-6 border-t border-gray-100 flex justify-between items-center">
                   <span className="text-base font-black text-gray-900 uppercase tracking-widest text-[10px]">{t('cart.total')}</span>
                   <span className="text-3xl font-black text-[#CC0000]">
-                    {quoteLoading ? '…' : formatPrice(quote?.grandTotal ?? (total() + shippingTotal()))}
+                    {quoteLoading ? '…' : formatPrice(
+                      quoteSubtotal !== null && quoteShipping !== null
+                        ? quoteSubtotal + quoteShipping
+                        : total() + shippingTotal()
+                    )}
                   </span>
                 </div>
               </div>
