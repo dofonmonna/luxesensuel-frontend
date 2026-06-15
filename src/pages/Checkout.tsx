@@ -227,8 +227,16 @@ export function Checkout() {
 
   // Crée la commande ET initie PayDunya en une seule étape atomique
   const payWithDunyaPay = async () => {
+    // Devis signé requis — sans lui le montant ne peut pas être vérifié côté serveur
+    if (!quote || !quote.signature) {
+      toast.error('Veuillez attendre le calcul de votre devis...');
+      return;
+    }
     setIsLoading(true);
     try {
+      // ISO code du pays — doit correspondre à destinationCountry signé dans le devis
+      const deliveryCode = COUNTRIES.find(c => c.name === formData.pays)?.code ?? '';
+
       // 1. Créer la commande en base (seulement au moment du paiement)
       const orderRes = await fetch(`${API_URL}/orders`, {
         method: 'POST',
@@ -249,8 +257,13 @@ export function Checkout() {
             address: formData.adresse,
             city: formData.ville,
             postal: formData.codePostal,
-            country: formData.pays,
+            country: deliveryCode,   // code ISO — doit === destinationCountry signé
           },
+          // Devis signé — source unique de vérité pour le montant encaissé
+          destinationCountry: deliveryCode,
+          grandTotal:         quote.grandTotal,
+          signature:          quote.signature,
+          expiry:             quote.expiry,
         }),
       });
       if (!orderRes.ok) {
@@ -302,8 +315,9 @@ export function Checkout() {
   const quoteSubtotal = quote
     ? quote.lines.filter(l => !l.error).reduce((s, l) => s + (l.itemPrice ?? 0), 0)
     : null;
+  // inclut le forfait $15 par commande quand applicable
   const quoteShipping = quote
-    ? quote.lines.filter(l => !l.error).reduce((s, l) => s + (l.shipping ?? 0), 0)
+    ? quote.lines.filter(l => !l.error).reduce((s, l) => s + (l.shipping ?? 0), 0) + (quote.forfaitLivraison ?? 0)
     : null;
 
   if (items.length === 0) {
@@ -542,9 +556,7 @@ export function Checkout() {
                   <span className="text-base font-black text-gray-900 uppercase tracking-widest text-[10px]">{t('cart.total')}</span>
                   <span className="text-3xl font-black text-[#CC0000]">
                     {quoteLoading ? '…' : formatPrice(
-                      quoteSubtotal !== null && quoteShipping !== null
-                        ? quoteSubtotal + quoteShipping
-                        : total() + shippingTotal()
+                      quote ? quote.grandTotal : total() + shippingTotal()
                     )}
                   </span>
                 </div>

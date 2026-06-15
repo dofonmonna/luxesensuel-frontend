@@ -147,6 +147,10 @@ export interface CreateOrderPayload {
     postal?: string;
     country: string;
   };
+  destinationCountry: string;
+  grandTotal: number;
+  signature: string;
+  expiry: number;
 }
 
 export interface Order {
@@ -272,7 +276,10 @@ export interface CheckoutQuote {
   currency: string;
   destinationCountry: string;
   lines: CheckoutQuoteLine[];
+  forfaitLivraison: number;
   grandTotal: number;
+  signature: string;
+  expiry: number;
   unavailableCount?: number;
 }
 
