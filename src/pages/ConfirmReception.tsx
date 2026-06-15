@@ -76,7 +76,7 @@ export function ConfirmReception() {
             )}
             
             <p className="text-gray-400 text-sm font-medium mb-10 leading-relaxed">
-              Nous sommes ravis que vos articles Luxe Dropshoping vous soient parvenus. 
+              Nous sommes ravis que vos articles LUXEDropshoping vous soient parvenus. 
               Votre satisfaction est notre plus grande récompense.
             </p>
 
@@ -133,7 +133,7 @@ export function ConfirmReception() {
             
             <div className="space-y-4">
               <a
-                href="mailto:luxesensuel11@gmail.com"
+                href="mailto:contact@luxedropshoping.com"
                 className="flex items-center justify-center gap-3 w-full bg-gray-50 text-gray-900 py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
               >
                 <Mail size={16} className="text-[#CC0000]" />
@@ -152,7 +152,7 @@ export function ConfirmReception() {
 
         <div className="mt-12 pt-8 border-t border-gray-50 flex items-center justify-center gap-4 text-[10px] font-black text-gray-300 uppercase tracking-widest">
           <ShieldCheck size={16} className="text-emerald-500" />
-          Sécurisé par Luxe Dropshoping
+          Sécurisé par LUXEDropshoping
         </div>
 
       </div>

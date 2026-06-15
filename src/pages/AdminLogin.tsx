@@ -71,7 +71,7 @@ export function AdminLogin() {
 
           <h1 className="text-2xl font-black text-center text-gray-900 mb-2">Accès Sécurisé</h1>
           <p className="text-center text-xs text-gray-400 font-medium uppercase tracking-widest mb-10">
-            Luxe Dropshoping Admin
+            LUXEDropshoping Admin
           </p>
 
           <form onSubmit={handleLogin} className="space-y-6">

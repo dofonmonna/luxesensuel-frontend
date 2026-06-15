@@ -264,7 +264,7 @@ export function Signup() {
             Vos données sont protégées et ne seront jamais partagées
           </p>
           <p className="text-[11px] text-gray-400">
-            Une question ? <a href="mailto:luxesensuel11@gmail.com" className="text-[#CC0000] font-bold hover:underline transition-all">luxesensuel11@gmail.com</a>
+            Une question ? <a href="mailto:contact@luxedropshoping.com" className="text-[#CC0000] font-bold hover:underline transition-all">contact@luxedropshoping.com</a>
           </p>
         </div>
 

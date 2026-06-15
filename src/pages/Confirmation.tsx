@@ -57,7 +57,7 @@ export function Confirmation() {
             </h1>
             <p className="text-gray-400 text-sm font-medium max-w-2xl mx-auto leading-relaxed">
               Votre commande est désormais entre nos mains expertes.
-              Préparez-vous à vivre l'expérience Luxe Dropshoping très prochainement.
+              Préparez-vous à vivre l'expérience LUXEDropshoping très prochainement.
             </p>
           </div>
 
@@ -127,7 +127,7 @@ export function Confirmation() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
               {[
                 { label: 'Commande', color: 'bg-emerald-500', active: true },
-                { label: 'Luxe Dropshoping', color: 'bg-[#CC0000]', active: true },
+                { label: 'LUXEDropshoping', color: 'bg-[#CC0000]', active: true },
                 { label: 'Logistique', color: 'bg-gray-700', active: false },
                 { label: 'Expédition', color: 'bg-gray-700', active: false }
               ].map((point, i, arr) => (
@@ -174,7 +174,7 @@ export function Confirmation() {
               Transaction Sécurisée
             </div>
             <p className="text-[10px] text-gray-400 font-medium">
-              Besoin d'aide ? <a href="mailto:luxesensuel11@gmail.com" className="text-[#CC0000] font-black hover:underline">luxesensuel11@gmail.com</a>
+              Besoin d'aide ? <a href="mailto:contact@luxedropshoping.com" className="text-[#CC0000] font-black hover:underline">contact@luxedropshoping.com</a>
             </p>
           </div>
         </div>

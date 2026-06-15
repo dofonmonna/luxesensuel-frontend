@@ -58,7 +58,7 @@ export function Contact() {
 
           {/* Email */}
           <a
-            href="mailto:luxesensuel11@gmail.com"
+            href="mailto:contact@luxedropshoping.com"
             className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm hover:shadow-md hover:border-red-200 transition-all group flex flex-col items-center text-center"
           >
             <div className="w-16 h-16 rounded-2xl bg-[#CC0000] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
@@ -71,7 +71,7 @@ export function Contact() {
               <span>Réponse sous 24h</span>
             </div>
             <span className="mt-5 px-6 py-3 bg-gray-900 text-white rounded-2xl text-sm font-bold group-hover:bg-black transition-colors">
-              luxesensuel11@gmail.com
+              contact@luxedropshoping.com
             </span>
           </a>
         </div>

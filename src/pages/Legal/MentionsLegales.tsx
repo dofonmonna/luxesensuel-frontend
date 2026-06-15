@@ -20,7 +20,7 @@ export function MentionsLegales() {
             <p>
               <strong>LUXEDropshoping</strong><br />
               Boutique généraliste en ligne — mode, beauté, électronique, bijoux et plus<br />
-              Email : luxesensuel11@gmail.com<br />
+              Email : contact@luxedropshoping.com<br />
               Directeur de la publication : Coulibaly D Ali<br />
               Hébergement des données : UE — Francfort, Allemagne
             </p>

@@ -63,7 +63,7 @@ export function Confidentialite() {
               <li><strong>Droit à la portabilité</strong> : recevoir vos données dans un format lisible</li>
               <li><strong>Droit d'opposition</strong> : vous opposer au traitement à des fins marketing</li>
             </ul>
-            <p className="mt-3">Pour exercer vos droits, contactez-nous à : <strong>luxesensuel11@gmail.com</strong></p>
+            <p className="mt-3">Pour exercer vos droits, contactez-nous à : <strong>contact@luxedropshoping.com</strong></p>
           </section>
 
           <section>

@@ -80,7 +80,7 @@ export function Profile() {
             </h1>
             <p className="mt-2 text-sm text-gray-400 font-medium uppercase tracking-widest flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              Espace Membre Privilège Luxe Dropshoping
+              Espace Membre Privilège LUXEDropshoping
             </p>
           </div>
           <button

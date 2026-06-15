@@ -28,7 +28,7 @@ export function Retours() {
           
           <div className="space-y-6">
             {[
-              { icon: <Mail className="w-5 h-5" />, step: '1', title: 'Contactez-nous', desc: 'Envoyez un email à luxesensuel11@gmail.com avec votre numéro de commande et la raison du retour.' },
+              { icon: <Mail className="w-5 h-5" />, step: '1', title: 'Contactez-nous', desc: 'Envoyez un email à contact@luxedropshoping.com avec votre numéro de commande et la raison du retour.' },
               { icon: <Package className="w-5 h-5" />, step: '2', title: 'Préparez votre colis', desc: 'Emballez soigneusement l\'article dans son emballage d\'origine. Les produits doivent être non utilisés et en parfait état.' },
               { icon: <Clock className="w-5 h-5" />, step: '3', title: 'Expédiez le retour', desc: 'Envoyez le colis à l\'adresse indiquée dans notre email de confirmation. Les frais de retour sont à votre charge.' },
               { icon: <CheckCircle className="w-5 h-5" />, step: '4', title: 'Remboursement', desc: 'Le remboursement est effectué sous 14 jours après réception et vérification de l\'article retourné, via le même moyen de paiement.' },
