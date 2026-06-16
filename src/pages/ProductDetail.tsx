@@ -120,9 +120,13 @@ export function ProductDetail() {
     return () => { mounted = false };
   }, [id]);
 
-  // Toujours utiliser le prix du produit — les variants stockent le coût fournisseur, pas le prix client
-  const price = product ? parseFloat(product.price as any) : 0;
-  const oldPrice = +(price * 1.35).toFixed(2);
+  // Prix de base depuis la DB
+  const basePrice = product ? parseFloat(product.price as any) : 0;
+  // Si le produit est en promo, appliquer le même calcul que la homepage
+  const price = (product?.is_promo && product?.discount_pct)
+    ? parseFloat((basePrice * (1 - (product.discount_pct as number) / 100)).toFixed(2))
+    : basePrice;
+  const oldPrice = product?.is_promo && product?.discount_pct ? basePrice : +(price * 1.35).toFixed(2);
   const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
   const descImages = product ? extractImages(product.description || '') : [];
   const productImgs = (product?.images ?? []).filter((img: string) => img?.startsWith('http') && !img.match(/\.(mp4|webm)/i));
