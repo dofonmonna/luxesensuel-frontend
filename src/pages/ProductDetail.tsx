@@ -120,10 +120,8 @@ export function ProductDetail() {
     return () => { mounted = false };
   }, [id]);
 
-  // Prix de la variante sélectionnée, sinon prix de base
-  const price = selectedVariant?.price
-    ? selectedVariant.price
-    : product ? parseFloat(product.price as any) : 0;
+  // Toujours utiliser le prix du produit — les variants stockent le coût fournisseur, pas le prix client
+  const price = product ? parseFloat(product.price as any) : 0;
   const oldPrice = +(price * 1.35).toFixed(2);
   const discount = Math.round(((oldPrice - price) / oldPrice) * 100);
   const descImages = product ? extractImages(product.description || '') : [];
