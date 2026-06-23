@@ -83,24 +83,22 @@ export function useGeoLocation() {
       // (un utilisateur en Côte d'Ivoire peut avoir un navigateur en 'en-GB')
       let country = '';
 
-      // Priorité 1 : ipwho.is (HTTPS, gratuit, 10k/mois, pas de clé)
+      // Priorité 1 : api.country.is (CORS natif, gratuit, sans clé)
       try {
-        const res = await fetch('https://ipwho.is/', { signal: AbortSignal.timeout(3000) });
+        const res = await fetch('https://api.country.is/', { signal: AbortSignal.timeout(3000) });
         if (res.ok) {
           const data = await res.json();
-          if (data.success !== false && data.country_code) {
-            country = data.country_code;
-          }
+          if (data.country) country = data.country;
         }
       } catch { /* essayer le suivant */ }
 
-      // Priorité 2 : ipapi.co (fallback)
+      // Priorité 2 : ipinfo.io (fallback, CORS natif)
       if (!country) {
         try {
-          const res2 = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(3000) });
+          const res2 = await fetch('https://ipinfo.io/json', { signal: AbortSignal.timeout(3000) });
           if (res2.ok) {
             const data2 = await res2.json();
-            if (data2.country_code) country = data2.country_code;
+            if (data2.country) country = data2.country;
           }
         } catch { /* conserver le fallback */ }
       }
