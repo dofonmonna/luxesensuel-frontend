@@ -77,6 +77,8 @@ interface SearchResult {
   productImage?: string;
   salePrice?: string;
   sellPrice?: string;
+  qualityOk?: boolean;
+  qualityReasons?: string[];
 }
 
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, color, alert, subtitle }: any) => (
@@ -328,7 +330,9 @@ export function Admin() {
                 productMainImageUrl: data.produit.image || data.produit.picUrl,
                 productImage: data.produit.image,
                 salePrice: String(data.produit.price || 0),
-                sellPrice: String(data.produit.price || 0)
+                sellPrice: String(data.produit.price || 0),
+                qualityOk: data.quality ? data.quality.ok : true,
+                qualityReasons: data.quality ? data.quality.reasons : []
               });
             } else {
               notFound.push(id);
@@ -803,9 +807,10 @@ export function Admin() {
                   const image = product.productMainImageUrl || product.productImage || '';
                   const price = product.salePrice || product.sellPrice || '0';
                   const isImporting = importingId === pid;
+                  const flagged = product.qualityOk === false;
 
                   return (
-                    <div key={idx} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', background: 'white', position: 'relative' }}>
+                    <div key={idx} style={{ border: flagged ? '2px solid #f87171' : '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', background: 'white', position: 'relative' }}>
                       <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 10 }}>
                         <input 
                           type="checkbox" 
@@ -832,10 +837,20 @@ export function Admin() {
                           onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg'; }}
                         />
                       </div>
+                      {flagged && (
+                        <div style={{ position: 'absolute', top: '8px', right: '8px', zIndex: 10, background: '#dc2626', color: 'white', fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px' }}>
+                          ⚠ À RISQUE
+                        </div>
+                      )}
                       <div style={{ padding: '12px' }}>
                         <p style={{ fontSize: '12px', color: '#333', marginBottom: '6px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                           {name}
                         </p>
+                        {flagged && (
+                          <p style={{ fontSize: '10px', color: '#dc2626', marginBottom: '8px', lineHeight: 1.4 }}>
+                            {(product.qualityReasons || []).join(' · ')}
+                          </p>
+                        )}
                         <p style={{ fontSize: '14px', fontWeight: '700', color: '#ff4747', marginBottom: '10px' }}>
                           ${price}
                         </p>

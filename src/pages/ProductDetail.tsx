@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
-  Minus, Plus, ShoppingCart, Zap, Star, Truck, 
+  Minus, Plus, ShoppingCart, Zap, Star, Truck,
   ShieldCheck, RotateCcw, ChevronRight, Heart,
-  Share2, MessageCircle, Info, Flame, Award
+  Share2, MessageCircle, Info, Flame, Award, Clock
 } from 'lucide-react';
 import { productsApi, type Product, type ProductVariant } from '@/lib/api';
 import { useCart } from '@/hooks/useCart';
@@ -493,6 +493,15 @@ export function ProductDetail() {
               <span className="text-sm font-black text-blue-600">
                 {product.shipping_fee != null ? formatPrice(Number(product.shipping_fee)) : t('product.shipping_calculated')}
               </span>
+            </div>
+
+            {/* Délai de livraison — transparence anti-litige */}
+            <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-2xl">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-semibold text-gray-700">Délai estimé</span>
+              </div>
+              <span className="text-sm font-black text-gray-700">15 à 30 jours</span>
             </div>
 
             {/* Security & Guarantees */}
