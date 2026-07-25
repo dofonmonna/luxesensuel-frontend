@@ -1,7 +1,7 @@
 import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, Package, ShoppingBag, Users, Settings, 
-  LogOut, ChevronRight 
+import {
+  LayoutDashboard, Package, ShoppingBag, Tags,
+  PackagePlus, BarChart3, LogOut, ChevronRight
 } from 'lucide-react';
 import { useEffect } from 'react';
 // ✅ Import NOMMÉ pour matcher export function Header
@@ -30,18 +30,18 @@ export function AdminLayout() {
     navigate('/admin/login');
   };
 
+  // Le dashboard est une page unique à onglets — chaque entrée cible /admin?tab=...
   const menuItems = [
-    { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/admin/products', label: 'Produits', icon: Package },
-    { path: '/admin/orders', label: 'Commandes', icon: ShoppingBag },
-    { path: '/admin/customers', label: 'Clients', icon: Users },
-    { path: '/admin/settings', label: 'Paramètres', icon: Settings },
+    { path: '/admin', tab: null, label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/admin?tab=products', tab: 'products', label: 'Produits', icon: Package },
+    { path: '/admin?tab=categories', tab: 'categories', label: 'Catégories', icon: Tags },
+    { path: '/admin?tab=orders', tab: 'orders', label: 'Commandes', icon: ShoppingBag },
+    { path: '/admin?tab=import', tab: 'import', label: 'Importer produits', icon: PackagePlus },
+    { path: '/admin?tab=analytics', tab: 'analytics', label: 'Visiteurs', icon: BarChart3 },
   ];
 
-  const isActive = (path: string) => {
-    if (path === '/admin') return location.pathname === '/admin';
-    return location.pathname.startsWith(path);
-  };
+  const currentTab = new URLSearchParams(location.search).get('tab');
+  const isActive = (tab: string | null) => currentTab === tab || (!currentTab && tab === null);
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
@@ -77,7 +77,7 @@ export function AdminLayout() {
           }}>Menu principal</p>
           
           {menuItems.map((item) => {
-            const active = isActive(item.path);
+            const active = isActive(item.tab);
             return (
               <Link key={item.path} to={item.path} style={{
                 display: 'flex', alignItems: 'center', gap: '12px',
@@ -110,7 +110,7 @@ export function AdminLayout() {
             }}>A</div>
             <div style={{ flex: 1 }}>
               <p style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px' }}>Admin</p>
-              <p style={{ fontSize: '12px', color: '#64748b' }}>admin@luxesensuel.com</p>
+              <p style={{ fontSize: '12px', color: '#64748b' }}>contact@luxedropshoping.com</p>
             </div>
           </div>
           

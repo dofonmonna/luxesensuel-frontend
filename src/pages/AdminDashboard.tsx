@@ -1,6 +1,6 @@
 // pages/Admin.tsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   TrendingUp, ShoppingBag, DollarSign, Package, 
   Trash2, Edit, Download, RefreshCw, AlertCircle, 
@@ -132,7 +132,24 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
 
 export function Admin() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics'>('overview');
+  type AdminTab = 'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics';
+  const VALID_TABS: AdminTab[] = ['overview', 'products', 'orders', 'import', 'categories', 'analytics'];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab') as AdminTab | null;
+  const [activeTab, setActiveTab] = useState<AdminTab>(tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'overview');
+
+  // Navigation par le menu latéral (/admin?tab=...) → change l'onglet
+  useEffect(() => {
+    const t = searchParams.get('tab') as AdminTab | null;
+    const target = t && VALID_TABS.includes(t) ? t : 'overview';
+    setActiveTab(prev => (prev === target ? prev : target));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const goTab = (id: AdminTab) => {
+    setActiveTab(id);
+    setSearchParams(id === 'overview' ? {} : { tab: id }, { replace: true });
+  };
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -618,7 +635,7 @@ export function Admin() {
           { id: 'import', label: '📦 Importer produits' },
           { id: 'analytics', label: '📊 Visiteurs' },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} style={{
+          <button key={tab.id} onClick={() => goTab(tab.id as any)} style={{
             padding: '12px 24px', border: 'none', background: 'transparent',
             color: activeTab === tab.id ? '#ff4747' : '#64748b',
             fontWeight: activeTab === tab.id ? '600' : '500',
@@ -829,7 +846,7 @@ export function Admin() {
                   background: count === 0 ? '#f8fafc' : 'white', cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
-                  onClick={() => { setCategoryFilterAdmin(cat.key || 'all'); setActiveTab('products'); }}
+                  onClick={() => { setCategoryFilterAdmin(cat.key || 'all'); goTab('products'); }}
                 >
                   <div style={{ fontSize: '28px', marginBottom: '8px' }}>{cat.emoji}</div>
                   <div style={{ fontWeight: '700', fontSize: '14px', color: '#1e293b', marginBottom: '4px' }}>{cat.label}</div>
@@ -914,7 +931,7 @@ export function Admin() {
               </select>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setActiveTab('import')}
+              <button onClick={() => goTab('import')}
                 style={{ padding: '10px 20px', background: '#ff4747', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Download size={18} /> Importer
               </button>
