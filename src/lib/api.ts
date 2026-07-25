@@ -82,6 +82,22 @@ export interface Product {
   shipping_fee?: number | null;
 }
 
+// Cache mémoire produits — évite de re-télécharger la liste à chaque navigation
+const productCache = new Map<string, { data: unknown; at: number }>();
+const CACHE_TTL_MS = 3 * 60 * 1000;
+
+function cacheGet<T>(key: string): T | null {
+  const hit = productCache.get(key);
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.data as T;
+  productCache.delete(key);
+  return null;
+}
+
+function cacheSet(key: string, data: unknown) {
+  if (productCache.size > 50) productCache.clear();
+  productCache.set(key, { data, at: Date.now() });
+}
+
 export const productsApi = {
   list: async (params?: { category?: string; search?: string; random?: boolean; limit?: number; sort?: string; is_new?: boolean; promo?: boolean }) => {
     if (!(await isBackendUp())) {
@@ -103,9 +119,15 @@ export const productsApi = {
       Object.entries(params).filter(([_, v]) => v != null)
     ) : null;
     const qs = filteredParams ? '?' + new URLSearchParams(filteredParams as any).toString() : '';
+    // Le tri aléatoire ne doit pas être figé par le cache
+    if (!params?.random) {
+      const cached = cacheGet<{ products: Product[] }>(`list${qs}`);
+      if (cached) return cached;
+    }
     const res = await apiFetch<{ products: Product[] }>(`/products${qs}`);
     // Normaliser les numériques (PostgreSQL retourne des strings)
     res.products = res.products.map(p => ({ ...p, price: parseFloat(p.price as any), stock: parseInt(p.stock as any) }));
+    if (!params?.random) cacheSet(`list${qs}`, res);
     return res;
   },
   get: async (id: string) => {
@@ -114,9 +136,12 @@ export const productsApi = {
       if (!product) throw new Error('Produit introuvable');
       return { product };
     }
+    const cached = cacheGet<{ product: Product }>(`get:${id}`);
+    if (cached) return cached;
     const res = await apiFetch<{ product: Product }>(`/products/${id}`);
     res.product.price = parseFloat(res.product.price as any);
     res.product.stock = parseInt(res.product.stock as any);
+    cacheSet(`get:${id}`, res);
     return res;
   },
   create: (data: Partial<Product>) =>
