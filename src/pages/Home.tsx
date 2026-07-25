@@ -50,7 +50,7 @@ const HERO_SLIDES = [
 const TESTIMONIALS = [
   {
     name: "Amina K.", city: "Abidjan", rating: 5,
-    text: "Colis reçu en 4 jours, emballage totalement neutre. Qualité vraiment premium, je recommande sans hésiter !",
+    text: "Colis reçu en 3 semaines, emballage totalement neutre. Qualité vraiment premium, ça valait l'attente, je recommande !",
     avatar: "A",
   },
   {
@@ -60,12 +60,12 @@ const TESTIMONIALS = [
   },
   {
     name: "Marie & Julien", city: "Paris", rating: 5,
-    text: "Produits de qualité professionnelle, packaging luxueux. Livraison en 5 jours, on reviendra c'est certain !",
+    text: "Produits de qualité professionnelle, packaging luxueux. Livraison en 3 semaines avec suivi, on reviendra c'est certain !",
     avatar: "M",
   },
   {
     name: "Kofi A.", city: "Accra", rating: 5,
-    text: "Paiement Mobile Money très simple, livraison rapide. Le produit est exactement comme décrit. Top !",
+    text: "Paiement Mobile Money très simple, livraison conforme au délai annoncé. Le produit est exactement comme décrit. Top !",
     avatar: "K",
   },
   {
@@ -250,8 +250,8 @@ export function Home() {
               <Truck className="w-5 h-5 text-[#CC0000]" />
             </div>
             <div>
-              <p className="text-xs font-bold text-gray-900">Expédition 24h</p>
-              <p className="text-[10px] text-gray-400">Livraison ultra-rapide</p>
+              <p className="text-xs font-bold text-gray-900">Suivi de colis</p>
+              <p className="text-[10px] text-gray-400">Livraison mondiale suivie</p>
             </div>
           </div>
           <div className="flex items-center gap-4 md:border-r border-gray-50 pr-4">

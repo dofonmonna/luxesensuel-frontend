@@ -94,13 +94,13 @@ export function Confirmation() {
               {
                 icon: <Truck size={24} className="text-[#CC0000]" />,
                 title: 'Préparation',
-                desc: 'Expédition sous 24-48h dans un emballage totalement discret.',
+                desc: 'Votre commande est préparée et expédiée sous 2 à 4 jours dans un emballage totalement discret.',
                 bg: 'bg-red-50'
               },
               {
                 icon: <PackageCheck size={24} className="text-emerald-500" />,
                 title: 'Livraison',
-                desc: 'Livraison estimée sous 3-5 jours. Vous serez notifié par SMS.',
+                desc: 'Livraison internationale estimée sous 15 à 30 jours. Vous serez notifié à chaque étape du suivi.',
                 bg: 'bg-emerald-50'
               }
             ].map((step, i) => (
