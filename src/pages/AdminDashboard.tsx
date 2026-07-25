@@ -1,12 +1,15 @@
 // pages/Admin.tsx
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  TrendingUp, ShoppingBag, DollarSign, Package, 
-  Trash2, Edit, Download, RefreshCw, AlertCircle, 
+import {
+  TrendingUp, ShoppingBag, DollarSign, Package,
+  Trash2, Edit, Download, RefreshCw, AlertCircle,
   CheckCircle, Search, X,
-  ChevronUp, ChevronDown, Upload
+  ChevronUp, ChevronDown, Upload, Users
 } from 'lucide-react';
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip
+} from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -132,8 +135,8 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
 
 export function Admin() {
   const navigate = useNavigate();
-  type AdminTab = 'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics';
-  const VALID_TABS: AdminTab[] = ['overview', 'products', 'orders', 'import', 'categories', 'analytics'];
+  type AdminTab = 'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics' | 'customers';
+  const VALID_TABS: AdminTab[] = ['overview', 'products', 'orders', 'import', 'categories', 'analytics', 'customers'];
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab') as AdminTab | null;
   const [activeTab, setActiveTab] = useState<AdminTab>(tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'overview');
@@ -152,6 +155,10 @@ export function Admin() {
   };
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [chartData, setChartData] = useState<{ daily: { day: string; revenue: number; orders: number }[]; topProducts: { name: string; qty: number; revenue: number }[] } | null>(null);
+  const [customers, setCustomers] = useState<{ email: string; name: string; country: string | null; orders_count: number; total_spent: number; last_order_at: string | null }[]>([]);
+  const [customersLoaded, setCustomersLoaded] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState('');
   const [stats, setStats] = useState<Stats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -199,10 +206,11 @@ export function Admin() {
       setLoading(true);
       const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-      const [statsRes, productsRes, ordersRes] = await Promise.all([
+      const [statsRes, productsRes, ordersRes, chartRes] = await Promise.all([
         fetch(`${API_URL}/admin/stats`, { headers }),
         fetch(`${API_URL}/admin/products`, { headers }),
-        fetch(`${API_URL}/admin/orders`, { headers })
+        fetch(`${API_URL}/admin/orders`, { headers }),
+        fetch(`${API_URL}/admin/revenue-chart`, { headers })
       ]);
 
       if (statsRes.status === 401) {
@@ -214,6 +222,13 @@ export function Admin() {
       if (statsRes.ok) setStats(await statsRes.json());
       if (productsRes.ok) { const d = await productsRes.json(); setProducts(d.products || []); }
       if (ordersRes.ok) { const d = await ordersRes.json(); setOrders(d.orders || []); }
+      if (chartRes.ok) {
+        const d = await chartRes.json();
+        setChartData({
+          daily: (d.daily || []).map((r: any) => ({ day: r.day, revenue: parseFloat(r.revenue) || 0, orders: parseInt(r.orders) || 0 })),
+          topProducts: (d.topProducts || []).map((r: any) => ({ name: r.name, qty: parseInt(r.qty) || 0, revenue: parseFloat(r.revenue) || 0 })),
+        });
+      }
     } catch (error) {
       addToast('error', 'Erreur lors du chargement');
     } finally {
@@ -222,6 +237,22 @@ export function Admin() {
   }, [token, navigate, addToast]);
 
   useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
+
+  // Chargement différé des clients à l'ouverture de l'onglet
+  useEffect(() => {
+    if (activeTab !== 'customers' || customersLoaded || !token) return;
+    fetch(`${API_URL}/admin/customers`, { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(d => {
+        setCustomers((d.customers || []).map((c: any) => ({
+          ...c,
+          orders_count: parseInt(c.orders_count) || 0,
+          total_spent: parseFloat(c.total_spent) || 0,
+        })));
+        setCustomersLoaded(true);
+      })
+      .catch(() => addToast('error', 'Erreur chargement clients'));
+  }, [activeTab, customersLoaded, token, addToast]);
 
   // Extraire les IDs de produits depuis une entrée (URLs ou IDs séparés par virgule, espace ou saut de ligne)
   const extractProductIds = (input: string): string[] => {
@@ -632,6 +663,7 @@ export function Admin() {
           { id: 'products', label: `Produits (${products.length})` },
           { id: 'categories', label: 'Catégories' },
           { id: 'orders', label: `Commandes (${orders.length})` },
+          { id: 'customers', label: '👥 Clients' },
           { id: 'import', label: '📦 Importer produits' },
           { id: 'analytics', label: '📊 Visiteurs' },
         ].map(tab => (
@@ -1195,6 +1227,61 @@ export function Admin() {
       {activeTab === 'overview' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
+          {/* CA 30 jours + Top produits */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px', gridColumn: 'span 1' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>
+                Chiffre d'affaires — 30 derniers jours
+              </h3>
+              {chartData && chartData.daily.length > 0 ? (
+                <ResponsiveContainer width="100%" height={260}>
+                  <AreaChart data={chartData.daily} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="caGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#CC0000" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#CC0000" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis dataKey="day" tick={{ fontSize: 11 }} tickFormatter={(d: string) => d.slice(5)} />
+                    <YAxis tick={{ fontSize: 11 }} width={50} />
+                    <ChartTooltip
+                      formatter={(v: any, name: string) => name === 'revenue' ? [`${Number(v).toFixed(2)} €`, 'CA'] : [v, 'Commandes']}
+                      labelFormatter={(d: string) => `Jour : ${d}`}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#CC0000" strokeWidth={2} fill="url(#caGrad)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <p style={{ color: '#94a3b8', fontSize: '14px', padding: '40px 0', textAlign: 'center' }}>
+                  Aucune vente sur les 30 derniers jours — la courbe apparaîtra dès la première commande.
+                </p>
+              )}
+            </div>
+
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: '#1e293b' }}>
+                Top produits (30 jours)
+              </h3>
+              {chartData && chartData.topProducts.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {chartData.topProducts.map((p, i) => (
+                    <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 0', borderBottom: i < chartData.topProducts.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                      <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: i < 3 ? '#CC0000' : '#e2e8f0', color: i < 3 ? 'white' : '#64748b', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ flex: 1, fontSize: '13px', color: '#334155', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.name}>{p.name}</span>
+                      <span style={{ fontSize: '12px', color: '#94a3b8', flexShrink: 0 }}>×{p.qty}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e293b', flexShrink: 0 }}>{p.revenue.toFixed(2)} €</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: '#94a3b8', fontSize: '14px', padding: '40px 0', textAlign: 'center' }}>
+                  Aucune vente sur la période.
+                </p>
+              )}
+            </div>
+          </div>
+
           {/* Actions Rapides */}
           <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px', color: '#1e293b' }}>Actions Rapides</h3>
@@ -1442,6 +1529,70 @@ export function Admin() {
       </Modal>
 
       {/* ── ONGLET VISITEURS ────────────────────────────────── */}
+      {activeTab === 'customers' && (
+        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Users size={20} /> Clients ({customers.length})
+            </h2>
+            <div style={{ position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input
+                value={customerSearch}
+                onChange={e => setCustomerSearch(e.target.value)}
+                placeholder="Rechercher email, nom, pays…"
+                style={{ padding: '8px 12px 8px 32px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '240px' }}
+              />
+            </div>
+          </div>
+
+          {!customersLoaded ? (
+            <p style={{ color: '#94a3b8', padding: '40px 0', textAlign: 'center' }}>Chargement…</p>
+          ) : customers.length === 0 ? (
+            <p style={{ color: '#94a3b8', padding: '40px 0', textAlign: 'center' }}>Aucun client pour l'instant — ils apparaîtront ici dès la première commande payée.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
+                    <th style={{ padding: '10px 12px' }}>Client</th>
+                    <th style={{ padding: '10px 12px' }}>Pays</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'center' }}>Commandes</th>
+                    <th style={{ padding: '10px 12px', textAlign: 'right' }}>Total dépensé</th>
+                    <th style={{ padding: '10px 12px' }}>Dernier achat</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {customers
+                    .filter(c => {
+                      const q = customerSearch.toLowerCase();
+                      return !q || c.email.toLowerCase().includes(q) || (c.name || '').toLowerCase().includes(q) || (c.country || '').toLowerCase().includes(q);
+                    })
+                    .map((c, i) => (
+                      <tr key={c.email} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 ? '#fafafa' : 'white' }}>
+                        <td style={{ padding: '10px 12px' }}>
+                          <div style={{ fontWeight: 600, color: '#1e293b' }}>{c.name || '—'}</div>
+                          <div style={{ color: '#64748b', fontSize: '12px' }}>{c.email}</div>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#334155' }}>{c.country || '—'}</td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <span style={{ background: c.orders_count > 1 ? '#fef2f2' : '#f1f5f9', color: c.orders_count > 1 ? '#CC0000' : '#64748b', padding: '2px 10px', borderRadius: '999px', fontWeight: 600 }}>
+                            {c.orders_count}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 700, color: '#1e293b' }}>{c.total_spent.toFixed(2)} €</td>
+                        <td style={{ padding: '10px 12px', color: '#64748b' }}>
+                          {c.last_order_at ? new Date(c.last_order_at).toLocaleDateString('fr-FR') : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {activeTab === 'analytics' && (
         <div style={{ padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
