@@ -38,6 +38,7 @@ interface Order {
   supplierOrderId?: string | null;
   supplierStatus?: string | null;
   dispatchError?: string | null;
+  confirmedAt?: string | null;
 }
 
 interface MonthlyBreakdown {
@@ -159,6 +160,7 @@ export function Admin() {
   const [customers, setCustomers] = useState<{ email: string; name: string; country: string | null; orders_count: number; total_spent: number; last_order_at: string | null }[]>([]);
   const [customersLoaded, setCustomersLoaded] = useState(false);
   const [customerSearch, setCustomerSearch] = useState('');
+  const [showClosedOrders, setShowClosedOrders] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -457,6 +459,23 @@ export function Admin() {
     finally { setActionLoading(null); }
   };
 
+  const deleteInactiveProducts = async () => {
+    const inactiveCount = products.filter(p => p.status === 'inactive').length;
+    if (inactiveCount === 0) { addToast('info', 'Aucun produit inactif à supprimer'); return; }
+    if (!window.confirm(`Supprimer définitivement ${inactiveCount} produit(s) inactif(s) ?\n\nCette action est irréversible. Les produits déjà commandés sont conservés pour l'historique.`)) return;
+    setActionLoading('delete-inactive');
+    try {
+      const res = await fetch(`${API_URL}/admin/products/inactive`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) { addToast('success', data.message || `${data.deleted} produit(s) supprimé(s)`); fetchDashboardData(); }
+      else addToast('error', data.error || 'Erreur suppression');
+    } catch { addToast('error', 'Erreur connexion'); }
+    finally { setActionLoading(null); }
+  };
+
   const recategorizeAll = async () => {
     setActionLoading('recategorize');
     try {
@@ -662,7 +681,7 @@ export function Admin() {
           { id: 'overview', label: 'Vue d\'ensemble' },
           { id: 'products', label: `Produits (${products.length})` },
           { id: 'categories', label: 'Catégories' },
-          { id: 'orders', label: `Commandes (${orders.length})` },
+          { id: 'orders', label: `Commandes (${orders.filter(o => !o.confirmedAt).length})` },
           { id: 'customers', label: '👥 Clients' },
           { id: 'import', label: '📦 Importer produits' },
           { id: 'analytics', label: '📊 Visiteurs' },
@@ -979,6 +998,12 @@ export function Admin() {
                 style={{ padding: '10px 20px', background: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <RefreshCw size={18} style={{ animation: actionLoading === 'reorganize' ? 'spin 1s linear infinite' : 'none' }} /> Réorganiser catégories
               </button>
+              {products.some(p => p.status === 'inactive') && (
+                <button onClick={deleteInactiveProducts} disabled={actionLoading === 'delete-inactive'}
+                  style={{ padding: '10px 20px', background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
+                  <Trash2 size={18} style={{ animation: actionLoading === 'delete-inactive' ? 'spin 1s linear infinite' : 'none' }} /> Supprimer inactifs ({products.filter(p => p.status === 'inactive').length})
+                </button>
+              )}
             </div>
           </div>
 
@@ -1092,6 +1117,17 @@ export function Admin() {
 
       {activeTab === 'orders' && (
         <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          {orders.some(o => o.confirmedAt) && (
+            <div style={{ padding: '14px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <span style={{ fontSize: '13px', color: '#64748b' }}>
+                {orders.filter(o => o.confirmedAt).length} commande(s) clôturée(s) — livrées et confirmées par le client
+              </span>
+              <label style={{ fontSize: '13px', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={showClosedOrders} onChange={e => setShowClosedOrders(e.target.checked)} />
+                Afficher les commandes clôturées
+              </label>
+            </div>
+          )}
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc' }}>
@@ -1103,8 +1139,8 @@ export function Admin() {
               </tr>
             </thead>
             <tbody>
-              {orders.map(order => (
-                <tr key={order._id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+              {orders.filter(o => showClosedOrders || !o.confirmedAt).map(order => (
+                <tr key={order._id} style={{ borderBottom: '1px solid #f1f5f9', opacity: order.confirmedAt ? 0.6 : 1 }}>
                   <td style={{ padding: '16px 20px', fontWeight: '600', color: '#ff4747' }}>#{order.orderNumber}</td>
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ fontWeight: '500' }}>{order.customerName}</div>
