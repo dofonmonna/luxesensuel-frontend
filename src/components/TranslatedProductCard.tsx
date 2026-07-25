@@ -20,6 +20,7 @@ interface TranslatedProductCardProps {
     price: number;
     original_price?: number;
     image: string;
+    thumb?: string | null;
     category: string;
     rating?: number;
     reviews?: number;
@@ -141,7 +142,7 @@ export function TranslatedProductCard({
       <div className="relative aspect-square overflow-hidden bg-gray-50">
         {!imgError && product.image ? (
           <img
-            src={product.image}
+            src={product.thumb || product.image}
             alt={translatedData.name}
             loading="lazy"
             width={400}

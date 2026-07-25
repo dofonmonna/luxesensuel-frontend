@@ -73,6 +73,7 @@ export interface Product {
   stock: number;
   category: string;
   image: string;
+  thumb?: string | null;
   images?: string[];
   is_new: boolean;
   is_active: boolean;
