@@ -9,7 +9,7 @@
 
 | Couche | Technologie |
 |---|---|
-| Frontend | React + Vite + TypeScript → Netlify |
+| Frontend | React + Vite + TypeScript → Vercel |
 | Backend | Node.js + Express + TypeScript → Render |
 | Base de données | Supabase (PostgreSQL + Auth + Storage) |
 | Cache | Redis (Upstash) |
@@ -31,7 +31,8 @@ Lingerie · Cosmétiques · Parfums · Bijoux · Produits adultes
 1000+ produits importés.
 
 ## Domaines
-- Frontend : `luxedropshoping.com` (Netlify)
+- Frontend : `luxedropshoping.com` (Vercel)
+- Images : `img.luxedropshoping.com` (Cloudflare R2)
 - Backend : `api.luxedropshoping.com` (Render)
 - Staging : `staging.luxedropshoping.com`
 
@@ -63,7 +64,7 @@ Lingerie · Cosmétiques · Parfums · Bijoux · Produits adultes
 | Problème | Solution |
 |---|---|
 | Produits AliExpress non pertinents | Ajouter `category_ids` via `CATEGORY_MAP` |
-| Env var `undefined` Netlify | Vérifier préfixe `VITE_` + rebuild |
+| Env var `undefined` Vercel | Vérifier préfixe `VITE_` + rebuild |
 | Webhook échoue | Vérifier URL dashboard + signature HMAC |
 | CORS error | Ajouter domaine dans whitelist Express |
 | Render en veille | Ping cron sur `/api/health` |
