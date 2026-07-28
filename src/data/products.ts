@@ -18,10 +18,10 @@ export const categories = [
 export const products: Product[] = [
   {
     id: '1',
-    name: 'Ã‰lixir de Nuit',
+    name: 'Élixir de Nuit',
     price: 89,
     category: 'Parfums',
-    description: 'Une fragrance envoÃ»tante aux notes de musc et de vanille noire.',
+    description: 'Une fragrance envoûtante aux notes de musc et de vanille noire.',
     image: 'https://images.unsplash.com/photo-1544467328-345179a4573b?auto=format&fit=crop&q=80',
     isNew: true
   },
@@ -30,28 +30,28 @@ export const products: Product[] = [
     name: 'Huile de Soie',
     price: 45,
     category: 'Huiles',
-    description: 'Hydratation intense et parfum dÃ©licat pour une peau satinÃ©e.',
+    description: 'Hydratation intense et parfum délicat pour une peau satinée.',
     image: 'https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80',
     isNew: true
   }
 ];
 export const testimonials = [
   {
-    id: ‘1’,
+    id: '1',
     content: "Commande reçue en 4 jours, emballage neutre et très soigné. Le produit est exactement comme sur les photos, qualité premium. Je reviens déjà pour une deuxième commande !",
-    author: ‘Amina K.’,
-    role: ‘Abidjan, Côte d\’Ivoire’
+    author: 'Amina K.',
+    role: 'Abidjan, Côte d\'Ivoire'
   },
   {
-    id: ‘2’,
-    content: "J’étais hésitante au début mais le service client m’a rassurée. Livraison discrète, produit de qualité exceptionnelle. Mon mari a adoré le cadeau surprise. Je recommande à 100%.",
-    author: ‘Fatou D.’,
-    role: ‘Dakar, Sénégal’
+    id: '2',
+    content: "J'étais hésitante au début mais le service client m'a rassurée. Livraison discrète, produit de qualité exceptionnelle. Mon mari a adoré le cadeau surprise. Je recommande à 100%.",
+    author: 'Fatou D.',
+    role: 'Dakar, Sénégal'
   },
   {
-    id: ‘3’,
+    id: '3',
     content: "Site sécurisé, paiement Mobile Money sans souci, livraison rapide. Le colis ne laisse rien deviner du contenu. Parfait pour les achats intimes. Merci LUXEDropshoping !",
-    author: ‘Kofi A.’,
-    role: ‘Accra, Ghana’
+    author: 'Kofi A.',
+    role: 'Accra, Ghana'
   }
 ];

@@ -1,7 +1,7 @@
 import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, Tags,
-  PackagePlus, BarChart3, Users, LogOut, ChevronRight
+  PackagePlus, BarChart3, Users, LogOut, ChevronRight, Calculator
 } from 'lucide-react';
 import { useEffect } from 'react';
 // ✅ Import NOMMÉ pour matcher export function Header
@@ -37,6 +37,7 @@ export function AdminLayout() {
     { path: '/admin?tab=categories', tab: 'categories', label: 'Catégories', icon: Tags },
     { path: '/admin?tab=orders', tab: 'orders', label: 'Commandes', icon: ShoppingBag },
     { path: '/admin?tab=customers', tab: 'customers', label: 'Clients', icon: Users },
+    { path: '/admin?tab=accounting', tab: 'accounting', label: 'Comptabilité', icon: Calculator },
     { path: '/admin?tab=import', tab: 'import', label: 'Importer produits', icon: PackagePlus },
     { path: '/admin?tab=analytics', tab: 'analytics', label: 'Visiteurs', icon: BarChart3 },
   ];

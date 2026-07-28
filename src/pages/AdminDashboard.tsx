@@ -10,6 +10,7 @@ import {
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip
 } from 'recharts';
+import { AccountingTab } from './AccountingTab';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
@@ -138,8 +139,8 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = '700px' }: any) =>
 
 export function Admin() {
   const navigate = useNavigate();
-  type AdminTab = 'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics' | 'customers';
-  const VALID_TABS: AdminTab[] = ['overview', 'products', 'orders', 'import', 'categories', 'analytics', 'customers'];
+  type AdminTab = 'overview' | 'products' | 'orders' | 'import' | 'categories' | 'analytics' | 'customers' | 'accounting';
+  const VALID_TABS: AdminTab[] = ['overview', 'products', 'orders', 'import', 'categories', 'analytics', 'customers', 'accounting'];
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab') as AdminTab | null;
   const [activeTab, setActiveTab] = useState<AdminTab>(tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'overview');
@@ -1771,6 +1772,10 @@ export function Admin() {
             </>
           )}
         </div>
+      )}
+
+      {activeTab === 'accounting' && (
+        <AccountingTab apiUrl={API_URL} token={token} />
       )}
 
       <style>{`
